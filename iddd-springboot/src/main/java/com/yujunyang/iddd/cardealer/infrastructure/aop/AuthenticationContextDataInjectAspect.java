@@ -2,12 +2,13 @@ package com.yujunyang.iddd.cardealer.infrastructure.aop;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.regex.Pattern;
 
-import org.aspectj.lang.JoinPoint;
+import javax.servlet.http.HttpServletRequest;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
@@ -22,12 +23,12 @@ public class AuthenticationContextDataInjectAspect {
     private LocalVariableTableParameterNameDiscoverer localVariableTableParameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private ExpressionParser expressionParser = new SpelExpressionParser();
     private AuthenticationContext authenticationContext;
+    private HttpServletRequest request;
 
-    public AuthenticationContextDataInjectAspect() {
+    public AuthenticationContextDataInjectAspect(HttpServletRequest request) {
+        this.request = request;
+
         authenticationContext = new AuthenticationContext();
-        User user = new User();
-        user.setUserId(123);
-        authenticationContext.setUser(user);
     }
 
     @Pointcut("@within(org.springframework.web.bind.annotation.RestController) || " +
@@ -50,6 +51,14 @@ public class AuthenticationContextDataInjectAspect {
 
     @Around("inject()")
     public Object inject(ProceedingJoinPoint joinPoint) throws Throwable {
+        String requestUserId = request.getParameter("requestUserId");
+        if (requestUserId != null && Pattern.matches("^[1-9]\\d*$", requestUserId)) {
+            int userId = Integer.parseInt(requestUserId);
+            User user = new User();
+            user.setUserId(userId);
+            authenticationContext.setUser(user);
+        }
+
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
         Object[] args = joinPoint.getArgs();
