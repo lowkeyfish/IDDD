@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.EventStoreMapper">
+    <sql id="columns">
+        `id`,
+        `event_type` AS eventType,
+        `event_body` AS eventBody,
+        `timestamp`,
+        `event_key` AS eventKey
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `event_store`(
+            `event_type`,
+            `event_body`,
+            `timestamp`,
+            `event_key`
+        ) VALUES(
+            #{eventType},
+            #{eventBody},
+            #{timestamp},
+            #{eventKey}
+        )
+    </insert>
+
+    <select id="getListSince" resultType="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.EventStoreModel">
+        SELECT
+        <include refid="columns"></include>
+        FROM
+        `event_store`
+        WHERE
+        `id` > #{eventId} AND `event_type` = #{eventType} AND is_del = 0
+        ORDER BY `id` ASC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

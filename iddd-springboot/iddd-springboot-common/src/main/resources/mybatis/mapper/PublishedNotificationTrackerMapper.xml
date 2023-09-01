@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.PublishedNotificationTrackerMapper">
+    <sql id="columns">
+        `id`,
+        `most_recent_published_event_id` AS mostRecentPublishedEventId,
+        `event_type` AS eventType,
+        `concurrency_version` AS concurrencyVersion
+    </sql>
+
+    <insert id="insertOrIgnore" useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO `published_notification_tracker`(
+            `most_recent_published_event_id`,
+            `event_type`,
+            `concurrency_version`
+        ) VALUES(
+            #{mostRecentPublishedEventId},
+            #{eventType},
+            #{concurrencyVersion}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE `published_notification_tracker` SET
+            `most_recent_published_event_id` = #{mostRecentPublishedEventId},
+            `concurrency_version` = #{concurrencyVersion}
+        WHERE
+            `id` = #{id} AND `concurrency_version` = #{oldConcurrencyVersion}
+    </update>
+
+    <select id="getByEventType"
+            resultType="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.PublishedNotificationTrackerModel">
+        SELECT
+        <include refid="columns"></include>
+        FROM
+        `published_notification_tracker`
+        WHERE
+        `event_type` = #{eventType}
+    </select>
+
+</mapper>

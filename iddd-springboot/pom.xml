@@ -37,6 +37,9 @@
   <properties>
     <java.version>1.8</java.version>
     <jackson.version>2.15.2</jackson.version>
+    <log4j.version>2.17.2</log4j.version>
+    <redisson.version>3.20.1</redisson.version>
+    <mybatis.version>3.5.11</mybatis.version>
   </properties>
 
   <modules>
@@ -118,6 +121,33 @@
         <version>${jackson.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson</artifactId>
+        <version>${redisson.version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.mybatis.spring.boot</groupId>
+          <artifactId>mybatis-spring-boot-starter</artifactId>
+          <version>2.3.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>${mybatis.version}</version>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
