@@ -19,16 +19,25 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.common.enums;
+package com.yujunyang.iddd.common.exception;
 
-/**
- * 具有描述枚举类型
- */
-public interface DescriptionEnum {
-    /**
-     * 获取枚举描述
-     *
-     * @return
-     */
-    String getDescription();
+public class ConcurrencyException extends RuntimeException {
+    public ConcurrencyException() {
+    }
+
+    public ConcurrencyException(String message) {
+        super(message);
+    }
+
+    public ConcurrencyException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ConcurrencyException(Throwable cause) {
+        super(cause);
+    }
+
+    public ConcurrencyException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }
