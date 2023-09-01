@@ -24,6 +24,7 @@ package com.yujunyang.iddd.dealer;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
@@ -32,7 +33,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.**",
         "com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.**"
 })
-
+@ComponentScan(basePackages = {
+        "com.yujunyang.iddd.common",
+        "com.yujunyang.iddd.dealer"
+})
 public class IdddSpringbootDealerApplication {
 
     public static void main(String[] args) {

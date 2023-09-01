@@ -3,20 +3,18 @@ server:
 
 spring:
   datasource:
-    mysql:
-      primary:
-        username: root
-        password: 123456
-        jdbc-url: jdbc:mysql://localhost:3306/iddd?characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=Asia/Shanghai
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        type: com.zaxxer.hikari.HikariDataSource
-        connection-init-sql: SET NAMES utf8mb4
-        maximum-pool-size: 500
-        minimum-idle: 1
-        max-lifetime: 1800000
-        connection-test-query: "select 1"
-        connection-timeout: 30000
-        idle-timeout: 600000
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/iddd?characterEncoding=utf8&useSSL=false&allowMultiQueries=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      connection-init-sql: SET NAMES utf8mb4
+      maximum-pool-size: 500
+      minimum-idle: 1
+      max-lifetime: 1800000
+      connection-test-query: "select 1"
+      connection-timeout: 30000
+      idle-timeout: 600000
   redis:
     host: 127.0.0.1
     port: 6379
