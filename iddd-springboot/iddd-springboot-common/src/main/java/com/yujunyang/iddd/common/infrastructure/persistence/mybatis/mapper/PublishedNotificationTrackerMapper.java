@@ -17,11 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper;
 
-import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.PublishedNotificationTrackerModel;
+import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.PublishedNotificationTrackerDatabaseModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Mapper
 public interface PublishedNotificationTrackerMapper {
-    int insertOrIgnore(PublishedNotificationTrackerModel model);
+    int insertOrIgnore(PublishedNotificationTrackerDatabaseModel model);
 
     int update(
             @Param("id") long id,
@@ -37,5 +38,5 @@ public interface PublishedNotificationTrackerMapper {
             @Param("concurrencyVersion") long concurrencyVersion,
             @Param("oldConcurrencyVersion") long oldConcurrencyVersion);
 
-    PublishedNotificationTrackerModel getByEventType(@Param("eventType") String eventType);
+    PublishedNotificationTrackerDatabaseModel getByEventType(@Param("eventType") String eventType);
 }

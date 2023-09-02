@@ -18,6 +18,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with IDDD.
   ~ If not, see <http://www.gnu.org/licenses/>.
+  ~
   -->
 
 <!DOCTYPE mapper
@@ -52,7 +53,7 @@
     </update>
 
     <select id="getByEventType"
-            resultType="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.PublishedNotificationTrackerModel">
+            resultType="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.PublishedNotificationTrackerDatabaseModel">
         SELECT
         <include refid="columns"></include>
         FROM

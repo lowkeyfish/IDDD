@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.common.infrastructure.persistence;
@@ -28,7 +29,7 @@ import com.yujunyang.iddd.common.domain.event.DomainEvent;
 import com.yujunyang.iddd.common.domain.event.EventStore;
 import com.yujunyang.iddd.common.domain.event.StoredEvent;
 import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.EventStoreMapper;
-import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.EventStoreModel;
+import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.EventStoreDatabaseModel;
 import com.yujunyang.iddd.common.utils.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -45,15 +46,15 @@ public class MyBatisEventStore implements EventStore {
 
     @Override
     public StoredEvent add(DomainEvent domainEvent) {
-        EventStoreModel eventStoreModel = new EventStoreModel();
-        eventStoreModel.setEventBody(JacksonUtils.serialize(domainEvent));
-        eventStoreModel.setEventType(domainEvent.storedEventType());
-        eventStoreModel.setTimestamp(domainEvent.getTimestamp());
-        eventStoreModel.setEventKey(domainEvent.eventKey());
+        EventStoreDatabaseModel eventStoreDatabaseModel = new EventStoreDatabaseModel();
+        eventStoreDatabaseModel.setEventBody(JacksonUtils.serialize(domainEvent));
+        eventStoreDatabaseModel.setEventType(domainEvent.storedEventType());
+        eventStoreDatabaseModel.setTimestamp(domainEvent.getTimestamp());
+        eventStoreDatabaseModel.setEventKey(domainEvent.eventKey());
 
-        eventStoreMapper.insert(eventStoreModel);
+        eventStoreMapper.insert(eventStoreDatabaseModel);
 
-        return convert(eventStoreModel);
+        return convert(eventStoreDatabaseModel);
     }
 
     @Override
@@ -61,17 +62,17 @@ public class MyBatisEventStore implements EventStore {
             Class<T> domainEventClass,
             long eventId,
             int limit) {
-        List<EventStoreModel> eventStoreModels = eventStoreMapper.getListSince(domainEventClass.getName(), eventId, limit);
-        return eventStoreModels.stream().map(n -> convert(n)).collect(Collectors.toList());
+        List<EventStoreDatabaseModel> eventStoreDatabaseModels = eventStoreMapper.getListSince(domainEventClass.getName(), eventId, limit);
+        return eventStoreDatabaseModels.stream().map(n -> convert(n)).collect(Collectors.toList());
     }
 
-    StoredEvent convert(EventStoreModel eventStoreModel) {
+    StoredEvent convert(EventStoreDatabaseModel eventStoreDatabaseModel) {
         StoredEvent storedEvent = new StoredEvent(
-                eventStoreModel.getId(),
-                eventStoreModel.getEventBody(),
-                eventStoreModel.getTimestamp(),
-                eventStoreModel.getEventType(),
-                eventStoreModel.getEventKey()
+                eventStoreDatabaseModel.getId(),
+                eventStoreDatabaseModel.getEventBody(),
+                eventStoreDatabaseModel.getTimestamp(),
+                eventStoreDatabaseModel.getEventType(),
+                eventStoreDatabaseModel.getEventKey()
         );
         return storedEvent;
     }

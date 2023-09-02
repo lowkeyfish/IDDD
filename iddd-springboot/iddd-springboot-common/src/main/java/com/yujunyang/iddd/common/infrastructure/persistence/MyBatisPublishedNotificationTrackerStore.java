@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.common.infrastructure.persistence;
@@ -28,7 +29,7 @@ import com.yujunyang.iddd.common.domain.event.notification.Notification;
 import com.yujunyang.iddd.common.domain.event.notification.PublishedNotificationTracker;
 import com.yujunyang.iddd.common.domain.event.notification.PublishedNotificationTrackerStore;
 import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.PublishedNotificationTrackerMapper;
-import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.PublishedNotificationTrackerModel;
+import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.PublishedNotificationTrackerDatabaseModel;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,16 +52,16 @@ public class MyBatisPublishedNotificationTrackerStore implements PublishedNotifi
     public <T extends DomainEvent> PublishedNotificationTracker publishedNotificationTracker(Class<T> domainEventClass) {
         String eventType = domainEventClass.getName();
 
-        PublishedNotificationTrackerModel publishedNotificationTrackerModel = publishedNotificationTrackerMapper.getByEventType(eventType);
-        if (publishedNotificationTrackerModel == null) {
+        PublishedNotificationTrackerDatabaseModel publishedNotificationTrackerDatabaseModel = publishedNotificationTrackerMapper.getByEventType(eventType);
+        if (publishedNotificationTrackerDatabaseModel == null) {
             return new PublishedNotificationTracker(eventType, 0);
         }
 
         PublishedNotificationTracker ret = new PublishedNotificationTracker(
-                publishedNotificationTrackerModel.getId(),
-                publishedNotificationTrackerModel.getMostRecentPublishedEventId(),
+                publishedNotificationTrackerDatabaseModel.getId(),
+                publishedNotificationTrackerDatabaseModel.getMostRecentPublishedEventId(),
                 eventType,
-                publishedNotificationTrackerModel.getConcurrencyVersion()
+                publishedNotificationTrackerDatabaseModel.getConcurrencyVersion()
         );
 
         return ret;
@@ -78,21 +79,21 @@ public class MyBatisPublishedNotificationTrackerStore implements PublishedNotifi
 
         long mostRecentId = notifications.get(lastIndex).getNotificationId();
 
-        PublishedNotificationTrackerModel publishedNotificationTrackerModel = new PublishedNotificationTrackerModel();
-        publishedNotificationTrackerModel.setMostRecentPublishedEventId(mostRecentId);
-        publishedNotificationTrackerModel.setEventType(publishedNotificationTracker.getEventType());
-        publishedNotificationTrackerModel.setConcurrencyVersion(DateTimeUtilsEnhance.epochMilliSecond());
-        publishedNotificationTrackerModel.setId(publishedNotificationTracker.getPublishedNotificationTrackerId());
+        PublishedNotificationTrackerDatabaseModel publishedNotificationTrackerDatabaseModel = new PublishedNotificationTrackerDatabaseModel();
+        publishedNotificationTrackerDatabaseModel.setMostRecentPublishedEventId(mostRecentId);
+        publishedNotificationTrackerDatabaseModel.setEventType(publishedNotificationTracker.getEventType());
+        publishedNotificationTrackerDatabaseModel.setConcurrencyVersion(DateTimeUtilsEnhance.epochMilliSecond());
+        publishedNotificationTrackerDatabaseModel.setId(publishedNotificationTracker.getPublishedNotificationTrackerId());
 
-        if (publishedNotificationTrackerModel.getId() == 0) {
-            if (publishedNotificationTrackerMapper.insertOrIgnore(publishedNotificationTrackerModel) == 0) {
+        if (publishedNotificationTrackerDatabaseModel.getId() == 0) {
+            if (publishedNotificationTrackerMapper.insertOrIgnore(publishedNotificationTrackerDatabaseModel) == 0) {
                 LOGGER.error("事件发布跟踪数据库插入新记录有竞争情况");
             }
         } else {
             if (publishedNotificationTrackerMapper.update(
-                    publishedNotificationTrackerModel.getId(),
-                    publishedNotificationTrackerModel.getMostRecentPublishedEventId(),
-                    publishedNotificationTrackerModel.getConcurrencyVersion(),
+                    publishedNotificationTrackerDatabaseModel.getId(),
+                    publishedNotificationTrackerDatabaseModel.getMostRecentPublishedEventId(),
+                    publishedNotificationTrackerDatabaseModel.getConcurrencyVersion(),
                     publishedNotificationTracker.getConcurrencyVersion()) == 0) {
                 LOGGER.error("事件发布跟踪数据库更新记录有竞争情况");
             }

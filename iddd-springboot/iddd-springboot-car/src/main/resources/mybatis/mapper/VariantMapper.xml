@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright 2023 Yu Junyang
+  ~ https://github.com/lowkeyfish
+  ~
+  ~ This file is part of IDDD.
+  ~
+  ~ IDDD is free software: you can redistribute it
+  ~ and/or modify it under the terms of the GNU General Public License
+  ~ as published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ IDDD is distributed in the hope that it will
+  ~ be useful, but WITHOUT ANY WARRANTY; without even the implied
+  ~ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with IDDD.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.VariantMapper">
+    <insert id="insert"
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.VariantDatabaseModel">
+        INSERT INTO `variant`(
+            `uid`,
+            `name`,
+            `brand_id`,
+            `manufacturer_id`,
+            `model_id`,
+            `price`
+        ) VALUES(
+            #{id},
+            #{name},
+            #{brandId},
+            #{manufacturerId},
+            #{modelId},
+            #{price}
+        );
+    </insert>
+
+    <select id="selectById"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.VariantDatabaseModel">
+        SELECT
+            `uid` AS id,
+            `name`,
+            `brand_id` AS brandId,
+            `manufacturer_id` AS manufacturerId,
+            `model_id` AS modelId,
+            `price`
+        FROM
+            `variant`
+        WHERE
+            `deleted` = 0 AND `uid` = #{id};
+    </select>
+
+    <update id="update"
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.VariantDatabaseModel">
+        UPDATE `variant` SET
+            `name` = #{name},
+            `brand_id` = #{brandId},
+            `manufacturer_id` = #{manufacturerId},
+            `model_id` = #{modelId},
+            `price` = #{price}
+        WHERE
+            `uid` = #{id};
+    </update>
+
+    <select id="selectByModelId"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.VariantDatabaseModel">
+        SELECT
+            `uid` AS id,
+            `name`,
+            `brand_id` AS brandId,
+            `manufacturer_id` AS manufacturerId,
+            `model_id` AS modelId,
+            `price`
+        FROM
+            `variant`
+        WHERE
+            `deleted` = 0 AND `model_id` = #{modelId};
+    </select>
+
+    <select id="selectByModelIds"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.VariantDatabaseModel">
+        SELECT
+        `uid` AS id,
+        `name`,
+        `brand_id` AS brandId,
+        `manufacturer_id` AS manufacturerId,
+        `model_id` AS modelId,
+        `price`
+        FROM
+        `variant`
+        WHERE
+        `deleted` = 0 AND `model_id` IN
+        <foreach collection="modelIds" open="(" separator="," close=")" item="modelId">
+            #{modelId}
+        </foreach>
+    </select>
+
+    <select id="selectByIds"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.VariantDatabaseModel">
+        SELECT
+        `uid` AS id,
+        `name`,
+        `brand_id` AS brandId,
+        `manufacturer_id` AS manufacturerId,
+        `model_id` AS modelId,
+        `price`
+        FROM
+        `variant`
+        WHERE
+        `deleted` = 0 AND `uid` IN
+        <foreach collection="ids" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

@@ -17,13 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper;
 
 import java.util.List;
 
-import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.EventStoreModel;
+import com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.EventStoreDatabaseModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -32,9 +33,9 @@ import org.springframework.stereotype.Component;
 @Mapper
 public interface EventStoreMapper {
 
-    int insert(EventStoreModel model);
+    int insert(EventStoreDatabaseModel model);
 
-    List<EventStoreModel> getListSince(
+    List<EventStoreDatabaseModel> getListSince(
             @Param("eventType") String eventType,
             @Param("eventId") long eventId,
             @Param("limit") int limit);

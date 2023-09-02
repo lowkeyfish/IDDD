@@ -18,6 +18,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with IDDD.
   ~ If not, see <http://www.gnu.org/licenses/>.
+  ~
   -->
 
 <!DOCTYPE mapper
@@ -46,13 +47,13 @@
         )
     </insert>
 
-    <select id="getListSince" resultType="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.EventStoreModel">
+    <select id="getListSince" resultType="com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model.EventStoreDatabaseModel">
         SELECT
         <include refid="columns"></include>
         FROM
         `event_store`
         WHERE
-        `id` > #{eventId} AND `event_type` = #{eventType} AND is_del = 0
+        `id` > #{eventId} AND `event_type` = #{eventType} AND `deleted` = 0
         ORDER BY `id` ASC
         LIMIT #{limit}
     </select>

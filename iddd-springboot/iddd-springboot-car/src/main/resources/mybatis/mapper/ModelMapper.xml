@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright 2023 Yu Junyang
+  ~ https://github.com/lowkeyfish
+  ~
+  ~ This file is part of IDDD.
+  ~
+  ~ IDDD is free software: you can redistribute it
+  ~ and/or modify it under the terms of the GNU General Public License
+  ~ as published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ IDDD is distributed in the hope that it will
+  ~ be useful, but WITHOUT ANY WARRANTY; without even the implied
+  ~ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with IDDD.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.ModelMapper">
+    <insert id="insert"
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ModelDatabaseModel">
+        INSERT INTO `model`(
+            `uid`,
+            `name`,
+            `brand_id`,
+            `manufacturer_id`,
+            `image`,
+            `price_min`,
+            `price_max`
+        ) VALUES(
+            #{id},
+            #{name},
+            #{brandId},
+            #{manufacturerId},
+            #{image},
+            #{priceMin},
+            #{priceMax}
+        );
+    </insert>
+
+    <select id="selectById"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ModelDatabaseModel">
+        SELECT
+            `uid` AS id,
+            `name`,
+            `brand_id` AS brandId,
+            `manufacturer_id` AS manufacturerId,
+            `image`,
+            `price_min` AS priceMin,
+            `price_max` AS priceMax
+        FROM
+            `model`
+        WHERE
+            `deleted` = 0 AND `uid` = #{id};
+    </select>
+
+    <update id="update"
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ModelDatabaseModel">
+        UPDATE `model` SET
+            `name` = #{name},
+            `brand_id` = #{brandId},
+            `manufacturer_id` = #{manufacturerId},
+            `image` = #{image},
+            `price_min` = #{priceMin},
+            `price_max` = #{priceMax}
+        WHERE
+            `uid` = #{id};
+    </update>
+
+    <select id="selectByBrandId"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ModelDatabaseModel">
+        SELECT
+            `uid` AS id,
+            `name`,
+            `brand_id` AS brandId,
+            `manufacturer_id` AS manufacturerId,
+            `image`,
+            `price_min` AS priceMin,
+            `price_max` AS priceMax
+        FROM
+            `model`
+        WHERE
+            `deleted` = 0 AND `brand_id` = #{brandId};
+    </select>
+
+    <select id="selectByIds"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ModelDatabaseModel">
+        SELECT
+            `uid` AS id,
+            `name`,
+            `brand_id` AS brandId,
+            `manufacturer_id` AS manufacturerId,
+            `image`,
+            `price_min` AS priceMin,
+            `price_max` AS priceMax
+        FROM
+            `model`
+        WHERE
+            `deleted` = 0 AND `uid` IN
+        <foreach collection="ids" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectByManufacturerIds"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ModelDatabaseModel">
+        SELECT
+        `uid` AS id,
+        `name`,
+        `brand_id` AS brandId,
+        `manufacturer_id` AS manufacturerId,
+        `image`,
+        `price_min` AS priceMin,
+        `price_max` AS priceMax
+        FROM
+        `model`
+        WHERE
+        `deleted` = 0 AND `manufacturer_id` IN
+        <foreach collection="manufacturerIds" open="(" separator="," close=")" item="manufacturerIds">
+            #{manufacturerId}
+        </foreach>
+    </select>
+
+    <select id="selectByBrandIds"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ModelDatabaseModel">
+        SELECT
+        `uid` AS id,
+        `name`,
+        `brand_id` AS brandId,
+        `manufacturer_id` AS manufacturerId,
+        `image`,
+        `price_min` AS priceMin,
+        `price_max` AS priceMax
+        FROM
+        `model`
+        WHERE
+        `deleted` = 0 AND `brand_id` IN
+        <foreach collection="brandIds" open="(" separator="," close=")" item="brandId">
+            #{brandId}
+        </foreach>
+    </select>
+
+</mapper>

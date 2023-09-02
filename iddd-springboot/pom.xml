@@ -17,6 +17,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with IDDD.
   ~ If not, see <http://www.gnu.org/licenses/>.
+  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -40,6 +41,7 @@
     <log4j.version>2.17.2</log4j.version>
     <redisson.version>3.20.1</redisson.version>
     <mybatis.version>3.5.11</mybatis.version>
+    <graphql-java.version>20.2</graphql-java.version>
   </properties>
 
   <modules>
@@ -147,6 +149,17 @@
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
         <version>${mybatis.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.graphql-java</groupId>
+        <artifactId>graphql-java</artifactId>
+        <version>${graphql-java.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.graphql-java</groupId>
+        <artifactId>graphql-java-extended-scalars</artifactId>
+        <version>${graphql-java.version}</version>
       </dependency>
 
     </dependencies>

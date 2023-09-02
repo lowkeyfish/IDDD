@@ -17,11 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.model;
 
-public class PublishedNotificationTrackerModel {
+public class PublishedNotificationTrackerDatabaseModel {
     private long id;
     private long mostRecentPublishedEventId;
     private String eventType;
