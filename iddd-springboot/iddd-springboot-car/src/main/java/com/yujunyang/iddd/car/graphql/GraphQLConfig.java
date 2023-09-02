@@ -90,9 +90,9 @@ public class GraphQLConfig {
                     builder.typeResolver(nodeTypeResolver());
                     return builder;
                 })
-                .type("Mutation", builder -> {
-                    return builder;
-                })
+//                .type("Mutation", builder -> {
+//                    return builder;
+//                })
                 .build();
         return runtimeWiring;
     }
