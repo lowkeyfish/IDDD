@@ -24,6 +24,7 @@ package com.yujunyang.iddd.car.application.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.yujunyang.iddd.car.application.query.data.ManufacturerViewModel;
@@ -50,6 +51,14 @@ public class ManufacturerQueryService {
                 .stream().map(n -> convert(n)).collect(Collectors.toList());
     }
 
+    public List<ManufacturerViewModel> findByBrandIds(List<BrandId> brandIds) {
+        if (CollectionUtils.isEmpty(brandIds)) {
+            return new ArrayList<>();
+        }
+        return manufacturerMapper.selectByBrandIds(brandIds.stream().map(n -> n.getId()).collect(Collectors.toList()))
+                .stream().map(n -> convert(n)).collect(Collectors.toList());
+    }
+
     public List<ManufacturerViewModel> findByIds(List<ManufacturerId> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
@@ -59,9 +68,11 @@ public class ManufacturerQueryService {
         ).stream().map(n -> convert(n)).collect(Collectors.toList());
     }
 
-    public List<ManufacturerViewModel> findById(ManufacturerId id) {
-
+    public ManufacturerViewModel findById(ManufacturerId id) {
+        return Optional.ofNullable(manufacturerMapper.selectById(id.getId())).map(n -> convert(n)).orElse(null);
     }
+
+
 
     private ManufacturerViewModel convert(ManufacturerDatabaseModel databaseModel) {
         ManufacturerViewModel viewModel = new ManufacturerViewModel();

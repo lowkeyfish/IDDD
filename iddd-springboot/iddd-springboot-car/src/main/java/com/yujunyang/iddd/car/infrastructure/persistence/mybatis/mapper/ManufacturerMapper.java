@@ -23,6 +23,7 @@
 package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel;
 import org.apache.ibatis.annotations.Mapper;
@@ -39,4 +40,6 @@ public interface ManufacturerMapper {
     List<ManufacturerDatabaseModel> selectByBrandId(@Param("brandId") String brandId);
 
     List<ManufacturerDatabaseModel> selectByIds(@Param("ids") List<String> ids);
+
+    List<ManufacturerDatabaseModel> selectByBrandIds(@Param("brandIds")List<String> brandIds);
 }

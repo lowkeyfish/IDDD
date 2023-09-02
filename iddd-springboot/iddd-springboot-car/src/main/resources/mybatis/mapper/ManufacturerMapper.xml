@@ -83,4 +83,19 @@
         </foreach>
     </select>
 
+    <select id="selectByBrandIds"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel">
+        SELECT
+        `uid` AS id,
+        `name`,
+        `brand_id` AS brandId
+        FROM
+        `manufacturer`
+        WHERE
+        `deleted` = 0 AND `brand_id` IN
+        <foreach collection="brandIds" open="(" separator="," close=")" item="brandId">
+            #{brandId}
+        </foreach>
+    </select>
+
 </mapper>

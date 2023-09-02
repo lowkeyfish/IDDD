@@ -106,13 +106,15 @@ public class GraphQLConfig {
             }
             if ("Manufacturer".equalsIgnoreCase(type)) {
                 ManufacturerId id = new ManufacturerId(environment.getArgument("id"));
-                manufacturerQueryService.findByIds()
+                return manufacturerQueryService.findById(id);
             }
             if ("Model".equalsIgnoreCase(type)) {
                 ModelId id = new ModelId(environment.getArgument("id"));
+                return modelQueryService.findById(id);
             }
             if ("Variant".equalsIgnoreCase(type)) {
                 VariantId id = new VariantId(environment.getArgument("id"));
+                return variantQueryService.findById(id);
             }
 
             return null;
