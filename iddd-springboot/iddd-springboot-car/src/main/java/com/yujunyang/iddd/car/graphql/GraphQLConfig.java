@@ -157,35 +157,4 @@ public class GraphQLConfig {
         };
     }
 
-    private DataFetcher createAppraisalTemplateDataFetcher() {
-        return environment -> {
-            LinkedHashMap input = environment.getArgument("input");
-            input.put("enterpriseId", environment.getGraphQlContext().get(GraphQLContextProvider.LOGIN_ENTERPRISE_ID));
-            input.put("operatorEmployeeId", environment.getGraphQlContext().get(GraphQLContextProvider.LOGIN_EMPLOYEE_ID));
-            CreateAppraisalTemplateCommand command = JacksonUtils.DEFAULT_OBJECT_MAPPER.convertValue(
-                    input, CreateAppraisalTemplateCommand.class);
-            AppraisalTemplateId appraisalTemplateId = appraisalTemplateApplicationService.createAppraisalTemplate(command);
-            Map<String, String> result = new HashMap<>();
-            result.put("clientMutationId", String.valueOf(input.get("clientMutationId")));
-            result.put("appraisalTemplateId", appraisalTemplateId.toString());
-            return result;
-        };
-    }
-
-    private DataFetcher updateAppraisalTemplateDataFetcher() {
-        return environment -> {
-            LinkedHashMap input = environment.getArgument("input");
-            input.put("id", environment.getArgument("id"));
-            input.put("enterpriseId", environment.getGraphQlContext().get(GraphQLContextProvider.LOGIN_ENTERPRISE_ID));
-            input.put("operatorEmployeeId", environment.getGraphQlContext().get(GraphQLContextProvider.LOGIN_EMPLOYEE_ID));
-            UpdateAppraisalTemplateCommand command = JacksonUtils.DEFAULT_OBJECT_MAPPER.convertValue(
-                    input, UpdateAppraisalTemplateCommand.class);
-            appraisalTemplateApplicationService.updateAppraisalTemplate(command);
-            Map<String, String> result = new HashMap<>();
-            result.put("clientMutationId", String.valueOf(input.get("clientMutationId")));
-            result.put("appraisalTemplateId", environment.getArgument("id"));
-            return result;
-        };
-    }
-
 }
