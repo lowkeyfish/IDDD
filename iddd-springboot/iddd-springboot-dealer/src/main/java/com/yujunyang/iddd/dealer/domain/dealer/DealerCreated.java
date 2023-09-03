@@ -51,21 +51,6 @@ public class DealerCreated implements DomainEvent {
     }
 
     @Override
-    public String storedEventType() {
-        return this.getClass().getSimpleName();
-    }
-
-    @Override
-    public String notificationType() {
-        return this.getClass().getSimpleName();
-    }
-
-    @Override
-    public String notificationExchange() {
-        return "amq.topic";
-    }
-
-    @Override
     public String notificationRoutingKey() {
         return "Dealer." + notificationType();
     }

@@ -59,16 +59,6 @@ public class TestController {
         }
 
         @Override
-        public String notificationType() {
-            return null;
-        }
-
-        @Override
-        public String notificationExchange() {
-            return null;
-        }
-
-        @Override
         public String notificationRoutingKey() {
             return null;
         }

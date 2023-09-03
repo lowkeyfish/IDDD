@@ -28,11 +28,19 @@ public interface DomainEvent {
 
     String eventKey();
 
-    String storedEventType();
+    default String notificationType() {
+        return this.getClass().getSimpleName();
+    }
 
-    String notificationType();
-
-    String notificationExchange();
+    default String notificationExchange() {
+        return "amq.topic";
+    }
 
     String notificationRoutingKey();
+
+    default String storedEventType() {
+        return this.getClass().getName();
+    }
+
+
 }
