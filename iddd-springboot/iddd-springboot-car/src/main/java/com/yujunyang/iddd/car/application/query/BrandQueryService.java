@@ -52,7 +52,7 @@ public class BrandQueryService {
                 .collect(Collectors.toList());
     }
 
-    public List<BrandViewModel> findBrandByIds(List<BrandId> brandIds) {
+    public List<BrandViewModel> findByIds(List<BrandId> brandIds) {
         if (CollectionUtils.isEmpty(brandIds)) {
             return new ArrayList<>();
         }

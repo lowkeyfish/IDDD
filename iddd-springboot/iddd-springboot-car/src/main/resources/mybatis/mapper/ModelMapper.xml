@@ -124,7 +124,7 @@
         `model`
         WHERE
         `deleted` = 0 AND `manufacturer_id` IN
-        <foreach collection="manufacturerIds" open="(" separator="," close=")" item="manufacturerIds">
+        <foreach collection="manufacturerIds" open="(" separator="," close=")" item="manufacturerId">
             #{manufacturerId}
         </foreach>
     </select>

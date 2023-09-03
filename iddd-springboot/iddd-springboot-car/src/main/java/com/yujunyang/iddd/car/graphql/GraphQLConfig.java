@@ -1,9 +1,9 @@
 package com.yujunyang.iddd.car.graphql;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.yujunyang.iddd.car.application.query.BrandQueryService;
 import com.yujunyang.iddd.car.application.query.ManufacturerQueryService;
@@ -17,6 +17,7 @@ import com.yujunyang.iddd.car.domain.brand.BrandId;
 import com.yujunyang.iddd.car.domain.manufacturer.ManufacturerId;
 import com.yujunyang.iddd.car.domain.model.ModelId;
 import com.yujunyang.iddd.car.domain.variant.VariantId;
+import com.yujunyang.iddd.car.graphql.dataloader.DataLoaderConfig;
 import com.yujunyang.iddd.common.graphql.directive.DateTimeFormatDirective;
 import com.yujunyang.iddd.common.graphql.scalar.CustomScalars;
 import graphql.GraphQL;
@@ -32,6 +33,7 @@ import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import org.dataloader.DataLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -83,16 +85,35 @@ public class GraphQLConfig {
                 .scalar(ExtendedScalars.GraphQLLong)
                 .type("Query", builder -> {
                     builder.dataFetcher("brands", brandsDataFetcher());
+                    builder.dataFetcher("models", modelsDataFetcher());
                     builder.dataFetcher("node", nodeDataFetcher());
+                    return builder;
+                })
+                .type("Brand", builder -> {
+                    builder.dataFetcher("models", findModelsInBrandDataFetcher());
+                    builder.dataFetcher("manufacturers", findManufacturersInBrandDataFetcher());
+                    return builder;
+                })
+                .type("Manufacturer", builder -> {
+                    builder.dataFetcher("models", findModelsInManufacturerDataFetcher());
+                    return builder;
+                })
+                .type("Model", builder -> {
+                    builder.dataFetcher("variants", findVariantsInModelDataFetcher());
+                    builder.dataFetcher("brand", findBrandInModelDataFetcher());
+                    builder.dataFetcher("manufacturer", findManufacturerInModelDataFetcher());
+                    return builder;
+                })
+                .type("Variant", builder -> {
+                    builder.dataFetcher("model", findModelInVariantDataFetcher());
+                    builder.dataFetcher("brand", findBrandInVariantDataFetcher());
+                    builder.dataFetcher("manufacturer", findManufacturerInVariantDataFetcher());
                     return builder;
                 })
                 .type("Node", builder -> {
                     builder.typeResolver(nodeTypeResolver());
                     return builder;
                 })
-//                .type("Mutation", builder -> {
-//                    return builder;
-//                })
                 .build();
         return runtimeWiring;
     }
@@ -137,6 +158,92 @@ public class GraphQLConfig {
 
     private DataFetcher<List<BrandViewModel>> brandsDataFetcher() {
         return environment -> brandQueryService.allBrand();
+    }
+
+    private DataFetcher<?> findModelsInBrandDataFetcher() {
+        return environment -> {
+            BrandViewModel brandViewModel = environment.getSource();
+            DataLoader<String, List<ModelViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODELS_BY_BRAND_IDS);
+            return dataLoader.load(brandViewModel.getId());
+        };
+    }
+
+    private DataFetcher<?> findModelsInManufacturerDataFetcher() {
+        return environment -> {
+            ManufacturerViewModel manufacturerViewModel = environment.getSource();
+            DataLoader<String, List<ModelViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODELS_BY_MANUFACTURER_IDS);
+            return dataLoader.load(manufacturerViewModel.getId());
+        };
+    }
+
+    private DataFetcher<?> findManufacturersInBrandDataFetcher() {
+        return environment -> {
+            BrandViewModel brandViewModel = environment.getSource();
+            DataLoader<String, List<ManufacturerViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURERS_BY_BRAND_IDS);
+            return dataLoader.load(brandViewModel.getId());
+        };
+    }
+
+    private DataFetcher<List<ModelViewModel>> modelsDataFetcher() {
+        return environment -> {
+            String brandId = environment.getArgument("brandId");
+            List<String> modelIds = environment.getArgument("modelIds");
+
+            return modelQueryService.findBy(
+                    BrandId.parse(brandId),
+                    Optional.ofNullable(modelIds)
+                            .orElse(new ArrayList<>()).stream().map(n -> ModelId.parse(n))
+                            .collect(Collectors.toList())
+            );
+        };
+    }
+
+    private DataFetcher<?> findVariantsInModelDataFetcher() {
+        return environment -> {
+            ModelViewModel modelViewModel = environment.getSource();
+            DataLoader<String, List<VariantViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_VARIANTS_BY_MODEL_IDS);
+            return dataLoader.load(modelViewModel.getId());
+        };
+    }
+
+    private DataFetcher<?> findBrandInModelDataFetcher() {
+        return environment -> {
+            ModelViewModel modelViewModel = environment.getSource();
+            DataLoader<String, BrandViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_BRAND_BY_IDS);
+            return dataLoader.load(modelViewModel.getBrandId());
+        };
+    }
+
+    private DataFetcher<?> findManufacturerInModelDataFetcher() {
+        return environment -> {
+            ModelViewModel modelViewModel = environment.getSource();
+            DataLoader<String, ManufacturerViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURER_BY_IDS);
+            return dataLoader.load(modelViewModel.getManufacturerId());
+        };
+    }
+
+    private DataFetcher<?> findModelInVariantDataFetcher() {
+        return environment -> {
+            VariantViewModel variantViewModel = environment.getSource();
+            DataLoader<String, ModelViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODEL_BY_IDS);
+            return dataLoader.load(variantViewModel.getModelId());
+        };
+    }
+
+    private DataFetcher<?> findBrandInVariantDataFetcher() {
+        return environment -> {
+            VariantViewModel variantViewModel = environment.getSource();
+            DataLoader<String, BrandViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_BRAND_BY_IDS);
+            return dataLoader.load(variantViewModel.getBrandId());
+        };
+    }
+
+    private DataFetcher<?> findManufacturerInVariantDataFetcher() {
+        return environment -> {
+            VariantViewModel variantViewModel = environment.getSource();
+            DataLoader<String, ManufacturerViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURER_BY_IDS);
+            return dataLoader.load(variantViewModel.getManufacturerId());
+        };
     }
 
     private TypeResolver nodeTypeResolver() {
