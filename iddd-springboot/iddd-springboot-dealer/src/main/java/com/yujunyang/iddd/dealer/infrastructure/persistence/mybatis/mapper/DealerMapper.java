@@ -20,12 +20,19 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+import com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.model.DealerDatabaseModel;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-    Dealer findByName(String name);
+@Mapper
+public interface DealerMapper {
+    int insertOrIgnore(DealerDatabaseModel model);
 
-    void save(Dealer dealer);
+    int update(DealerDatabaseModel model);
+
+    DealerDatabaseModel selectById(@Param("id") String id);
+
+    DealerDatabaseModel selectByName(@Param("name") String name);
 }

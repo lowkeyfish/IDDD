@@ -20,12 +20,32 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.address;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.id.AbstractIntegerId;
 
-    Dealer findByName(String name);
+public class CityId extends AbstractIntegerId {
+    public CityId(@JsonProperty("id") int id) {
+        super(id);
+    }
 
-    void save(Dealer dealer);
+    @Override
+    protected int initialNonZeroOddNumber() {
+        return 21;
+    }
+
+    @Override
+    protected int multiplierNonZeroOddNumber() {
+        return 171;
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static CityId parse(int id) {
+        if (id <= 0) {
+            return null;
+        }
+        return new CityId(id);
+    }
 }

@@ -22,10 +22,25 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-    Dealer findByName(String name);
+@Service
+public class DealerNameUniquenessCheckService {
+    private DealerRepository dealerRepository;
 
-    void save(Dealer dealer);
+    @Autowired
+    public DealerNameUniquenessCheckService(
+            DealerRepository dealerRepository) {
+        this.dealerRepository = dealerRepository;
+    }
+
+    public boolean isNameNotUsed(String name) {
+        return dealerRepository.findByName(name) == null;
+    }
+
+    public boolean isNameNotUsed(String name, DealerId excludeDealerId) {
+        Dealer dealer = dealerRepository.findByName(name);
+        return dealer == null || dealer.getId().equals(excludeDealerId);
+    }
 }

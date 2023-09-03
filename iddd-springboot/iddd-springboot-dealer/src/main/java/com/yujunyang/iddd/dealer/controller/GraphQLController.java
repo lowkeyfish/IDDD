@@ -1,12 +1,10 @@
-package com.yujunyang.iddd.car.controller;
+package com.yujunyang.iddd.dealer.controller;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.yujunyang.iddd.car.graphql.GraphQLExecutor;
-import graphql.ExceptionWhileDataFetching;
+import com.yujunyang.iddd.dealer.graphql.GraphQLExecutor;
 import graphql.ExecutionResult;
-import graphql.GraphQLError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

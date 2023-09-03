@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright 2023 Yu Junyang
+  ~ https://github.com/lowkeyfish
+  ~
+  ~ This file is part of IDDD.
+  ~
+  ~ IDDD is free software: you can redistribute it
+  ~ and/or modify it under the terms of the GNU General Public License
+  ~ as published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ IDDD is distributed in the hope that it will
+  ~ be useful, but WITHOUT ANY WARRANTY; without even the implied
+  ~ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with IDDD.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.DealerMapper">
+    <insert id="insertOrIgnore"
+            parameterType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.model.DealerDatabaseModel">
+        INSERT IGNORE INTO `dealer`(
+            `uid`,
+            `name`,
+            `city_id`,
+            `specific_address`,
+            `telephone`,
+            `brand_id`,
+            `status`,
+            `create_time`
+        ) VALUE(
+            #{id},
+            #{name},
+            #{cityId},
+            #{specificAddress},
+            #{telephone},
+            #{brandId},
+            #{status},
+            #{createTime}
+        );
+    </insert>
+
+    <select id="selectById"
+            resultType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.model.DealerDatabaseModel">
+        SELECT
+            `uid` AS id,
+            `name`,
+            `city_id` AS cityId,
+            `specific_address` AS specificAddress,
+            `telephone`,
+            `brand_id` AS brandId,
+            `status`,
+            `create_time` AS createTime
+        FROM
+            `dealer`
+        WHERE
+            `deleted` = 0 AND `uid` = #{id};
+    </select>
+
+    <update id="update"
+            parameterType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.model.DealerDatabaseModel">
+        UPDATE `dealer` SET
+            `name` = #{name},
+            `city_id` = #{cityId},
+            `specific_address` = #{specificAddress},
+            `telephone` = #{telephone},
+            `deleted` = 0,
+            `brand_id` = #{brandId},
+            `status` = {status}
+        WHERE `uid` = #{id};
+    </update>
+
+    <select id="selectByName"
+            resultType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.model.DealerDatabaseModel">
+        SELECT
+            `uid` AS id,
+            `name`,
+            `city_id` AS cityId,
+            `specific_address` AS specificAddress,
+            `telephone`,
+            `brand_id` AS brandId,
+            `status`,
+            `create_time` AS createTime
+        FROM
+            `dealer`
+        WHERE
+            `deleted` = 0 AND `name` = #{name}
+        LIMIT 1;
+    </select>
+
+</mapper>

@@ -1,0 +1,9 @@
+scalar DateTime
+scalar BigDecimal
+scalar Long
+
+directive @dateTimeFormat(format: String) on FIELD_DEFINITION
+
+schema {
+    query: Query
+}

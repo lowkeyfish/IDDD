@@ -20,12 +20,22 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.address;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+public class Province {
+    private ProvinceId id;
+    private String name;
 
-    Dealer findByName(String name);
+    public Province(ProvinceId id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-    void save(Dealer dealer);
+    public ProvinceId getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

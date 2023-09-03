@@ -56,9 +56,21 @@ spring:
       static-locations: classpath:/static/
 
 mybatis:
-  mapper-locations: classpath:mybatis/mapper/**/*.xml
+  mapper-locations: classpath*:mybatis/mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
     use-generated-keys: true
     default-fetch-size: 100
     default-statement-timeout: 30
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: FULL
+
+api-car:
+  ribbon:
+    listOfServers: http://localhost:4002

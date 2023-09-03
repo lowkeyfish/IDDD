@@ -56,7 +56,7 @@ spring:
       static-locations: classpath:/static/
 
 mybatis:
-  mapper-locations: classpath:mybatis/mapper/**/*.xml
+  mapper-locations: classpath*:mybatis/mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
     use-generated-keys: true

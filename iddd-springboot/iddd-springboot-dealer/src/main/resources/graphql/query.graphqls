@@ -1,0 +1,77 @@
+type Query {
+    node(id: ID): Node
+    "品牌"
+    brands: [Brand]
+    "车系"
+    models(brandId: ID, modelIds: [ID]): [Model]
+    "车型"
+    variants(seriesId: ID, variantIds: [ID]): [Variant]
+}
+
+"品牌"
+type Brand implements Node {
+    "id"
+    id: ID!
+    "名称"
+    name: String!
+    "首字母"
+    firstLetter: String!
+    "logo"
+    logo: String!
+    "厂商"
+    manufacturers: [Manufacturer]!
+    "车系"
+    models: [Model]!
+}
+
+"厂商"
+type Manufacturer implements Node {
+    "id"
+    id: ID!
+    "名称"
+    name: String!
+    "品牌"
+    brand: Brand!
+    "车系"
+    models: [Model]!
+}
+
+"车系"
+type Model implements Node {
+    "id"
+    id: ID!
+    "名称"
+    name: String!
+    "图片"
+    image: String
+    "指导价"
+    priceMin: Int
+    "指导价"
+    priceMax: Int
+    "品牌"
+    brand: Brand!
+    "厂商"
+    manufacturer: Manufacturer!
+    "车型"
+    variants: [Variant]!
+}
+
+"车型"
+type Variant implements Node {
+    "id"
+    id: ID!
+    "名称"
+    name: String!
+    "指导价"
+    price: Int
+    "品牌"
+    brand: Brand!
+    "厂商"
+    manufacturer: Manufacturer!
+    "车系"
+    model: Model!
+}
+
+interface Node {
+    id: ID!
+}

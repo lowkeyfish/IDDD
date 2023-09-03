@@ -22,5 +22,116 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
+import java.time.LocalDateTime;
+
+import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
+import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
+import com.yujunyang.iddd.dealer.domain.address.Address;
+import com.yujunyang.iddd.dealer.domain.car.BrandId;
+
 public class Dealer {
+    private DealerId id;
+    private String name;
+    private Address address;
+    private String telephone;
+    private BrandId brandId;
+    private LocalDateTime createTime;
+    private DealerStatusType status;
+
+    public Dealer(
+            DealerId id,
+            String name,
+            Address address,
+            String telephone,
+            BrandId brandId) {
+
+        this(
+                id,
+                name,
+                address,
+                telephone,
+                brandId,
+                LocalDateTime.now(),
+                DealerStatusType.ENABLED
+        );
+
+        DomainEventPublisher.instance().publish(new DealerCreated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
+    }
+
+    public Dealer(
+            DealerId id,
+            String name,
+            Address address,
+            String telephone,
+            BrandId brandId,
+            LocalDateTime createTime,
+            DealerStatusType status) {
+        CheckUtils.notNull(id, "id 必须不为 null");
+        CheckUtils.notBlank(name, "name 必须不为空");
+        CheckUtils.notNull(address, "address 必须不为 null");
+        CheckUtils.notBlank(telephone, "telephone 必须不为空");
+        CheckUtils.notNull(brandId, "brandId 必须不为 null");
+        CheckUtils.notNull(createTime, "createTime 必须不为 null");
+        CheckUtils.notNull(status, "status 必须不为 null");
+
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.telephone = telephone;
+        this.brandId = brandId;
+        this.createTime = createTime;
+        this.status = status;
+    }
+
+    public DealerId getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public BrandId getBrandId() {
+        return brandId;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public DealerStatusType getStatus() {
+        return status;
+    }
+
+    public void changeName(String name) {
+
+    }
+
+    public void changeAddress(Address address) {
+
+    }
+
+    public void changeTelephone(String telephone) {
+
+    }
+
+    public void disable() {
+
+    }
+
+    public void enable() {
+
+    }
 }

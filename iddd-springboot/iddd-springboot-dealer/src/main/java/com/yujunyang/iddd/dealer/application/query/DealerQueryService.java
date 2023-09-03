@@ -20,12 +20,10 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.application.query;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+import org.springframework.stereotype.Service;
 
-    Dealer findByName(String name);
-
-    void save(Dealer dealer);
+@Service
+public class DealerQueryService {
 }

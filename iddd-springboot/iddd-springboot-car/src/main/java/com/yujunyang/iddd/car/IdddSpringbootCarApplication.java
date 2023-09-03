@@ -22,10 +22,22 @@
 
 package com.yujunyang.iddd.car;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
+@MapperScan({
+        "com.yujunyang.iddd.common.infrastructure.persistence.mybatis.mapper.**",
+        "com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.**"
+})
+@ComponentScan(basePackages = {
+        "com.yujunyang.iddd.common",
+        "com.yujunyang.iddd.car"
+})
 public class IdddSpringbootCarApplication {
 
     public static void main(String[] args) {

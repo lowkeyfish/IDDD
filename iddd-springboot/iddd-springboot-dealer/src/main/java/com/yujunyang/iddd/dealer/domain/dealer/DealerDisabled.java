@@ -22,10 +22,5 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
-
-    Dealer findByName(String name);
-
-    void save(Dealer dealer);
+public class DealerDisabled {
 }

@@ -20,12 +20,11 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.infrastructure.remote.car;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+import org.springframework.cloud.openfeign.FeignClient;
 
-    Dealer findByName(String name);
+@FeignClient("api-car")
+public interface CarApi {
 
-    void save(Dealer dealer);
 }

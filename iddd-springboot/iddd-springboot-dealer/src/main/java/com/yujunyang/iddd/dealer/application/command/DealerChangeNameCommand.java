@@ -20,12 +20,26 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.application.command;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 
-    Dealer findByName(String name);
+public class DealerChangeNameCommand {
+    private DealerId dealerId;
+    private String name;
 
-    void save(Dealer dealer);
+    public DealerChangeNameCommand(
+            DealerId dealerId,
+            String name) {
+        this.dealerId = dealerId;
+        this.name = name;
+    }
+
+    public DealerId getDealerId() {
+        return dealerId;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
