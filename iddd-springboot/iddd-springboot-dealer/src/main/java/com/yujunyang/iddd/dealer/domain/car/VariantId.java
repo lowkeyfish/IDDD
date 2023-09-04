@@ -17,45 +17,36 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
-
-import java.text.MessageFormat;
+package com.yujunyang.iddd.dealer.domain.car;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.event.DomainEvent;
+import com.yujunyang.iddd.common.domain.id.AbstractStringId;
+import org.apache.commons.lang3.StringUtils;
 
-public class DealerUpdated implements DomainEvent {
-    private long timestamp;
-    private String dealerId;
-
+public class VariantId extends AbstractStringId {
     @JsonCreator
-    public DealerUpdated(
-            @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") String dealerId) {
-        this.timestamp = timestamp;
-        this.dealerId = dealerId;
+    public VariantId(@JsonProperty("id") String id) {
+        super(id);
     }
 
     @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public String getDealerId() {
-        return dealerId;
+    protected int initialNonZeroOddNumber() {
+        return 9;
     }
 
     @Override
-    public String eventKey() {
-        return MessageFormat.format("DealerId({0})", dealerId);
+    protected int multiplierNonZeroOddNumber() {
+        return 155;
     }
 
-    @Override
-    public String notificationRoutingKey() {
-        return "Dealer." + notificationType();
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static VariantId parse(String id) {
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
+        return new VariantId(id);
     }
 }

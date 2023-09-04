@@ -27,7 +27,11 @@ import java.text.MessageFormat;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.common.utils.StringUtilsEnhance;
+import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
+import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
+import com.yujunyang.iddd.dealer.application.command.DealerChangeTelephoneCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
+import com.yujunyang.iddd.dealer.application.command.DealerDisableCommand;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
@@ -74,5 +78,68 @@ public class DealerApplicationService {
         dealerRepository.save(dealer);
 
         return dealer.getId();
+    }
+
+    @Transactional
+    public void changeName(DealerChangeNameCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        Dealer dealer = findById(command.getDealerId());
+        dealer.changeName(command.getName(), dealerNameUniquenessCheckService);
+
+        dealerRepository.save(dealer);
+    }
+
+    @Transactional
+    public void changeTelephone(DealerChangeTelephoneCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        Dealer dealer = findById(command.getDealerId());
+        dealer.changeTelephone(command.getTelephone());
+
+        dealerRepository.save(dealer);
+    }
+
+    @Transactional
+    public void changeAddress(DealerChangeAddressCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        Dealer dealer = findById(command.getDealerId());
+        dealer.changeAddress(new Address(
+                command.getCityId(),
+                command.getSpecificAddress()
+        ));
+
+        dealerRepository.save(dealer);
+    }
+
+    @Transactional
+    public void disable(DealerDisableCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        Dealer dealer = findById(command.getDealerId());
+        dealer.disable();
+
+        dealerRepository.save(dealer);
+    }
+
+    @Transactional
+    public void enable(DealerDisableCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        Dealer dealer = findById(command.getDealerId());
+        dealer.enable();
+
+        dealerRepository.save(dealer);
+    }
+
+    private Dealer findById(DealerId dealerId) {
+        Dealer dealer = dealerRepository.findById(dealerId);
+        if (dealer == null) {
+            throw new IllegalArgumentException(
+                    MessageFormat.format("Dealer({0}) 不存在", dealerId)
+            );
+        }
+        return dealer;
     }
 }

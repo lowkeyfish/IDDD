@@ -30,7 +30,9 @@ import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
 import com.yujunyang.iddd.dealer.domain.address.ProvinceId;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
+import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +42,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @Resource
     private DealerApplicationService dealerApplicationService;
+    @Resource
+    private DealerRepository dealerRepository;
 
     @PostMapping("createDealer")
     public DealerId createDealer() {
@@ -51,5 +55,10 @@ public class TestController {
                 new BrandId("7bca2d994a6111eeb3860242ac150004")
         );
         return dealerApplicationService.create(command);
+    }
+
+    @PostMapping("dealer")
+    public Dealer dealer(String dealerId) {
+        return dealerRepository.findById(new DealerId(dealerId));
     }
 }

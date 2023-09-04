@@ -22,5 +22,40 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
-public class DealerEnabled {
+import java.text.MessageFormat;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.event.DomainEvent;
+
+public class DealerEnabled implements DomainEvent {
+    private long timestamp;
+    private String dealerId;
+
+    @JsonCreator
+    public DealerEnabled(
+            @JsonProperty("timestamp") long timestamp,
+            @JsonProperty("dealerId") String dealerId) {
+        this.timestamp = timestamp;
+        this.dealerId = dealerId;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getDealerId() {
+        return dealerId;
+    }
+
+    @Override
+    public String eventKey() {
+        return MessageFormat.format("DealerId({0})", dealerId);
+    }
+
+    @Override
+    public String notificationRoutingKey() {
+        return "Dealer." + notificationType();
+    }
 }

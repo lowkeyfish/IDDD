@@ -17,10 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.car;
 
 import java.text.MessageFormat;
 
@@ -28,16 +27,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerUpdated implements DomainEvent {
+public class DealerModelDeleted implements DomainEvent {
     private long timestamp;
     private String dealerId;
+    private String modelId;
 
     @JsonCreator
-    public DealerUpdated(
+    public DealerModelDeleted(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") String dealerId) {
+            @JsonProperty("dealerId") String dealerId,
+            @JsonProperty("modelId") String modelId) {
         this.timestamp = timestamp;
         this.dealerId = dealerId;
+        this.modelId = modelId;
     }
 
     @Override
@@ -49,13 +51,17 @@ public class DealerUpdated implements DomainEvent {
         return dealerId;
     }
 
+    public String getModelId() {
+        return modelId;
+    }
+
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerId({0})", dealerId);
+        return MessageFormat.format("DealerId({0})_ModelId({1})", dealerId, modelId);
     }
 
     @Override
     public String notificationRoutingKey() {
-        return "Dealer." + notificationType();
+        return "DealerModel." + notificationType();
     }
 }

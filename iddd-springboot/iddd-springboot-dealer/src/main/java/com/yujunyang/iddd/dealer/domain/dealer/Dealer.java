@@ -22,6 +22,7 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
@@ -115,23 +116,84 @@ public class Dealer {
         return status;
     }
 
-    public void changeName(String name) {
+    public void changeName(
+            String name,
+            DealerNameUniquenessCheckService dealerNameUniquenessCheckService) {
+        if (DealerStatusType.DISABLED.equals(status)) {
+            throw new UnsupportedOperationException("Dealer 被禁用");
+        }
 
+        CheckUtils.notBlank(name, "name 必须不为空");
+        if (!dealerNameUniquenessCheckService.isNameNotUsed(name, id)) {
+            throw new IllegalArgumentException(
+                    MessageFormat.format(
+                            "name({0}) 已被使用",
+                            name
+                    )
+            );
+        }
+
+        this.name = name;
+
+        DomainEventPublisher.instance().publish(new DealerUpdated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
     }
 
     public void changeAddress(Address address) {
+        if (DealerStatusType.DISABLED.equals(status)) {
+            throw new UnsupportedOperationException("Dealer 被禁用");
+        }
 
+        CheckUtils.notNull(address, "address 必须不为 null");
+
+        this.address = address;
+
+        DomainEventPublisher.instance().publish(new DealerUpdated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
     }
 
     public void changeTelephone(String telephone) {
+        if (DealerStatusType.DISABLED.equals(status)) {
+            throw new UnsupportedOperationException("Dealer 被禁用");
+        }
 
+        CheckUtils.notBlank(telephone, "telephone 必须不为空");
+
+        this.telephone = telephone;
+
+        DomainEventPublisher.instance().publish(new DealerUpdated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
     }
 
     public void disable() {
+        if (DealerStatusType.DISABLED.equals(status)) {
+            throw new UnsupportedOperationException("Dealer 当前已是禁用状态");
+        }
 
+        status = DealerStatusType.DISABLED;
+
+        DomainEventPublisher.instance().publish(new DealerDisabled(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
     }
 
     public void enable() {
+        if (DealerStatusType.ENABLED.equals(status)) {
+            throw new UnsupportedOperationException("Dealer 当前已是启用状态");
+        }
 
+        status = DealerStatusType.ENABLED;
+
+        DomainEventPublisher.instance().publish(new DealerEnabled(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
     }
 }

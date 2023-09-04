@@ -45,9 +45,13 @@ public class DealerCreated implements DomainEvent {
         return timestamp;
     }
 
+    public String getDealerId() {
+        return dealerId;
+    }
+
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerId({0})",dealerId);
+        return MessageFormat.format("DealerId({0})", dealerId);
     }
 
     @Override

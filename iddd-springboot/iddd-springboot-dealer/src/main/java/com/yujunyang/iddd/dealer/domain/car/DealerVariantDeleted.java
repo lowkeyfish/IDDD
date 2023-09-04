@@ -17,10 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.car;
 
 import java.text.MessageFormat;
 
@@ -28,16 +27,22 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerUpdated implements DomainEvent {
+public class DealerVariantDeleted implements DomainEvent {
     private long timestamp;
     private String dealerId;
+    private String modelId;
+    private String variantId;
 
     @JsonCreator
-    public DealerUpdated(
+    public DealerVariantDeleted(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") String dealerId) {
+            @JsonProperty("dealerId") String dealerId,
+            @JsonProperty("modelId") String modelId,
+            @JsonProperty("variantId") String variantId) {
         this.timestamp = timestamp;
         this.dealerId = dealerId;
+        this.modelId = modelId;
+        this.variantId = variantId;
     }
 
     @Override
@@ -49,13 +54,21 @@ public class DealerUpdated implements DomainEvent {
         return dealerId;
     }
 
+    public String getModelId() {
+        return modelId;
+    }
+
+    public String getVariantId() {
+        return variantId;
+    }
+
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerId({0})", dealerId);
+        return MessageFormat.format("DealerId({0})_ModelId({1})_VariantId({2})", dealerId, modelId, variantId);
     }
 
     @Override
     public String notificationRoutingKey() {
-        return "Dealer." + notificationType();
+        return "DealerVariant." + notificationType();
     }
 }
