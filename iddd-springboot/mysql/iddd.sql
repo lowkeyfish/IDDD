@@ -145,6 +145,8 @@ CREATE TABLE `dealer` (
 CREATE TABLE `dealer_model` (
                                 `id` bigint NOT NULL AUTO_INCREMENT,
                                 `dealer_id` varchar(50) not null default '',
+                                `brand_id` varchar(50) not null default '',
+                                `manufacturer_id` varchar(50) not null default '',
                                 `model_id` varchar(50) not null default '',
                                 `sale_status` tinyint not null default 0,
                                 `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -156,6 +158,8 @@ CREATE TABLE `dealer_model` (
 CREATE TABLE `dealer_variant` (
                                   `id` bigint NOT NULL AUTO_INCREMENT,
                                   `dealer_id` varchar(50) not null default '',
+                                  `brand_id` varchar(50) not null default '',
+                                  `manufacturer_id` varchar(50) not null default '',
                                   `model_id` varchar(50) not null default '',
                                   `variant_id` varchar(50) not null default '',
                                   `price` int not null default 0,

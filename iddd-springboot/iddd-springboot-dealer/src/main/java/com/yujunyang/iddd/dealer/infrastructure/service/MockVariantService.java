@@ -34,7 +34,7 @@ import com.yujunyang.iddd.dealer.domain.car.VariantService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RemoteApiVariantService implements VariantService {
+public class MockVariantService implements VariantService {
     private static final List<Variant> MOCK_VARIANTS = Arrays.asList(
             new Variant(
                     new VariantId(IdUtils.newId()),
