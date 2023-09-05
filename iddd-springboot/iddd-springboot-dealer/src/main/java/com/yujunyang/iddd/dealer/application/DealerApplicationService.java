@@ -26,7 +26,6 @@ import java.text.MessageFormat;
 
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.IdUtils;
-import com.yujunyang.iddd.common.utils.StringUtilsEnhance;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeTelephoneCommand;
@@ -34,6 +33,7 @@ import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerDisableCommand;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerFactory;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
@@ -45,33 +45,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class DealerApplicationService {
     private DealerNameUniquenessCheckService dealerNameUniquenessCheckService;
     private DealerRepository dealerRepository;
+    private DealerFactory dealerFactory;
 
     @Autowired
     public DealerApplicationService(
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService,
-            DealerRepository dealerRepository) {
+            DealerRepository dealerRepository,
+            DealerFactory dealerFactory) {
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
         this.dealerRepository = dealerRepository;
+        this.dealerFactory = dealerFactory;
     }
 
     @Transactional
     public DealerId create(DealerCreateCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        boolean nameNotUsed = dealerNameUniquenessCheckService.isNameNotUsed(command.getName());
-        if (!nameNotUsed) {
-            throw new IllegalArgumentException(
-                    MessageFormat.format("name({0}) 已被使用", command.getName())
-            );
-        }
-
-        Dealer dealer = new Dealer(
-                new DealerId(IdUtils.newId()),
+        Dealer dealer = dealerFactory.createDealer(
                 command.getName(),
-                new Address(
-                        command.getCityId(),
-                        command.getSpecificAddress()
-                ),
+                command.getCityId(),
+                command.getSpecificAddress(),
                 command.getTelephone(),
                 command.getBrandId()
         );

@@ -21,18 +21,29 @@
 
 package com.yujunyang.iddd.dealer.domain.car;
 
-import org.springframework.stereotype.Service;
+public class Brand {
+    private BrandId id;
+    private String name;
+    private String logo;
 
-@Service
-public class VariantSalePriceMaximumDiscountLimitService {
-    public void checkDiscount(int suggestedPrice, int salePrice) {
-        if (salePrice > suggestedPrice) {
-            throw new IllegalArgumentException("售价超过指导价");
-        }
+    public Brand(
+            BrandId id,
+            String name,
+            String logo) {
+        this.id = id;
+        this.name = name;
+        this.logo = logo;
+    }
 
-        int discount = suggestedPrice - salePrice;
-        if (suggestedPrice * 0.2 < discount) {
-            throw new IllegalArgumentException("优惠超过指导价 20%");
-        }
+    public BrandId getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLogo() {
+        return logo;
     }
 }

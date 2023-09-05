@@ -27,6 +27,8 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 
 public class DealerVariant {
     private DealerId dealerId;
+    private BrandId brandId;
+    private ManufacturerId manufacturerId;
     private ModelId modelId;
     private VariantId variantId;
     private int salePrice;
@@ -34,19 +36,41 @@ public class DealerVariant {
 
     public DealerVariant(
             DealerId dealerId,
+            BrandId brandId,
+            ManufacturerId manufacturerId,
             ModelId modelId,
             VariantId variantId,
             int salePrice,
             boolean deleted) {
         this.dealerId = dealerId;
+        this.brandId = brandId;
+        this.manufacturerId = manufacturerId;
         this.modelId = modelId;
         this.variantId = variantId;
         this.salePrice = salePrice;
         this.deleted = deleted;
     }
 
-    public void adjustSalePrice(int price) {
+    public DealerVariant(
+            DealerId dealerId,
+            ModelId modelId,
+            VariantId variantId,
+            int salePrice,
+            ManufacturerId manufacturerId,
+            BrandId brandId) {
+        this(dealerId, brandId, manufacturerId, modelId, variantId, salePrice, false);
+        DomainEventPublisher.instance().publish(new DealerVariantAdded(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                dealerId.getId(),
+                modelId.getId(),
+                variantId.getId()
+        ));
+    }
 
+    public void adjustSalePrice(
+            int price,
+            VariantSalePriceMaximumDiscountCheckService maximumDiscountCheckService) {
+        maximumDiscountCheckService.checkDiscount(variantId, price);
         salePrice = price;
 
         DomainEventPublisher.instance().publish(new DealerVariantUpdated(
@@ -86,5 +110,13 @@ public class DealerVariant {
 
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public BrandId getBrandId() {
+        return brandId;
+    }
+
+    public ManufacturerId getManufacturerId() {
+        return manufacturerId;
     }
 }

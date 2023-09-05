@@ -21,6 +21,8 @@
 
 package com.yujunyang.iddd.dealer.domain.car;
 
+import java.time.LocalDateTime;
+
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
@@ -28,15 +30,32 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 public class DealerModel {
     private DealerId dealerId;
     private ModelId modelId;
+    private BrandId brandId;
+    private ManufacturerId manufacturerId;
+    private LocalDateTime createTime;
     private boolean deleted;
-
 
     public DealerModel(
             DealerId dealerId,
-            ModelId modelId) {
+            ModelId modelId,
+            BrandId brandId,
+            ManufacturerId manufacturerId,
+            LocalDateTime createTime,
+            boolean deleted) {
         this.dealerId = dealerId;
         this.modelId = modelId;
-        this.deleted = false;
+        this.brandId = brandId;
+        this.manufacturerId = manufacturerId;
+        this.createTime = createTime;
+        this.deleted = deleted;
+    }
+
+    public DealerModel(
+            DealerId dealerId,
+            ModelId modelId,
+            ManufacturerId manufacturerId,
+            BrandId brandId) {
+        this(dealerId, modelId, brandId, manufacturerId, LocalDateTime.now(), false);
 
         DomainEventPublisher.instance().publish(new DealerModelAdded(
                 DateTimeUtilsEnhance.epochMilliSecond(),
@@ -61,6 +80,18 @@ public class DealerModel {
 
     public ModelId getModelId() {
         return modelId;
+    }
+
+    public BrandId getBrandId() {
+        return brandId;
+    }
+
+    public ManufacturerId getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
     }
 
     public boolean isDeleted() {

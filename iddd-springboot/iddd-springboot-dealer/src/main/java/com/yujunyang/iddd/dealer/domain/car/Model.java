@@ -21,39 +21,34 @@
 
 package com.yujunyang.iddd.dealer.domain.car;
 
-public class Variant {
-    private VariantId id;
-    private String name;
-    private int price;
+public class Model {
+    private ModelId id;
     private BrandId brandId;
     private ManufacturerId manufacturerId;
-    private ModelId modelId;
+    private String name;
+    private String image;
+    private int priceMin;
+    private int priceMax;
 
-    public Variant(
-            VariantId id,
-            String name,
-            int price,
+    public Model(
+            ModelId id,
             BrandId brandId,
             ManufacturerId manufacturerId,
-            ModelId modelId) {
+            String name,
+            String image,
+            int priceMin,
+            int priceMax) {
         this.id = id;
-        this.name = name;
-        this.price = price;
         this.brandId = brandId;
         this.manufacturerId = manufacturerId;
-        this.modelId = modelId;
+        this.name = name;
+        this.image = image;
+        this.priceMin = priceMin;
+        this.priceMax = priceMax;
     }
 
-    public VariantId getId() {
+    public ModelId getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getPrice() {
-        return price;
     }
 
     public BrandId getBrandId() {
@@ -64,7 +59,19 @@ public class Variant {
         return manufacturerId;
     }
 
-    public ModelId getModelId() {
-        return modelId;
+    public String getName() {
+        return name;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public int getPriceMin() {
+        return priceMin;
+    }
+
+    public int getPriceMax() {
+        return priceMax;
     }
 }
