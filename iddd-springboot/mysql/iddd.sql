@@ -38,8 +38,8 @@ DROP TABLE IF EXISTS
     `dealer`,
     `dealer_model`,
     `dealer_variant`,
-    `event`,
-    `event_registration`,
+    `activity`,
+    `activity_registration`,
     `sales_advisor`;
 
 CREATE TABLE `brand` (
@@ -170,7 +170,7 @@ CREATE TABLE `dealer_variant` (
                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `event` (
+CREATE TABLE `activity` (
                          `id` bigint NOT NULL AUTO_INCREMENT,
                          `uid` varchar(50) not null default '',
                          `dealer_id` bigint not null default 0,
@@ -190,21 +190,24 @@ CREATE TABLE `event` (
                          UNIQUE KEY `uniq` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `event_registration` (
+CREATE TABLE `activity_registration` (
                                       `id` bigint NOT NULL AUTO_INCREMENT,
-                                      `event_id` varchar(50) not null default '',
+                                      `uid` varchar(50) not null default '',
+                                      `activity_id` varchar(50) not null default '',
                                       `dealer_id` varchar(50) not null default '',
                                       `user_name` varchar(100) not null default '',
                                       `user_mobile` varchar(100) not null default '',
                                       `usable_time_begin` datetime not null,
                                       `usable_time_end` datetime not null,
                                       `verification_code` varchar(50) not null,
-                                      `notify_status` tinyint not null,
-                                      `usage_status` tinyint not null default 0,
+                                      `registration_time` datetime not null,
+                                      `use_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                      `status` tinyint not null default 0,
                                       `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                       `deleted` tinyint NOT NULL DEFAULT '0',
-                                      PRIMARY KEY (`id`)
+                                      PRIMARY KEY (`id`),
+                                      UNIQUE KEY `uniq` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `sales_advisor` (
