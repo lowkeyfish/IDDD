@@ -17,24 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.dealer.domain.activity;
 
-public class Participant {
-    private String name;
-    private String mobileNumber;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-    public Participant(String name, String mobileNumber) {
-        this.name = name;
-        this.mobileNumber = mobileNumber;
+@Service
+public class ActivityRegistrationLimitService {
+    private ActivityRegistrationRepository activityRegistrationRepository;
+
+    @Autowired
+    public ActivityRegistrationLimitService(
+            ActivityRegistrationRepository activityRegistrationRepository) {
+        this.activityRegistrationRepository = activityRegistrationRepository;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getMobileNumber() {
-        return mobileNumber;
+    public boolean isRestricted(Activity activity, Participant participant) {
+        ActivityRegistration activityRegistration = activityRegistrationRepository.findBy(
+                activity.getId(), participant.getMobileNumber());
+        return activityRegistration != null;
     }
 }

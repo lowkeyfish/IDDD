@@ -17,24 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.dealer.domain.activity;
 
-public class Participant {
-    private String name;
-    private String mobileNumber;
+import java.util.List;
 
-    public Participant(String name, String mobileNumber) {
-        this.name = name;
-        this.mobileNumber = mobileNumber;
-    }
+public interface ActivityRepository {
+    Activity findById(ActivityId activityId);
 
-    public String getName() {
-        return name;
-    }
-
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
+    List<Activity> findBy(String name, List<ActivityStatusType> statusList);
 }

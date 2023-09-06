@@ -17,24 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package com.yujunyang.iddd.dealer.domain.activity;
+package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
-public class Participant {
-    private String name;
-    private String mobileNumber;
+import java.util.ArrayList;
+import java.util.List;
 
-    public Participant(String name, String mobileNumber) {
-        this.name = name;
-        this.mobileNumber = mobileNumber;
+import com.yujunyang.iddd.dealer.domain.activity.Activity;
+import com.yujunyang.iddd.dealer.domain.activity.ActivityId;
+import com.yujunyang.iddd.dealer.domain.activity.ActivityRepository;
+import com.yujunyang.iddd.dealer.domain.activity.ActivityStatusType;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class MyBatisActivityRepository implements ActivityRepository {
+    @Override
+    public Activity findById(ActivityId activityId) {
+        return null;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getMobileNumber() {
-        return mobileNumber;
+    @Override
+    public List<Activity> findBy(String name, List<ActivityStatusType> statusList) {
+        return new ArrayList<>();
     }
 }

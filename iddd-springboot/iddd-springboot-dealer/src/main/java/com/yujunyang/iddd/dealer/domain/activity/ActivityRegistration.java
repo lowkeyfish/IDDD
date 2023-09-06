@@ -24,6 +24,7 @@ package com.yujunyang.iddd.dealer.domain.activity;
 import java.time.LocalDateTime;
 
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
+import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
@@ -60,21 +61,14 @@ public class ActivityRegistration {
         this.useTime = useTime;
     }
 
-    public static ActivityRegistration newActivityRegistration(
+    public ActivityRegistration(
             ActivityRegistrationId id,
             DealerId dealerId,
             ActivityId activityId,
             Participant participant,
             LocalDateTime registrationTime,
             TimeRange usableTimeRange) {
-        DomainEventPublisher.instance().publish(new ActivityRegistrationCreated(
-                dealerId.getId(),
-                activityId.getId(),
-                id.getId(),
-                DateTimeUtilsEnhance.epochMilliSecond()
-        ));
-
-        return new ActivityRegistration(
+        this(
                 id,
                 dealerId,
                 activityId,
@@ -85,6 +79,24 @@ public class ActivityRegistration {
                 ActivityRegistrationStatusType.VERIFICATION_CODE_GENERATING,
                 null
         );
+
+        CheckUtils.notNull(id, "id 必须不为 null");
+        CheckUtils.notNull(dealerId, "dealerId 必须不为 null");
+        CheckUtils.notNull(activityId, "activityId 必须不为 null");
+        CheckUtils.notNull(participant, "participant 必须不为 null");
+        CheckUtils.notNull(registrationTime, "registrationTime 必须不为 null");
+        CheckUtils.notNull(usableTimeRange, "usableTimeRange 必须不为 null");
+
+        DomainEventPublisher.instance().publish(new ActivityRegistrationCreated(
+                dealerId.getId(),
+                activityId.getId(),
+                id.getId(),
+                DateTimeUtilsEnhance.epochMilliSecond()
+        ));
+    }
+
+    public void generateVerificationCode() {
+
     }
 
     public ActivityRegistrationId getId() {

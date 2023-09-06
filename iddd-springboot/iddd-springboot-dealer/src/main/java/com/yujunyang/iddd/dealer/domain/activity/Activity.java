@@ -113,7 +113,8 @@ public class Activity {
             String image,
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
-            int participantLimit) {
+            int participantLimit,
+            ActivityNameUniquenessCheckService nameUniquenessCheckService) {
         if (ActivityStatusType.ONLINE.equals(status)) {
             throw new UnsupportedOperationException("活动已上线不支持修改");
         }
@@ -130,6 +131,9 @@ public class Activity {
                 participantLimit
         );
 
+        boolean nameUsed = nameUniquenessCheckService.isNameUsed(this, name);
+        CheckUtils.isTrue(!nameUsed, "name 已被其他活动使用");
+
         this.name = name;
         this.summary = summary;
         this.image = image;
@@ -144,7 +148,9 @@ public class Activity {
         ));
     }
 
-    public ActivityRegistration register(Participant participant) {
+    public ActivityRegistration register(
+            Participant participant,
+            ActivityRegistrationLimitService registrationLimitService) {
         CheckUtils.notNull(participant, "participant 必须不为 null");
 
         if (!status.equals(ActivityStatusType.ONLINE)) {
@@ -155,9 +161,14 @@ public class Activity {
             throw new UnsupportedOperationException("活动参与人数已达上限");
         }
 
+        boolean restricted = registrationLimitService.isRestricted(this, participant);
+        if (restricted) {
+            throw new UnsupportedOperationException("用户参与活动次数已达到限制");
+        }
+
         participantCount++;
 
-        return ActivityRegistration.newActivityRegistration(
+        return new ActivityRegistration(
                 new ActivityRegistrationId(IdUtils.newId()),
                 dealerId,
                 id,

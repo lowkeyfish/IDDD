@@ -22,6 +22,7 @@
 
 package com.yujunyang.iddd.dealer;
 
+import com.yujunyang.iddd.dealer.domain.activity.ActivityRegistrationVerificationCodeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -29,7 +30,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 class IdddSpringbootDealerApplicationTests {
 
     @Test
-    void contextLoads() {
+    public void activityRegistrationVerificationCode() {
+        ActivityRegistrationVerificationCodeService service = new ActivityRegistrationVerificationCodeService();
+        System.out.println(service.generate());
     }
 
 }

@@ -23,6 +23,8 @@ package com.yujunyang.iddd.dealer.domain.common;
 
 import java.time.LocalDateTime;
 
+import com.yujunyang.iddd.common.utils.CheckUtils;
+
 public class TimeRange {
     private LocalDateTime begin;
     private LocalDateTime end;
@@ -30,6 +32,12 @@ public class TimeRange {
     public TimeRange(
             LocalDateTime begin,
             LocalDateTime end) {
+        CheckUtils.notNull(begin, "begin 必须不为 null");
+        CheckUtils.notNull(end, "end 必须不为 null");
+        CheckUtils.isTrue(
+                begin.isEqual(end) ||
+                begin.isBefore(end), "begin 必须不晚于 end");
+
         this.begin = begin;
         this.end = end;
     }
@@ -41,4 +49,11 @@ public class TimeRange {
     public LocalDateTime getEnd() {
         return end;
     }
+
+    public boolean include(LocalDateTime time) {
+        CheckUtils.notNull(time, "time 必须不为 null");
+
+        return (begin.isEqual(time) || begin.isBefore(time)) && (end.isEqual(time) && end.isAfter(time));
+    }
+
 }

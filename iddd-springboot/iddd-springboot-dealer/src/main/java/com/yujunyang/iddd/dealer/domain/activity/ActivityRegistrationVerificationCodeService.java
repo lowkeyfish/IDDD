@@ -17,24 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.dealer.domain.activity;
 
-public class Participant {
-    private String name;
-    private String mobileNumber;
+import java.security.SecureRandom;
+import java.util.Base64;
 
-    public Participant(String name, String mobileNumber) {
-        this.name = name;
-        this.mobileNumber = mobileNumber;
-    }
+import org.springframework.stereotype.Service;
 
-    public String getName() {
-        return name;
-    }
+@Service
+public class ActivityRegistrationVerificationCodeService {
 
-    public String getMobileNumber() {
-        return mobileNumber;
+    public String generate() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] bytes = new byte[16];
+        secureRandom.nextBytes(bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }
