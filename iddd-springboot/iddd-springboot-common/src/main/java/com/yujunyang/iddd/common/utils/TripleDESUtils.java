@@ -57,8 +57,8 @@ public class TripleDESUtils {
 
     public static String key() {
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
-            keyGenerator.init(192);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("DESede");
+            keyGenerator.init(168);
             SecretKey secretKey = keyGenerator.generateKey();
             byte[] bytes = secretKey.getEncoded();
             String key = Base64.getEncoder().encodeToString(bytes);
@@ -83,10 +83,10 @@ public class TripleDESUtils {
     private static Cipher cipher(String key, String iv, int opMode) {
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
-            DESedeKeySpec desKeySpec = new DESedeKeySpec(key.getBytes(StandardCharsets.UTF_8));
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(ALGORITHM);
+            DESedeKeySpec desKeySpec = new DESedeKeySpec(Base64.getDecoder().decode(key));
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DESede");
             SecretKey secretKey = keyFactory.generateSecret(desKeySpec);
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes(StandardCharsets.UTF_8));
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(Base64.getDecoder().decode(iv));
             cipher.init(opMode, secretKey, ivParameterSpec);
             return cipher;
         } catch (Exception e) {

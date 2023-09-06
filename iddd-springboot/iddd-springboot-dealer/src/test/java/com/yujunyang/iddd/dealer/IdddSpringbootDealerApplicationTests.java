@@ -22,6 +22,7 @@
 
 package com.yujunyang.iddd.dealer;
 
+import com.yujunyang.iddd.common.utils.TripleDESUtils;
 import com.yujunyang.iddd.dealer.domain.activity.ActivityRegistrationVerificationCodeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +34,17 @@ class IdddSpringbootDealerApplicationTests {
     public void activityRegistrationVerificationCode() {
         ActivityRegistrationVerificationCodeService service = new ActivityRegistrationVerificationCodeService();
         System.out.println(service.generate());
+    }
+
+    @Test
+    public void encrypt() {
+        String key = "zmsgDVSDPm5KyMj71rxkRU+UFuXy3ykT";
+        String iv = TripleDESUtils.iv();
+        String encrypt = TripleDESUtils.encrypt("123123", key, iv);
+        System.out.println(encrypt);
+
+        String decrypt = TripleDESUtils.decrypt(encrypt, key, iv);
+        System.out.println(decrypt);
     }
 
 }
