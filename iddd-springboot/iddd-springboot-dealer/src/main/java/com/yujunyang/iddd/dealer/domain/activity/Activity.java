@@ -22,6 +22,7 @@
 package com.yujunyang.iddd.dealer.domain.activity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
 import com.yujunyang.iddd.common.utils.CheckUtils;
@@ -40,6 +41,7 @@ public class Activity {
     private TimeRange usableTimeRange;
     private int participantLimit;
     private int participantCount;
+    private List<ActivityGift> gifts;
     private ActivityStatusType status;
     private boolean deleted;
 
@@ -53,6 +55,7 @@ public class Activity {
             TimeRange usableTimeRange,
             int participantLimit,
             int participantCount,
+            List<ActivityGift> gifts,
             ActivityStatusType status,
             boolean deleted) {
         this.dealerId = dealerId;
@@ -64,6 +67,7 @@ public class Activity {
         this.usableTimeRange = usableTimeRange;
         this.participantLimit = participantLimit;
         this.participantCount = participantCount;
+        this.gifts = gifts;
         this.status = status;
         this.deleted = deleted;
     }
@@ -76,7 +80,8 @@ public class Activity {
             String image,
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
-            int participantLimit) {
+            int participantLimit,
+            List<ActivityGift> gifts) {
         this(
                 dealerId,
                 id,
@@ -87,6 +92,7 @@ public class Activity {
                 usableTimeRange,
                 participantLimit,
                 0,
+                gifts,
                 ActivityStatusType.PENDING,
                 false
         );
@@ -97,7 +103,8 @@ public class Activity {
                 image,
                 visibleTimeRange,
                 usableTimeRange,
-                participantLimit
+                participantLimit,
+                gifts
         );
 
         DomainEventPublisher.instance().publish(new ActivityCreated(
@@ -114,6 +121,7 @@ public class Activity {
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
             int participantLimit,
+            List<ActivityGift> gifts,
             ActivityNameUniquenessCheckService nameUniquenessCheckService) {
         if (ActivityStatusType.ONLINE.equals(status)) {
             throw new UnsupportedOperationException("活动已上线不支持修改");
@@ -128,8 +136,8 @@ public class Activity {
                 image,
                 visibleTimeRange,
                 usableTimeRange,
-                participantLimit
-        );
+                participantLimit,
+                gifts);
 
         boolean nameUsed = nameUniquenessCheckService.isNameUsed(this, name);
         CheckUtils.isTrue(!nameUsed, "name 已被其他活动使用");
@@ -147,6 +155,8 @@ public class Activity {
                 DateTimeUtilsEnhance.epochMilliSecond()
         ));
     }
+
+
 
     public ActivityRegistration register(
             Participant participant,
@@ -224,7 +234,7 @@ public class Activity {
             String image,
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
-            int participantLimit) {
+            int participantLimit, List<ActivityGift> gifts) {
         CheckUtils.notBlank(name, "name 必须不为空");
         CheckUtils.notBlank(summary, "summary 必须不为空");
         CheckUtils.notBlank(image, "image 必须不为空");

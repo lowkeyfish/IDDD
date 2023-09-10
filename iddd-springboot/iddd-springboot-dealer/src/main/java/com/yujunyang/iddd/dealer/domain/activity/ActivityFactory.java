@@ -22,11 +22,15 @@
 
 package com.yujunyang.iddd.dealer.domain.activity;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
+import com.yujunyang.iddd.dealer.domain.gift.Gift;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +54,8 @@ public class ActivityFactory {
             String image,
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
-            int participantLimit) {
+            int participantLimit,
+            Map<Gift, Integer> gifts) {
         CheckUtils.notNull(dealer, "dealer 必须不为 null");
         CheckUtils.notBlank(name, "name 必须不为空");
         CheckUtils.notBlank(summary, "summary 必须不为空");
@@ -78,7 +83,11 @@ public class ActivityFactory {
                 image,
                 visibleTimeRange,
                 usableTimeRange,
-                participantLimit
+                participantLimit,
+                gifts.entrySet().stream().map(n -> new ActivityGift(
+                        n.getKey().getId(),
+                        n.getValue()
+                )).collect(Collectors.toList())
         );
     }
 }
