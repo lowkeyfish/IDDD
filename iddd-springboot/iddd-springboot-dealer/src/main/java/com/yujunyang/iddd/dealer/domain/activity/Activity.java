@@ -156,7 +156,13 @@ public class Activity {
         ));
     }
 
+    public void start() {
 
+    }
+
+     public void end() {
+
+     }
 
     public ActivityRegistration register(
             Participant participant,
