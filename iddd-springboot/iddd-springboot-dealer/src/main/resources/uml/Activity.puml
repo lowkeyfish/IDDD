@@ -1,0 +1,59 @@
+@startuml
+'!theme reddress-lightred
+!theme sketchy-outline
+skinparam backgroundColor white
+
+skinparam class {
+'  ArrowColor black
+'  BorderColor black
+'  FontName Jetbrains Mono
+  ArrowThickness 0.5
+  BorderThickness 1
+  AttributeIconSize 12
+  AttributeFontSize 14
+'  AttributeFontName Jetbrains Mono
+'  BackgroundColor white
+}
+
+
+
+
+
+
+
+
+ class Activity <<Aggregate Root>> {
+  -- private fields --
+  -id: ActivityId
+  -dealerId: DealerId
+  -name: String
+  -summary: String
+  -image: String
+  -visibleTimeRange: TimeRange
+  -usableTimeRange: TimeRange
+  -participantLimit: int
+  -gifts: List<ActivityGift>
+  -status: ActivityStatusType
+  -deleted: boolean
+  -- constructors --
+  +Activity()
+  +Activity()
+  -- methods --
+  +update(): void
+  +start(): void
+  +end(): void
+  +register(): ActivityRegistration
+}
+
+
+
+Activity ..> DealerId
+Activity --> ActivityId
+Activity --> TimeRange
+Activity --> ActivityGift
+Activity --> ActivityStatusType
+Activity --> Participant
+Activity --> ActivityRegistrationLimitService
+Activity --> ActivityNameUniquenessCheckService
+Activity --> ActivityRegistration
+@enduml

@@ -190,44 +190,8 @@ public class Activity {
         );
     }
 
-    public DealerId getDealerId() {
-        return dealerId;
-    }
-
-    public ActivityId getId() {
+    public ActivityId id() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getSummary() {
-        return summary;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public TimeRange getVisibleTimeRange() {
-        return visibleTimeRange;
-    }
-
-    public TimeRange getUsableTimeRange() {
-        return usableTimeRange;
-    }
-
-    public int getParticipantLimit() {
-        return participantLimit;
-    }
-
-    public ActivityStatusType getStatus() {
-        return status;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
     }
 
     private void checkData(

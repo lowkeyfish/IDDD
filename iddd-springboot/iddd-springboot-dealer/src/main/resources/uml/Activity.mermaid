@@ -1,0 +1,29 @@
+classDiagram
+
+class Activity {
+    <<聚合根>>
+    -ActivityId id
+    -DealerId dealerId
+    -String name
+    -String summary
+    -String image
+    -TimeRange visibleTimeRange
+    -TimeRange usableTimeRange
+    -int participantLimit
+    -List~ActivityGift~ gifts
+    -ActivityStatusType status
+    -boolean deleted
+
+    +Activity()
+    +Activity()
+
+    +udpate() void
+    +start() void
+    +end() void
+    +register() ActivityRegistration
+}
+
+class ActivityStatusType {
+    <<枚举>>
+}
+
