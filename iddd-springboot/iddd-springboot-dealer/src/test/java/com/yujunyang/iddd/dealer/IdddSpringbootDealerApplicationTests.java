@@ -22,6 +22,8 @@
 
 package com.yujunyang.iddd.dealer;
 
+import java.time.LocalDate;
+
 import com.yujunyang.iddd.common.utils.TripleDESUtils;
 import com.yujunyang.iddd.dealer.domain.activity.ActivityRegistrationVerificationCodeService;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,7 @@ class IdddSpringbootDealerApplicationTests {
     public void activityRegistrationVerificationCode() {
         ActivityRegistrationVerificationCodeService service = new ActivityRegistrationVerificationCodeService();
         System.out.println(service.generate());
+        LocalDate.now().plusDays(1);
     }
 
     @Test

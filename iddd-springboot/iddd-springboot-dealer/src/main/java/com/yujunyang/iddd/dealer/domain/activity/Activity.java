@@ -23,6 +23,8 @@ package com.yujunyang.iddd.dealer.domain.activity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
 import com.yujunyang.iddd.common.utils.CheckUtils;
@@ -30,6 +32,7 @@ import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+import com.yujunyang.iddd.dealer.domain.gift.GiftId;
 
 public class Activity {
     private DealerId dealerId;
@@ -40,7 +43,6 @@ public class Activity {
     private TimeRange visibleTimeRange;
     private TimeRange usableTimeRange;
     private int participantLimit;
-    private int participantCount;
     private List<ActivityGift> gifts;
     private ActivityStatusType status;
     private boolean deleted;
@@ -54,7 +56,6 @@ public class Activity {
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
             int participantLimit,
-            int participantCount,
             List<ActivityGift> gifts,
             ActivityStatusType status,
             boolean deleted) {
@@ -66,7 +67,6 @@ public class Activity {
         this.visibleTimeRange = visibleTimeRange;
         this.usableTimeRange = usableTimeRange;
         this.participantLimit = participantLimit;
-        this.participantCount = participantCount;
         this.gifts = gifts;
         this.status = status;
         this.deleted = deleted;
@@ -81,7 +81,7 @@ public class Activity {
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
             int participantLimit,
-            List<ActivityGift> gifts) {
+            Map<GiftId, Integer> gifts) {
         this(
                 dealerId,
                 id,
@@ -91,8 +91,10 @@ public class Activity {
                 visibleTimeRange,
                 usableTimeRange,
                 participantLimit,
-                0,
-                gifts,
+                gifts.entrySet().stream().map(n -> new ActivityGift(
+                        n.getKey(),
+                        n.getValue()
+                )).collect(Collectors.toList()),
                 ActivityStatusType.PENDING,
                 false
         );
@@ -121,7 +123,7 @@ public class Activity {
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
             int participantLimit,
-            List<ActivityGift> gifts,
+            Map<GiftId, Integer> gifts,
             ActivityNameUniquenessCheckService nameUniquenessCheckService) {
         if (ActivityStatusType.ONLINE.equals(status)) {
             throw new UnsupportedOperationException("活动已上线不支持修改");
@@ -160,7 +162,7 @@ public class Activity {
 
     }
 
-     public void end() {
+     public void stop() {
 
      }
 
@@ -173,16 +175,10 @@ public class Activity {
             throw new UnsupportedOperationException("活动非上线状态");
         }
 
-        if (participantLimit > participantCount) {
-            throw new UnsupportedOperationException("活动参与人数已达上限");
-        }
-
         boolean restricted = registrationLimitService.isRestricted(this, participant);
         if (restricted) {
             throw new UnsupportedOperationException("用户参与活动次数已达到限制");
         }
-
-        participantCount++;
 
         return new ActivityRegistration(
                 new ActivityRegistrationId(IdUtils.newId()),
@@ -240,7 +236,8 @@ public class Activity {
             String image,
             TimeRange visibleTimeRange,
             TimeRange usableTimeRange,
-            int participantLimit, List<ActivityGift> gifts) {
+            int participantLimit,
+            Map<GiftId, Integer> gifts) {
         CheckUtils.notBlank(name, "name 必须不为空");
         CheckUtils.notBlank(summary, "summary 必须不为空");
         CheckUtils.notBlank(image, "image 必须不为空");
