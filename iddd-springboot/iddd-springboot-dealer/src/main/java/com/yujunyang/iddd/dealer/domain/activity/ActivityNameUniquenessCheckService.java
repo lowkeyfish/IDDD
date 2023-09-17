@@ -51,7 +51,7 @@ public class ActivityNameUniquenessCheckService {
                 name,
                 Arrays.asList(ActivityStatusType.PENDING, ActivityStatusType.ONLINE))
                 .stream()
-                .filter(n -> !n.getId().equals(self.getId())).collect(Collectors.toList());
+                .filter(n -> !n.id().equals(self.id())).collect(Collectors.toList());
         return !CollectionUtils.isEmpty(activityList);
     }
 }

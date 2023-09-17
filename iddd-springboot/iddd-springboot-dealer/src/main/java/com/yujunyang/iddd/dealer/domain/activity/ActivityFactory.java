@@ -29,24 +29,25 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import com.yujunyang.iddd.dealer.domain.gift.Gift;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityFactory {
-    private ActivityRepository activityRepository;
     private ActivityNameUniquenessCheckService activityNameUniquenessCheckService;
 
     @Autowired
     public ActivityFactory(
-            ActivityRepository activityRepository,
             ActivityNameUniquenessCheckService activityNameUniquenessCheckService) {
-        this.activityRepository = activityRepository;
         this.activityNameUniquenessCheckService = activityNameUniquenessCheckService;
     }
 
+    /*
+     * 使用 Dealer 而不是 DealerId，可以避免外部已经有 Dealer 的情况下内部重复去获取，而且可以让内部
+     * 不用考虑 Dealer 的获取，减少依赖，保持 Factory 的依赖性和复杂性。还有一点前提是 Activity 并不
+     * 直接使用（引用）Dealer，直接引用的不能由外部传入，防止外部保持引用并修改而导致聚合根数据不一致
+     */
     public Activity createActivity(
             Dealer dealer,
             String name,
@@ -75,6 +76,7 @@ public class ActivityFactory {
         boolean nameUsed = activityNameUniquenessCheckService.isNameUsed(name);
         CheckUtils.isTrue(!nameUsed, "name 已被其他活动使用");
 
+
         return new Activity(
                 dealer.getId(),
                 new ActivityId(IdUtils.newId()),
@@ -84,10 +86,7 @@ public class ActivityFactory {
                 visibleTimeRange,
                 usableTimeRange,
                 participantLimit,
-                gifts.entrySet().stream().map(n -> new ActivityGift(
-                        n.getKey().getId(),
-                        n.getValue()
-                )).collect(Collectors.toList())
+                gifts.entrySet().stream().collect(Collectors.toMap(n -> n.getKey().getId(), n -> n.getValue()))
         );
     }
 }

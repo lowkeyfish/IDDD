@@ -194,6 +194,25 @@ public class Activity {
         return id;
     }
 
+    public ActivitySnapshot snapshot() {
+        return new ActivitySnapshot(
+                id,
+                name,
+                summary,
+                image,
+                visibleTimeRange,
+                usableTimeRange,
+                participantLimit,
+                gifts.stream().map(n -> new ActivityGiftSnapshot(
+                        n.getGiftId(),
+                        n.getCount(),
+                        n.getRemainingCount()
+                )).collect(Collectors.toList()),
+                status,
+                deleted
+        );
+    }
+
     private void checkData(
             String name,
             String summary,

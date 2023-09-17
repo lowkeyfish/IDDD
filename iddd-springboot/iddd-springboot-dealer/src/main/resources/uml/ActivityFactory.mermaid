@@ -1,0 +1,6 @@
+classDiagram
+    class ActivityFactory {
+        <<工厂>>
+        -ActivityNameUniquenessCheckService activityNameUniquenessCheckService
+        +createFactory(\n&nbsp;&nbsp;Dealer dealer,\n&nbsp;&nbsp;String name,\n&nbsp;&nbsp;String summary,\n&nbsp;&nbsp;String image,\n&nbsp;&nbsp;TimeRange visibleTimeRange,\n&nbsp;&nbsp;TimeRange usableTimeRange,\n&nbsp;&nbsp;int participantLimit,\n&nbsp;&nbsp;Map&lt;Gift, Integer&gt; gifts\n): Activity
+    }
