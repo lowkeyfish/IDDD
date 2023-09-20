@@ -41,7 +41,7 @@ public class Activity {
     private String summary;
     private String image;
     private TimeRange visibleTimeRange;
-    private TimeRange usableTimeRange;
+    private TimeRange giftCollectionTimeRange;
     private int participantLimit;
     private List<ActivityGift> gifts;
     private ActivityStatusType status;
@@ -54,7 +54,7 @@ public class Activity {
             String summary,
             String image,
             TimeRange visibleTimeRange,
-            TimeRange usableTimeRange,
+            TimeRange giftCollectionTimeRange,
             int participantLimit,
             List<ActivityGift> gifts,
             ActivityStatusType status,
@@ -65,7 +65,7 @@ public class Activity {
         this.summary = summary;
         this.image = image;
         this.visibleTimeRange = visibleTimeRange;
-        this.usableTimeRange = usableTimeRange;
+        this.giftCollectionTimeRange = giftCollectionTimeRange;
         this.participantLimit = participantLimit;
         this.gifts = gifts;
         this.status = status;
@@ -79,7 +79,7 @@ public class Activity {
             String summary,
             String image,
             TimeRange visibleTimeRange,
-            TimeRange usableTimeRange,
+            TimeRange giftCollectionTimeRange,
             int participantLimit,
             Map<GiftId, Integer> gifts) {
         this(
@@ -89,7 +89,7 @@ public class Activity {
                 summary,
                 image,
                 visibleTimeRange,
-                usableTimeRange,
+                giftCollectionTimeRange,
                 participantLimit,
                 gifts.entrySet().stream().map(n -> new ActivityGift(
                         n.getKey(),
@@ -104,7 +104,7 @@ public class Activity {
                 summary,
                 image,
                 visibleTimeRange,
-                usableTimeRange,
+                giftCollectionTimeRange,
                 participantLimit,
                 gifts
         );
@@ -148,7 +148,7 @@ public class Activity {
         this.summary = summary;
         this.image = image;
         this.visibleTimeRange = visibleTimeRange;
-        this.usableTimeRange = usableTimeRange;
+        this.giftCollectionTimeRange = usableTimeRange;
         this.participantLimit = participantLimit;
 
         DomainEventPublisher.instance().publish(new ActivityUpdated(
@@ -158,13 +158,16 @@ public class Activity {
         ));
     }
 
+    public void delay() {
+
+    }
+
     public void start() {
 
     }
 
-     public void stop() {
-
-     }
+    public void stop() {
+    }
 
     public ActivityRegistration register(
             Participant participant,
@@ -186,13 +189,15 @@ public class Activity {
                 id,
                 participant,
                 LocalDateTime.now(),
-                usableTimeRange
+                giftCollectionTimeRange
         );
     }
 
     public ActivityId id() {
         return id;
     }
+
+
 
     public ActivitySnapshot snapshot() {
         return new ActivitySnapshot(
@@ -201,12 +206,11 @@ public class Activity {
                 summary,
                 image,
                 visibleTimeRange,
-                usableTimeRange,
+                giftCollectionTimeRange,
                 participantLimit,
                 gifts.stream().map(n -> new ActivityGiftSnapshot(
-                        n.getGiftId(),
-                        n.getCount(),
-                        n.getRemainingCount()
+                        n.id(),
+                        n.getCount()
                 )).collect(Collectors.toList()),
                 status,
                 deleted

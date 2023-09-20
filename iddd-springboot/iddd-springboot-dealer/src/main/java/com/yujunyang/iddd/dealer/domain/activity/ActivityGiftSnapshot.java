@@ -27,15 +27,12 @@ import com.yujunyang.iddd.dealer.domain.gift.GiftId;
 public class ActivityGiftSnapshot {
     private GiftId giftId;
     private int count;
-    private int remainingCount;
 
     ActivityGiftSnapshot(
             GiftId giftId,
-            int count,
-            int remainingCount) {
+            int count) {
         this.giftId = giftId;
         this.count = count;
-        this.remainingCount = remainingCount;
     }
 
     public GiftId getGiftId() {
@@ -44,9 +41,5 @@ public class ActivityGiftSnapshot {
 
     public int getCount() {
         return count;
-    }
-
-    public int getRemainingCount() {
-        return remainingCount;
     }
 }

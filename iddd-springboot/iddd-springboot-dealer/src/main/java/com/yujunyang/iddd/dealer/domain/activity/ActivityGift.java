@@ -27,32 +27,15 @@ import com.yujunyang.iddd.dealer.domain.gift.GiftId;
 public class ActivityGift {
     private GiftId giftId;
     private int count;
-    private int remainingCount;
 
     public ActivityGift(
             GiftId giftId,
             int count) {
-        this(giftId, count, count);
-    }
-
-    public ActivityGift(
-            GiftId giftId,
-            int count,
-            int remainingCount) {
         this.giftId = giftId;
         this.count = count;
-        this.remainingCount = remainingCount;
     }
 
-    public void receive() {
-        if (remainingCount <= 0) {
-            throw new UnsupportedOperationException("礼品已被领取完");
-        }
-        remainingCount--;
-    }
-
-
-    public GiftId getGiftId() {
+    public GiftId id() {
         return giftId;
     }
 
@@ -60,7 +43,4 @@ public class ActivityGift {
         return count;
     }
 
-    public int getRemainingCount() {
-        return remainingCount;
-    }
 }
