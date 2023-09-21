@@ -28,9 +28,9 @@ import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
 public enum ActivityStatusType implements ValueDescriptionEnum<Integer> {
-    PENDING(1, "待上线"),
-    ONLINE(2, "上线"),
-    OFFLINE(3, "下线");
+    PENDING(1, "未开始"),
+    STARTED(2, "已开始"),
+    ENDED(3, "已结束");
 
     @JsonValue
     private int value;

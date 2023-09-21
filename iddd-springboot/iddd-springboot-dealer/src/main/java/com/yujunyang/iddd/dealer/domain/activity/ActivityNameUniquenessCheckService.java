@@ -42,14 +42,14 @@ public class ActivityNameUniquenessCheckService {
 
     public boolean isNameUsed(String name) {
         List<Activity> activityList =
-                activityRepository.findBy(name, Arrays.asList(ActivityStatusType.PENDING, ActivityStatusType.ONLINE));
+                activityRepository.findBy(name, Arrays.asList(ActivityStatusType.PENDING, ActivityStatusType.STARTED));
         return !CollectionUtils.isEmpty(activityList);
     }
 
     public boolean isNameUsed(Activity self, String name) {
         List<Activity> activityList = activityRepository.findBy(
                 name,
-                Arrays.asList(ActivityStatusType.PENDING, ActivityStatusType.ONLINE))
+                Arrays.asList(ActivityStatusType.PENDING, ActivityStatusType.STARTED))
                 .stream()
                 .filter(n -> !n.id().equals(self.id())).collect(Collectors.toList());
         return !CollectionUtils.isEmpty(activityList);

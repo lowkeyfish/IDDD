@@ -41,11 +41,12 @@ public class Activity {
     private String name;
     private String summary;
     private String image;
-    private TimeRange visibleTimeRange;
-    private TimeRange usableTimeRange;
+    private TimeRange registrationTimeRange;
+    private TimeRange participationTimeRange;
     private int participantLimit;
     private List<ActivityGift> gifts;
-    private ActivityStatusType status;
+    private ActivityStatusType registrationStatus;
+    private ActivityStatusType participationStatus;
     private boolean deleted;
     private boolean updated;
 
@@ -55,22 +56,24 @@ public class Activity {
             String name,
             String summary,
             String image,
-            TimeRange visibleTimeRange,
-            TimeRange usableTimeRange,
+            TimeRange registrationTimeRange,
+            TimeRange participationTimeRange,
             int participantLimit,
             List<ActivityGift> gifts,
-            ActivityStatusType status,
+            ActivityStatusType registrationStatus,
+            ActivityStatusType participationStatus,
             boolean deleted) {
         this.dealerId = dealerId;
         this.id = id;
         this.name = name;
         this.summary = summary;
         this.image = image;
-        this.visibleTimeRange = visibleTimeRange;
-        this.usableTimeRange = usableTimeRange;
+        this.registrationTimeRange = registrationTimeRange;
+        this.participationTimeRange = participationTimeRange;
         this.participantLimit = participantLimit;
         this.gifts = gifts;
-        this.status = status;
+        this.registrationStatus = registrationStatus;
+        this.participationStatus = participationStatus;
         this.deleted = deleted;
     }
 
@@ -80,8 +83,8 @@ public class Activity {
             String name,
             String summary,
             String image,
-            TimeRange visibleTimeRange,
-            TimeRange usableTimeRange,
+            TimeRange registrationTimeRange,
+            TimeRange participationTimeRange,
             int participantLimit,
             Map<GiftId, Integer> gifts) {
         this(
@@ -90,13 +93,14 @@ public class Activity {
                 name,
                 summary,
                 image,
-                visibleTimeRange,
-                usableTimeRange,
+                registrationTimeRange,
+                participationTimeRange,
                 participantLimit,
                 gifts.entrySet().stream().map(n -> new ActivityGift(
                         n.getKey(),
                         n.getValue()
                 )).collect(Collectors.toList()),
+                ActivityStatusType.PENDING,
                 ActivityStatusType.PENDING,
                 false
         );
@@ -105,8 +109,8 @@ public class Activity {
                 name,
                 summary,
                 image,
-                visibleTimeRange,
-                usableTimeRange,
+                registrationTimeRange,
+                participationTimeRange,
                 participantLimit,
                 gifts
         );
@@ -127,11 +131,11 @@ public class Activity {
             int participantLimit,
             Map<GiftId, Integer> gifts,
             ActivityNameUniquenessCheckService nameUniquenessCheckService) {
-        if (ActivityStatusType.ONLINE.equals(status)) {
-            throw new UnsupportedOperationException("活动已上线不支持修改");
+        if (ActivityStatusType.STARTED.equals(status)) {
+            throw new UnsupportedOperationException("活动已开始不支持修改");
         }
-        if (ActivityStatusType.OFFLINE.equals(status)) {
-            throw new UnsupportedOperationException("活动已下线不支持修改");
+        if (ActivityStatusType.ENDED.equals(status)) {
+            throw new UnsupportedOperationException("活动已结束不支持修改");
         }
 
         checkData(
@@ -149,8 +153,8 @@ public class Activity {
         this.name = name;
         this.summary = summary;
         this.image = image;
-        this.visibleTimeRange = visibleTimeRange;
-        this.usableTimeRange = usableTimeRange;
+        this.registrationTimeRange = visibleTimeRange;
+        this.participationTimeRange = usableTimeRange;
         this.participantLimit = participantLimit;
 
         DomainEventPublisher.instance().publish(new ActivityUpdated(
@@ -164,7 +168,7 @@ public class Activity {
             String name,
             ActivityNameUniquenessCheckService nameUniquenessCheckService) {
         if (ActivityStatusType.PENDING.equals(status)) {
-            throw new UnsupportedOperationException("活动只支持在待上线状态修改名称");
+            throw new UnsupportedOperationException("活动只支持在待开始状态修改名称");
         }
 
         CheckUtils.isTrue(
@@ -179,39 +183,39 @@ public class Activity {
     }
 
     public void delay() {
-        if (ActivityStatusType.OFFLINE.equals(status)) {
-            throw new UnsupportedOperationException("活动已下线不支持延期");
+        if (ActivityStatusType.ENDED.equals(status)) {
+            throw new UnsupportedOperationException("活动已开始不支持延期");
         }
 
-        visibleTimeRange.delayEnd(30, ChronoUnit.DAYS);
-        usableTimeRange.delayEnd(30, ChronoUnit.DAYS);
+        registrationTimeRange.delayEnd(30, ChronoUnit.DAYS);
+        participationTimeRange.delayEnd(30, ChronoUnit.DAYS);
 
         updated();
     }
 
     public void start() {
-        if (ActivityStatusType.ONLINE.equals(status)) {
+        if (ActivityStatusType.STARTED.equals(status)) {
             return;
         }
 
-        if (ActivityStatusType.OFFLINE.equals(status)) {
-            throw new UnsupportedOperationException("活动已下线");
+        if (ActivityStatusType.ENDED.equals(status)) {
+            throw new UnsupportedOperationException("活动已结束");
         }
 
         if (!ActivityStatusType.PENDING.equals(status)) {
-            throw new UnsupportedOperationException("活动非待上线状态");
+            throw new UnsupportedOperationException("活动非待开始状态");
         }
 
-        if (!visibleTimeRange.inProgress()) {
-            if (visibleTimeRange.notStarted()) {
-                throw new UnsupportedOperationException("活动未到上线时间");
+        if (!registrationTimeRange.inProgress()) {
+            if (registrationTimeRange.notStarted()) {
+                throw new UnsupportedOperationException("活动未到开始时间");
             }
-            if (visibleTimeRange.ended()) {
-                throw new UnsupportedOperationException("活动已过下线时间");
+            if (registrationTimeRange.ended()) {
+                throw new UnsupportedOperationException("活动已过结束时间");
             }
         }
 
-        status = ActivityStatusType.ONLINE;
+        status = ActivityStatusType.STARTED;
 
         DomainEventPublisher.instance().publish(new ActivityStarted(
                 dealerId.getId(),
@@ -221,19 +225,19 @@ public class Activity {
     }
 
     public void stop() {
-        if (ActivityStatusType.OFFLINE.equals(status)) {
+        if (ActivityStatusType.ENDED.equals(status)) {
             return;
         }
 
-        if (!ActivityStatusType.ONLINE.equals(status)) {
-            throw new UnsupportedOperationException("活动非上线状态");
+        if (!ActivityStatusType.STARTED.equals(status)) {
+            throw new UnsupportedOperationException("活动非开始状态");
         }
 
-        if (!visibleTimeRange.ended()) {
-            throw new UnsupportedOperationException("活动未到下线时间");
+        if (!registrationTimeRange.ended()) {
+            throw new UnsupportedOperationException("活动未到结束时间");
         }
 
-        status = ActivityStatusType.OFFLINE;
+        status = ActivityStatusType.ENDED;
 
         DomainEventPublisher.instance().publish(new ActivityEnded(
                 dealerId.getId(),
@@ -247,8 +251,8 @@ public class Activity {
             ActivityRegistrationLimitService registrationLimitService) {
         CheckUtils.notNull(participant, "participant 必须不为 null");
 
-        if (!status.equals(ActivityStatusType.ONLINE)) {
-            throw new UnsupportedOperationException("活动非上线状态");
+        if (!status.equals(ActivityStatusType.STARTED)) {
+            throw new UnsupportedOperationException("活动非开始状态");
         }
 
         boolean restricted = registrationLimitService.isRestricted(this, participant);
@@ -262,7 +266,7 @@ public class Activity {
                 id,
                 participant,
                 LocalDateTime.now(),
-                usableTimeRange
+                participationTimeRange
         );
     }
 
@@ -278,8 +282,8 @@ public class Activity {
                 name,
                 summary,
                 image,
-                visibleTimeRange,
-                usableTimeRange,
+                registrationTimeRange,
+                participationTimeRange,
                 participantLimit,
                 gifts.stream().map(n -> new ActivityGiftSnapshot(
                         n.id(),
