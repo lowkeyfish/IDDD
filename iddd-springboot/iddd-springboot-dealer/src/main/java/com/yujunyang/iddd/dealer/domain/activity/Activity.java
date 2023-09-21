@@ -22,6 +22,7 @@
 package com.yujunyang.iddd.dealer.domain.activity;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,11 +42,12 @@ public class Activity {
     private String summary;
     private String image;
     private TimeRange visibleTimeRange;
-    private TimeRange giftCollectionTimeRange;
+    private TimeRange usableTimeRange;
     private int participantLimit;
     private List<ActivityGift> gifts;
     private ActivityStatusType status;
     private boolean deleted;
+    private boolean updated;
 
     public Activity(
             DealerId dealerId,
@@ -54,7 +56,7 @@ public class Activity {
             String summary,
             String image,
             TimeRange visibleTimeRange,
-            TimeRange giftCollectionTimeRange,
+            TimeRange usableTimeRange,
             int participantLimit,
             List<ActivityGift> gifts,
             ActivityStatusType status,
@@ -65,7 +67,7 @@ public class Activity {
         this.summary = summary;
         this.image = image;
         this.visibleTimeRange = visibleTimeRange;
-        this.giftCollectionTimeRange = giftCollectionTimeRange;
+        this.usableTimeRange = usableTimeRange;
         this.participantLimit = participantLimit;
         this.gifts = gifts;
         this.status = status;
@@ -79,7 +81,7 @@ public class Activity {
             String summary,
             String image,
             TimeRange visibleTimeRange,
-            TimeRange giftCollectionTimeRange,
+            TimeRange usableTimeRange,
             int participantLimit,
             Map<GiftId, Integer> gifts) {
         this(
@@ -89,7 +91,7 @@ public class Activity {
                 summary,
                 image,
                 visibleTimeRange,
-                giftCollectionTimeRange,
+                usableTimeRange,
                 participantLimit,
                 gifts.entrySet().stream().map(n -> new ActivityGift(
                         n.getKey(),
@@ -104,7 +106,7 @@ public class Activity {
                 summary,
                 image,
                 visibleTimeRange,
-                giftCollectionTimeRange,
+                usableTimeRange,
                 participantLimit,
                 gifts
         );
@@ -148,7 +150,7 @@ public class Activity {
         this.summary = summary;
         this.image = image;
         this.visibleTimeRange = visibleTimeRange;
-        this.giftCollectionTimeRange = usableTimeRange;
+        this.usableTimeRange = usableTimeRange;
         this.participantLimit = participantLimit;
 
         DomainEventPublisher.instance().publish(new ActivityUpdated(
@@ -158,15 +160,86 @@ public class Activity {
         ));
     }
 
-    public void delay() {
+    public void rename(
+            String name,
+            ActivityNameUniquenessCheckService nameUniquenessCheckService) {
+        if (ActivityStatusType.PENDING.equals(status)) {
+            throw new UnsupportedOperationException("活动只支持在待上线状态修改名称");
+        }
 
+        CheckUtils.isTrue(
+                !nameUniquenessCheckService.isNameUsed(this, name),
+                "名称({0})已被使用",
+                name
+        );
+
+        this.name = name;
+
+        updated();
+    }
+
+    public void delay() {
+        if (ActivityStatusType.OFFLINE.equals(status)) {
+            throw new UnsupportedOperationException("活动已下线不支持延期");
+        }
+
+        visibleTimeRange.delayEnd(30, ChronoUnit.DAYS);
+        usableTimeRange.delayEnd(30, ChronoUnit.DAYS);
+
+        updated();
     }
 
     public void start() {
+        if (ActivityStatusType.ONLINE.equals(status)) {
+            return;
+        }
 
+        if (ActivityStatusType.OFFLINE.equals(status)) {
+            throw new UnsupportedOperationException("活动已下线");
+        }
+
+        if (!ActivityStatusType.PENDING.equals(status)) {
+            throw new UnsupportedOperationException("活动非待上线状态");
+        }
+
+        if (!visibleTimeRange.inProgress()) {
+            if (visibleTimeRange.notStarted()) {
+                throw new UnsupportedOperationException("活动未到上线时间");
+            }
+            if (visibleTimeRange.ended()) {
+                throw new UnsupportedOperationException("活动已过下线时间");
+            }
+        }
+
+        status = ActivityStatusType.ONLINE;
+
+        DomainEventPublisher.instance().publish(new ActivityStarted(
+                dealerId.getId(),
+                id.getId(),
+                DateTimeUtilsEnhance.epochMilliSecond()
+        ));
     }
 
     public void stop() {
+        if (ActivityStatusType.OFFLINE.equals(status)) {
+            return;
+        }
+
+        if (!ActivityStatusType.ONLINE.equals(status)) {
+            throw new UnsupportedOperationException("活动非上线状态");
+        }
+
+        if (!visibleTimeRange.ended()) {
+            throw new UnsupportedOperationException("活动未到下线时间");
+        }
+
+        status = ActivityStatusType.OFFLINE;
+
+        DomainEventPublisher.instance().publish(new ActivityEnded(
+                dealerId.getId(),
+                id.getId(),
+                DateTimeUtilsEnhance.epochMilliSecond()
+        ));
     }
 
     public ActivityRegistration register(
@@ -189,7 +262,7 @@ public class Activity {
                 id,
                 participant,
                 LocalDateTime.now(),
-                giftCollectionTimeRange
+                usableTimeRange
         );
     }
 
@@ -206,7 +279,7 @@ public class Activity {
                 summary,
                 image,
                 visibleTimeRange,
-                giftCollectionTimeRange,
+                usableTimeRange,
                 participantLimit,
                 gifts.stream().map(n -> new ActivityGiftSnapshot(
                         n.id(),
@@ -215,6 +288,17 @@ public class Activity {
                 status,
                 deleted
         );
+    }
+
+    private void updated() {
+        if (!updated) {
+            updated = true;
+            DomainEventPublisher.instance().publish(new ActivityUpdated(
+                    dealerId.getId(),
+                    id.getId(),
+                    DateTimeUtilsEnhance.epochMilliSecond()
+            ));
+        }
     }
 
     private void checkData(

@@ -22,6 +22,7 @@
 package com.yujunyang.iddd.dealer.domain.common;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import com.yujunyang.iddd.common.utils.CheckUtils;
 
@@ -53,7 +54,68 @@ public class TimeRange {
     public boolean include(LocalDateTime time) {
         CheckUtils.notNull(time, "time 必须不为 null");
 
-        return (begin.isEqual(time) || begin.isBefore(time)) && (end.isEqual(time) && end.isAfter(time));
+        return (begin.isEqual(time) || begin.isBefore(time)) && (end.isEqual(time) || end.isAfter(time));
+    }
+
+    public boolean notStarted() {
+        LocalDateTime now = LocalDateTime.now();
+        return begin.isAfter(now);
+    }
+
+    public boolean inProgress() {
+        LocalDateTime now = LocalDateTime.now();
+        return include(now);
+    }
+
+    public boolean ended() {
+        LocalDateTime now = LocalDateTime.now();
+        return end.isBefore(now);
+    }
+
+    public TimeRange advanceBegin(long amount, ChronoUnit unit) {
+        CheckUtils.moreThan(amount, 0, "amount 必须大于 0");
+        CheckUtils.notNull(unit, "unit 必须不为 null");
+
+        return updateBegin(begin.minus(amount, unit));
+    }
+
+    public TimeRange delayBegin(long amount, ChronoUnit unit) {
+        CheckUtils.moreThan(amount, 0, "amount 必须大于 0");
+        CheckUtils.notNull(unit, "unit 必须不为 null");
+
+        return updateBegin(begin.plus(amount, unit));
+    }
+
+    public TimeRange updateBegin(LocalDateTime newBegin) {
+        CheckUtils.isTrue(newBegin.isBefore(end), "begin 必须早于 end");
+
+        return new TimeRange(
+                newBegin,
+                end
+        );
+    }
+
+    public TimeRange delayEnd(long amount, ChronoUnit unit) {
+        CheckUtils.moreThan(amount, 0, "amount 必须大于 0");
+        CheckUtils.notNull(unit, "unit 必须不为 null");
+
+        return updateEnd(end.plus(amount, unit));
+    }
+
+    public TimeRange advanceEnd(long amount, ChronoUnit unit) {
+        CheckUtils.moreThan(amount, 0, "amount 必须大于 0");
+        CheckUtils.notNull(unit, "unit 必须不为 null");
+
+        return updateEnd(end.minus(amount, unit));
+    }
+
+    public TimeRange updateEnd(LocalDateTime newEnd) {
+        CheckUtils.isTrue(newEnd.isAfter(begin), "end 必须晚于 begin");
+
+        return new TimeRange(
+                begin,
+                newEnd
+        );
     }
 
 }
