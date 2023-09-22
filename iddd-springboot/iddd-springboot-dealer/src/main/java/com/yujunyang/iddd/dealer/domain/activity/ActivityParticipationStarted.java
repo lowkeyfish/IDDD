@@ -28,13 +28,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 
-public class ActivityEnded implements DomainEvent {
+public class ActivityParticipationStarted implements DomainEvent {
     private String dealerId;
     private String activityId;
     private long timestamp;
 
     @JsonCreator
-    public ActivityEnded(
+    public ActivityParticipationStarted(
             @JsonProperty("dealerId") String dealerId,
             @JsonProperty("activityId") String activityId,
             @JsonProperty("timestamp") long timestamp) {

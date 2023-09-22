@@ -78,8 +78,8 @@ public class ActivityFactory {
 
 
         return new Activity(
-                dealer.getId(),
                 new ActivityId(IdUtils.newId()),
+                dealer.getId(),
                 name,
                 summary,
                 image,

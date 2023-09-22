@@ -26,18 +26,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ActivityRegistrationLimitService {
+public class ActivityRegistrationService {
     private ActivityRegistrationRepository activityRegistrationRepository;
 
     @Autowired
-    public ActivityRegistrationLimitService(
+    public ActivityRegistrationService(
             ActivityRegistrationRepository activityRegistrationRepository) {
         this.activityRegistrationRepository = activityRegistrationRepository;
     }
 
-    public boolean isRestricted(Activity activity, Participant participant) {
-        ActivityRegistration activityRegistration = activityRegistrationRepository.findBy(
-                activity.getId(), participant.getMobileNumber());
-        return activityRegistration != null;
+    public boolean isRegistered(Activity activity, Participant participant) {
+        boolean mobileNumberRegistered = activityRegistrationRepository.findBy(
+                activity.id(),
+                participant.getMobileNumber()
+        ) != null;
+        return mobileNumberRegistered;
     }
+
+
 }

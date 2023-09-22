@@ -22,7 +22,6 @@
 package com.yujunyang.iddd.dealer.domain.activity;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,8 +50,8 @@ public class Activity {
     private boolean updated;
 
     public Activity(
-            DealerId dealerId,
             ActivityId id,
+            DealerId dealerId,
             String name,
             String summary,
             String image,
@@ -78,8 +77,8 @@ public class Activity {
     }
 
     public Activity(
-            DealerId dealerId,
             ActivityId id,
+            DealerId dealerId,
             String name,
             String summary,
             String image,
@@ -88,8 +87,8 @@ public class Activity {
             int participantLimit,
             Map<GiftId, Integer> gifts) {
         this(
-                dealerId,
                 id,
+                dealerId,
                 name,
                 summary,
                 image,
@@ -126,35 +125,36 @@ public class Activity {
             String name,
             String summary,
             String image,
-            TimeRange visibleTimeRange,
-            TimeRange usableTimeRange,
+            TimeRange registrationTimeRange,
+            TimeRange participationTimeRange,
             int participantLimit,
             Map<GiftId, Integer> gifts,
-            ActivityNameUniquenessCheckService nameUniquenessCheckService) {
-        if (ActivityStatusType.STARTED.equals(status)) {
-            throw new UnsupportedOperationException("活动已开始不支持修改");
-        }
-        if (ActivityStatusType.ENDED.equals(status)) {
-            throw new UnsupportedOperationException("活动已结束不支持修改");
-        }
+            ActivityNameUniquenessCheckService activityNameUniquenessCheckService) {
+        CheckUtils.isTrue(
+                ActivityStatusType.PENDING.equals(registrationStatus),
+                new IllegalStateException("活动报名开始后不支持修改")
+        );
 
         checkData(
                 name,
                 summary,
                 image,
-                visibleTimeRange,
-                usableTimeRange,
+                registrationTimeRange,
+                participationTimeRange,
                 participantLimit,
                 gifts);
 
-        boolean nameUsed = nameUniquenessCheckService.isNameUsed(this, name);
-        CheckUtils.isTrue(!nameUsed, "name 已被其他活动使用");
+        CheckUtils.isTrue(
+                !activityNameUniquenessCheckService.isNameUsed(this, name),
+                "名称({0})已被使用",
+                name
+        );
 
         this.name = name;
         this.summary = summary;
         this.image = image;
-        this.registrationTimeRange = visibleTimeRange;
-        this.participationTimeRange = usableTimeRange;
+        this.registrationTimeRange = registrationTimeRange;
+        this.participationTimeRange = participationTimeRange;
         this.participantLimit = participantLimit;
 
         DomainEventPublisher.instance().publish(new ActivityUpdated(
@@ -167,9 +167,10 @@ public class Activity {
     public void rename(
             String name,
             ActivityNameUniquenessCheckService nameUniquenessCheckService) {
-        if (ActivityStatusType.PENDING.equals(status)) {
-            throw new UnsupportedOperationException("活动只支持在待开始状态修改名称");
-        }
+        CheckUtils.isTrue(
+                ActivityStatusType.PENDING.equals(registrationStatus),
+                new IllegalStateException("活动报名开始后不支持修改")
+        );
 
         CheckUtils.isTrue(
                 !nameUniquenessCheckService.isNameUsed(this, name),
@@ -182,82 +183,139 @@ public class Activity {
         updated();
     }
 
-    public void delay() {
-        if (ActivityStatusType.ENDED.equals(status)) {
-            throw new UnsupportedOperationException("活动已开始不支持延期");
-        }
+    public void delayRegistrationTo(LocalDateTime newDeadline) {
+        CheckUtils.isTrue(
+                !ActivityStatusType.ENDED.equals(registrationStatus),
+                new IllegalStateException("活动报名已结束不支持延迟")
+        );
+        CheckUtils.notNull(newDeadline, "活动报名截止日期未提供(newDeadline 必须不为 null)");
+        CheckUtils.isTrue(
+                registrationTimeRange.getEnd().isBefore(newDeadline),
+                "活动报名截至日期无效(newDeadline({0}) 早于当前报名结束时间({1}))",
+                DateTimeUtilsEnhance.format(newDeadline),
+                DateTimeUtilsEnhance.format(registrationTimeRange.getEnd())
+        );
 
-        registrationTimeRange.delayEnd(30, ChronoUnit.DAYS);
-        participationTimeRange.delayEnd(30, ChronoUnit.DAYS);
+        TimeRange newRegistrationTimeRange = registrationTimeRange.updateEnd(newDeadline);
+        checkRegistrationAndParticipationTimes(newRegistrationTimeRange, participationTimeRange);
+        registrationTimeRange = newRegistrationTimeRange;
 
         updated();
     }
 
-    public void start() {
-        if (ActivityStatusType.STARTED.equals(status)) {
-            return;
-        }
+    public void delayParticipationTo(LocalDateTime newDeadline) {
+        CheckUtils.isTrue(
+                !ActivityStatusType.ENDED.equals(participationStatus),
+                new IllegalStateException("活动参与已结束不支持延迟")
+        );
+        CheckUtils.notNull(newDeadline, "活动参与截止日期未提供(newDeadline 必须不为 null)");
+        CheckUtils.isTrue(
+                participationTimeRange.getEnd().isBefore(newDeadline),
+                "",
+                "活动参与截至日期无效(newDeadline({0}) 早于当前参与结束时间({1}))",
+                DateTimeUtilsEnhance.format(newDeadline),
+                DateTimeUtilsEnhance.format(participationTimeRange.getEnd())
+        );
 
-        if (ActivityStatusType.ENDED.equals(status)) {
-            throw new UnsupportedOperationException("活动已结束");
-        }
+        TimeRange newParticipationTimeRange = participationTimeRange.updateEnd(newDeadline);
+        participationTimeRange = newParticipationTimeRange;
 
-        if (!ActivityStatusType.PENDING.equals(status)) {
-            throw new UnsupportedOperationException("活动非待开始状态");
-        }
-
-        if (!registrationTimeRange.inProgress()) {
-            if (registrationTimeRange.notStarted()) {
-                throw new UnsupportedOperationException("活动未到开始时间");
-            }
-            if (registrationTimeRange.ended()) {
-                throw new UnsupportedOperationException("活动已过结束时间");
-            }
-        }
-
-        status = ActivityStatusType.STARTED;
-
-        DomainEventPublisher.instance().publish(new ActivityStarted(
-                dealerId.getId(),
-                id.getId(),
-                DateTimeUtilsEnhance.epochMilliSecond()
-        ));
+        updated();
     }
 
-    public void stop() {
-        if (ActivityStatusType.ENDED.equals(status)) {
-            return;
+    public void startRegistration() {
+        if (ActivityStatusType.ENDED.equals(registrationStatus)) {
+            throw new IllegalStateException("活动报名已结束");
         }
 
-        if (!ActivityStatusType.STARTED.equals(status)) {
-            throw new UnsupportedOperationException("活动非开始状态");
+        if (ActivityStatusType.PENDING.equals(registrationStatus)) {
+            if (!registrationTimeRange.inProgress()) {
+                throw new IllegalStateException("当前时间不在活动报名时间范围内");
+            }
+
+            registrationStatus = ActivityStatusType.STARTED;
+
+            DomainEventPublisher.instance().publish(new ActivityRegistrationStarted(
+                    dealerId.getId(),
+                    id.getId(),
+                    DateTimeUtilsEnhance.epochMilliSecond()
+            ));
+        }
+    }
+
+    public void stopRegistration() {
+        if (ActivityStatusType.PENDING.equals(registrationStatus)) {
+            throw new IllegalStateException("活动报名未开始");
         }
 
-        if (!registrationTimeRange.ended()) {
-            throw new UnsupportedOperationException("活动未到结束时间");
+        if (ActivityStatusType.STARTED.equals(registrationStatus)) {
+            if (!registrationTimeRange.getEnd().isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("当前时间未到活动报名结束时间");
+            }
+
+            registrationStatus = ActivityStatusType.ENDED;
+
+            DomainEventPublisher.instance().publish(new ActivityRegistrationEnded(
+                    dealerId.getId(),
+                    id.getId(),
+                    DateTimeUtilsEnhance.epochMilliSecond()
+            ));
+        }
+    }
+
+    public void startParticipation() {
+        if (ActivityStatusType.ENDED.equals(participationStatus)) {
+            throw new IllegalStateException("活动参与已结束");
         }
 
-        status = ActivityStatusType.ENDED;
+        if (ActivityStatusType.PENDING.equals(participationStatus)) {
+            if (!participationTimeRange.inProgress()) {
+                throw new IllegalStateException("当前时间不在活动参与时间范围内");
+            }
 
-        DomainEventPublisher.instance().publish(new ActivityEnded(
-                dealerId.getId(),
-                id.getId(),
-                DateTimeUtilsEnhance.epochMilliSecond()
-        ));
+            participationStatus = ActivityStatusType.STARTED;
+
+            DomainEventPublisher.instance().publish(new ActivityParticipationStarted(
+                    dealerId.getId(),
+                    id.getId(),
+                    DateTimeUtilsEnhance.epochMilliSecond()
+            ));
+        }
+    }
+
+    public void stopParticipation() {
+        if (ActivityStatusType.PENDING.equals(participationStatus)) {
+            throw new IllegalStateException("活动参与未开始");
+        }
+
+        if (ActivityStatusType.STARTED.equals(participationStatus)) {
+            if (!registrationTimeRange.getEnd().isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("当前时间未到活动参与结束时间");
+            }
+
+            participationStatus = ActivityStatusType.ENDED;
+
+            DomainEventPublisher.instance().publish(new ActivityParticipationEnded(
+                    dealerId.getId(),
+                    id.getId(),
+                    DateTimeUtilsEnhance.epochMilliSecond()
+            ));
+        }
     }
 
     public ActivityRegistration register(
             Participant participant,
-            ActivityRegistrationLimitService registrationLimitService) {
+            ActivityRegistrationService registrationLimitService) {
         CheckUtils.notNull(participant, "participant 必须不为 null");
 
-        if (!status.equals(ActivityStatusType.STARTED)) {
-            throw new UnsupportedOperationException("活动非开始状态");
-        }
+        CheckUtils.isTrue(
+                ActivityStatusType.STARTED.equals(registrationStatus),
+                "活动暂未开启报名"
+        );
 
-        boolean restricted = registrationLimitService.isRestricted(this, participant);
+        boolean restricted = registrationLimitService.isRegistered(this, participant);
         if (restricted) {
-            throw new UnsupportedOperationException("用户参与活动次数已达到限制");
+            throw new IllegalStateException("用户报名活动次数已达到限制");
         }
 
         return new ActivityRegistration(
@@ -274,8 +332,6 @@ public class Activity {
         return id;
     }
 
-
-
     public ActivitySnapshot snapshot() {
         return new ActivitySnapshot(
                 id,
@@ -289,7 +345,8 @@ public class Activity {
                         n.id(),
                         n.getCount()
                 )).collect(Collectors.toList()),
-                status,
+                registrationStatus,
+                participationStatus,
                 deleted
         );
     }
@@ -309,15 +366,26 @@ public class Activity {
             String name,
             String summary,
             String image,
-            TimeRange visibleTimeRange,
-            TimeRange usableTimeRange,
+            TimeRange registrationTimeRange,
+            TimeRange participationTimeRange,
             int participantLimit,
             Map<GiftId, Integer> gifts) {
-        CheckUtils.notBlank(name, "name 必须不为空");
-        CheckUtils.notBlank(summary, "summary 必须不为空");
-        CheckUtils.notBlank(image, "image 必须不为空");
-        CheckUtils.notNull(visibleTimeRange, "visibleTimeRange 必须不为 null");
-        CheckUtils.notNull(usableTimeRange, "usableTimeRange 必须不为 null");
-        CheckUtils.moreThan(participantLimit, 0, "participantLimit 必须大于 0");
+        CheckUtils.notBlank(name, "活动名称无效(name 必须不为空)");
+        CheckUtils.notBlank(summary, "活动描述无效(summary 必须不为空)");
+        CheckUtils.notBlank(image, "活动图片无效(image 必须不为空)");
+        CheckUtils.notNull(registrationTimeRange, "活动报名时间无效(registrationTimeRange 必须不为 null)");
+        CheckUtils.notNull(participationTimeRange, "活动参与时间无效(participationTimeRange 必须不为 null)");
+        CheckUtils.moreThan(participantLimit, 0, "活动参数人数限制无效(participantLimit 必须大于 0)");
+        CheckUtils.notEmpty(gifts, "活动礼品无效(gifts 必须不为空)");
+        checkRegistrationAndParticipationTimes(registrationTimeRange, participationTimeRange);
+    }
+
+    private void checkRegistrationAndParticipationTimes(TimeRange registrationTimeRange, TimeRange participationTimeRange) {
+        CheckUtils.isTrue(
+                registrationTimeRange.getEnd().isBefore(participationTimeRange.getBegin()),
+                "活动报名结束时间({0})应该早于活动参与开始时间({1})",
+                DateTimeUtilsEnhance.format(registrationTimeRange.getEnd()),
+                DateTimeUtilsEnhance.format(participationTimeRange.getBegin())
+        );
     }
 }

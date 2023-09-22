@@ -35,7 +35,8 @@ public class ActivitySnapshot {
     private TimeRange usableTimeRange;
     private int participantLimit;
     private List<ActivityGiftSnapshot> gifts;
-    private ActivityStatusType status;
+    private ActivityStatusType registrationStatus;
+    private ActivityStatusType participationStatus;
     private boolean deleted;
 
     ActivitySnapshot(
@@ -47,7 +48,8 @@ public class ActivitySnapshot {
             TimeRange usableTimeRange,
             int participantLimit,
             List<ActivityGiftSnapshot> gifts,
-            ActivityStatusType status,
+            ActivityStatusType registrationStatus,
+            ActivityStatusType participationStatus,
             boolean deleted) {
         this.id = id;
         this.name = name;
@@ -57,7 +59,8 @@ public class ActivitySnapshot {
         this.usableTimeRange = usableTimeRange;
         this.participantLimit = participantLimit;
         this.gifts = gifts;
-        this.status = status;
+        this.registrationStatus = registrationStatus;
+        this.participationStatus = participationStatus;
         this.deleted = deleted;
     }
 
@@ -93,8 +96,12 @@ public class ActivitySnapshot {
         return gifts;
     }
 
-    public ActivityStatusType getStatus() {
-        return status;
+    public ActivityStatusType getRegistrationStatus() {
+        return registrationStatus;
+    }
+
+    public ActivityStatusType getParticipationStatus() {
+        return participationStatus;
     }
 
     public boolean isDeleted() {

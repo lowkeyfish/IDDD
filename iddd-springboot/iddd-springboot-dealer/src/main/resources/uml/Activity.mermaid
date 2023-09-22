@@ -6,20 +6,27 @@ classDiagram
         -String name
         -String summary
         -String image
-        -TimeRange visibleTimeRange
-        -TimeRange usableTimeRange
+        -TimeRange registrationTimeRange
+        -TimeRange participationTimeRange
         -int participantLimit
         -List~ActivityGift~ gifts
-        -ActivityStatusType status
+        -ActivityStatusType registrationStatus
+        -ActivityStatusType participationStatus
         -boolean deleted
 
-        +Activity(..., List&lt;ActivityGift> gifts, status, deleted)
+        +Activity(..., List&lt;ActivityGift> gifts, registrationStatus, participationStatus, deleted)
         +Activity(..., Map&lt;GiftId, Integer> gifts)
 
-        +udpate() void
-        +start() void
-        +end() void
-        +register() ActivityRegistration
+        +id() ActivityId
+        +update(..., activityNameUniquenessCheckService) void
+        +rename(name, activityNameUniquenessCheckService) void
+        +delayRegistrationTo(LocalDateTime newDeadline) void
+        +delayParticipationTo(LocalDateTime newDeadline) void
+        +startRegistration() void
+        +stopRegistration() void
+        +startParticipation() void
+        +stopParticipation() void
+        +register(participant, registrationLimitService) ActivityRegistration
         +snapshot() ActivitySnapshot
     }
 
@@ -31,11 +38,19 @@ classDiagram
         <<领域事件>>
     }
 
-    class ActivityStarted {
+    class ActivityRegistrationStarted {
         <<领域事件>>
     }
 
-    class ActivityEnded {
+    class ActivityRegistrationEnded {
+        <<领域事件>>
+    }
+
+    class ActivityParticipationStarted {
+        <<领域事件>>
+    }
+
+    class ActivityParticipationEnded {
         <<领域事件>>
     }
 
@@ -72,8 +87,10 @@ classDiagram
 
     Activity ..> ActivityCreated : 构造函数
     Activity ..> ActivityUpdated : update()
-    Activity ..> ActivityStarted : start()
-    Activity ..> ActivityEnded : end()
+    Activity ..> ActivityRegistrationStarted : startRegistration()
+    Activity ..> ActivityRegistrationEnded : stopRegistration()
+    Activity ..> ActivityParticipationStarted : startParticipation()
+    Activity ..> ActivityParticipationEnded : stopParticipation()
     Activity ..> ActivityRegistration : register()
     Activity "1" *-- "*" ActivityGift : 活动礼品
     Activity ..> ActivityNameUniquenessCheckService: 更新活动信息时检查名称是否被占用

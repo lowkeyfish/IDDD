@@ -21,11 +21,16 @@
 
 package com.yujunyang.iddd.dealer.domain.activity;
 
+import com.yujunyang.iddd.common.utils.CheckUtils;
+
 public class Participant {
     private String name;
     private String mobileNumber;
 
     public Participant(String name, String mobileNumber) {
+        CheckUtils.notBlank(name, "name 必须不为空");
+        CheckUtils.notBlank(mobileNumber, "mobileNumber 必须不为空");
+
         this.name = name;
         this.mobileNumber = mobileNumber;
     }

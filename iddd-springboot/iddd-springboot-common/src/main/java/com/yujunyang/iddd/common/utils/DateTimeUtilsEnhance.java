@@ -25,6 +25,7 @@ package com.yujunyang.iddd.common.utils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 public final class DateTimeUtilsEnhance {
     public static long epochSecond() {
@@ -41,5 +42,14 @@ public final class DateTimeUtilsEnhance {
 
     public static long convert(LocalDateTime localDateTime) {
         return localDateTime.atOffset(OffsetDateTime.now().getOffset()).toInstant().toEpochMilli();
+    }
+
+    public static String format(LocalDateTime localDateTime) {
+        return format(localDateTime, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public static String format(LocalDateTime localDateTime, String pattern) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return localDateTime.format(formatter);
     }
 }
