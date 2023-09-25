@@ -166,14 +166,14 @@ public class Activity {
 
     public void rename(
             String name,
-            ActivityNameUniquenessCheckService nameUniquenessCheckService) {
+            ActivityNameUniquenessCheckService activityNameUniquenessCheckService) {
         CheckUtils.isTrue(
                 ActivityStatusType.PENDING.equals(registrationStatus),
                 new IllegalStateException("活动报名开始后不支持修改")
         );
 
         CheckUtils.isTrue(
-                !nameUniquenessCheckService.isNameUsed(this, name),
+                !activityNameUniquenessCheckService.isNameUsed(this, name),
                 "名称({0})已被使用",
                 name
         );
