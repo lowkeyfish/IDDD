@@ -29,7 +29,9 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.gift.Gift;
+import com.yujunyang.iddd.dealer.domain.gift.GiftId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,50 +45,38 @@ public class ActivityFactory {
         this.activityNameUniquenessCheckService = activityNameUniquenessCheckService;
     }
 
-    /*
-     * 使用 Dealer 而不是 DealerId，可以避免外部已经有 Dealer 的情况下内部重复去获取，而且可以让内部
-     * 不用考虑 Dealer 的获取，减少依赖，保持 Factory 的依赖性和复杂性。还有一点前提是 Activity 并不
-     * 直接使用（引用）Dealer，直接引用的不能由外部传入，防止外部保持引用并修改而导致聚合根数据不一致
-     */
-    public Activity createActivity(
-            Dealer dealer,
+    public Activity create(
+            DealerId dealerId,
             String name,
             String summary,
             String image,
-            TimeRange visibleTimeRange,
-            TimeRange usableTimeRange,
+            TimeRange registrationTimeRange,
+            TimeRange participationTimeRange,
             int participantLimit,
-            Map<Gift, Integer> gifts) {
-        CheckUtils.notNull(dealer, "dealer 必须不为 null");
+            Map<GiftId, Integer> gifts) {
+        CheckUtils.notNull(dealerId, "dealerId 必须不为 null");
         CheckUtils.notBlank(name, "name 必须不为空");
         CheckUtils.notBlank(summary, "summary 必须不为空");
         CheckUtils.notBlank(image, "image 必须不为空");
-        CheckUtils.notNull(visibleTimeRange, "visibleTimeRange 必须不为 null");
-        CheckUtils.notNull(usableTimeRange, "usableTimeRange 必须不为 null");
-        CheckUtils.isTrue(
-                !visibleTimeRange.getBegin().isAfter(usableTimeRange.getBegin()),
-                "usableTimeRange.begin 必须不早于 visibleTimeRange.begin"
-        );
-        CheckUtils.isTrue(
-                !visibleTimeRange.getEnd().isAfter(usableTimeRange.getEnd()),
-                "usableTimeRange.end 必须不早于 visibleTimeRange.end"
-        );
+        CheckUtils.notNull(registrationTimeRange, "registrationTimeRange 必须不为 null");
+        CheckUtils.notNull(participationTimeRange, "participationTimeRange 必须不为 null");
         CheckUtils.moreThan(participantLimit, 0, "participantLimit 必须大于 0");
 
         boolean nameUsed = activityNameUniquenessCheckService.isNameUsed(name);
         CheckUtils.isTrue(!nameUsed, "name 已被其他活动使用");
 
-
         return new Activity(
                 new ActivityId(IdUtils.newId()),
-                dealer.getId(),
+                dealerId,
                 name,
                 summary,
                 image,
-                visibleTimeRange,
-                usableTimeRange,
+                registrationTimeRange,
+                participationTimeRange,
                 participantLimit,
-                gifts.entrySet().stream().collect(Collectors.toMap(n -> n.getKey().getId(), n -> n.getValue()))
+                gifts
         );
     }
 }
+
+

@@ -62,9 +62,6 @@ classDiagram
         <<实体>>
         -GiftId giftId
         -int count
-        -int remainingCount
-
-        +receive()
     }
 
     class ActivityNameUniquenessCheckService {
@@ -72,6 +69,10 @@ classDiagram
         -activityRepository
         +isNameUsed(name) boolean
         +isNameUsed(activity, name) boolean
+    }
+
+    class ActivityRegistrationLimitService {
+        <<领域服务>>
     }
 
     class ActivityRepository {
@@ -94,6 +95,7 @@ classDiagram
     Activity ..> ActivityRegistration : register()
     Activity "1" *-- "*" ActivityGift : 活动礼品
     Activity ..> ActivityNameUniquenessCheckService: 更新活动信息时检查名称是否被占用
+    Activity ..> ActivityRegistrationLimitService: 活动报名数量限制
 
     ActivityRepository ..> Activity: 查询/持久化
 
