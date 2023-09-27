@@ -61,7 +61,9 @@ public class NotificationService {
         } catch (Exception e) {
             LOGGER.error("事件通知, DomainEvent({}) 出错", domainEventClass.getName(), e);
         } finally {
-            lock.unlock();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 }
