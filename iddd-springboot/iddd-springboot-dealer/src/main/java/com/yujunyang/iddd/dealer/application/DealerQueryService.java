@@ -20,7 +20,7 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.application.query;
+package com.yujunyang.iddd.dealer.application;
 
 import org.springframework.stereotype.Service;
 

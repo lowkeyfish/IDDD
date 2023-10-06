@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.yujunyang.iddd.common.graphql.directive.DateTimeFormatDirective;
 import com.yujunyang.iddd.common.graphql.scalar.CustomScalars;
-import com.yujunyang.iddd.dealer.application.query.DealerQueryService;
-import com.yujunyang.iddd.dealer.application.query.data.DealerViewModel;
+import com.yujunyang.iddd.dealer.application.DealerQueryService;
+import com.yujunyang.iddd.dealer.application.data.DealerViewModel;
 import graphql.GraphQL;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.DataFetcher;

@@ -20,19 +20,8 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper;
+package com.yujunyang.iddd.dealer.application.data;
 
-import com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
-@Mapper
-public interface DealerMapper {
-    int insertOrIgnore(DealerDatabaseModel model);
-
-    int update(DealerDatabaseModel model);
-
-    DealerDatabaseModel selectById(@Param("id") String id);
-
-    DealerDatabaseModel selectByName(@Param("name") String name);
+public interface DealerCreateCommandResult {
+    void resultingDealerId(String dealerId);
 }

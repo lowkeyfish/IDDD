@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
+import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
 import com.yujunyang.iddd.dealer.domain.address.ProvinceId;
@@ -46,7 +47,7 @@ public class TestController {
     private DealerRepository dealerRepository;
 
     @PostMapping("createDealer")
-    public DealerId createDealer() {
+    public String createDealer() {
         DealerCreateCommand command = new DealerCreateCommand(
                 "Dealer20230903",
                 new CityId(110100),
@@ -54,7 +55,12 @@ public class TestController {
                 "010-1234567",
                 new BrandId("7bca2d994a6111eeb3860242ac150004")
         );
-        return dealerApplicationService.create(command);
+
+        final String[] newDealerId = new String[1];
+        dealerApplicationService.create(
+                command,
+                dealerId -> newDealerId[0] = dealerId);
+        return newDealerId[0];
     }
 
     @PostMapping("dealer")

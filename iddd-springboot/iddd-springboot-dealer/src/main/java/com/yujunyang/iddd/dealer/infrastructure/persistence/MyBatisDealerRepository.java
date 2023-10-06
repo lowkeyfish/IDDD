@@ -26,14 +26,13 @@ import java.util.Optional;
 
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
-import com.yujunyang.iddd.dealer.domain.address.ProvinceId;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerStatusType;
 import com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.DealerMapper;
-import com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.model.DealerDatabaseModel;
+import com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

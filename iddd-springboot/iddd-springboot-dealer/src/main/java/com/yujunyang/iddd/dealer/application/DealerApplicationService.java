@@ -31,6 +31,7 @@ import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeTelephoneCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerDisableCommand;
+import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerFactory;
@@ -58,7 +59,9 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public DealerId create(DealerCreateCommand command) {
+    public void create(
+            DealerCreateCommand command,
+            DealerCreateCommandResult dealerCreateCommandResult) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = dealerFactory.createDealer(
@@ -70,7 +73,7 @@ public class DealerApplicationService {
         );
         dealerRepository.save(dealer);
 
-        return dealer.getId();
+        dealerCreateCommandResult.resultingDealerId(dealer.getId().getId());
     }
 
     @Transactional

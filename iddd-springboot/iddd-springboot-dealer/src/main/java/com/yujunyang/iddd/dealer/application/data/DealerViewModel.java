@@ -20,7 +20,7 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.application.query.data;
+package com.yujunyang.iddd.dealer.application.data;
 
 public class DealerViewModel {
 }

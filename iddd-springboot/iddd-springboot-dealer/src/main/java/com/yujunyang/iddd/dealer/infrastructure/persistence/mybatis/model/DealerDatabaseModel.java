@@ -20,7 +20,7 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.model;
+package com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model;
 
 import java.time.LocalDateTime;
 
