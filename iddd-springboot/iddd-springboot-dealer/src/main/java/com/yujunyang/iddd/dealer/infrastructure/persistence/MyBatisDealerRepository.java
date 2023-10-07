@@ -81,8 +81,8 @@ public class MyBatisDealerRepository implements DealerRepository {
                 databaseModel.getTelephone(),
                 new BrandId(databaseModel.getBrandId()),
                 databaseModel.getCreateTime(),
-                DealerStatusType.parse(databaseModel.getStatus())
-        );
+                DealerStatusType.parse(databaseModel.getStatus()),
+                servicePeriod);
     }
 
     private DealerDatabaseModel convert(Dealer model) {

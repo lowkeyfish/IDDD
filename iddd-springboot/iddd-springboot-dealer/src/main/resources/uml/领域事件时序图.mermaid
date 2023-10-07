@@ -1,0 +1,45 @@
+sequenceDiagram
+    title 领域事件和业务数据在一个事务中持久化
+
+    autonumber
+    actor User as 调用方
+    participant DomainEventProcessor
+    participant DomainEventPublisher
+    participant DealerApplicationService
+    participant Dealer
+    participant EventStore
+    participant DealerRepository
+
+    Note over DomainEventProcessor: 使用 AOP 在应用服务<br>方法执行前拦截
+
+    Note over DomainEventPublisher: 每个线程使用独立副本
+
+    User->>DomainEventProcessor: 调用 DealerApplicationService<br>.create()
+
+    activate DomainEventProcessor
+    DomainEventProcessor->>DomainEventPublisher: 重置领域事件订阅者
+    deactivate DomainEventProcessor
+
+
+    DomainEventProcessor->>DealerApplicationService: 继续调用 DealerApplicationService<br>.create()
+
+    activate DealerApplicationService
+    DealerApplicationService->>Dealer: new Dealer(...)
+
+    activate Dealer
+    Dealer->>DomainEventPublisher: DomainEventPublisher.instance().publish(DealerCreated)
+
+    activate DomainEventPublisher
+
+    DomainEventPublisher->>EventStore: EventStore.add(DomainEvent)
+
+    deactivate DomainEventPublisher
+
+    Dealer-->>DealerApplicationService: Dealer 实例
+    deactivate Dealer
+
+
+
+    DealerApplicationService->>DealerRepository: DealerRepository.save(Dealer)
+    deactivate DealerApplicationService
+

@@ -76,7 +76,7 @@ public class DealerFactory {
                         specificAddress
                 ),
                 telephone,
-                brandId
-        );
+                brandId,
+                servicePeriod);
     }
 }

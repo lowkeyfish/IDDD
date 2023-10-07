@@ -1,0 +1,52 @@
+sequenceDiagram
+    title 基于 RabbitMQ 的领域事件通知
+
+    autonumber
+
+    participant EventNotificationScheduler
+
+    participant NotificationService
+    participant RedissonClient
+    participant RabbitMQNotificationPublisher
+    participant PublishedNotificationTrackerStore
+    participant EventStore
+    participant RabbitMQ
+    participant App
+
+    App->>RabbitMQ: 创建队列和绑定
+
+    Note over EventNotificationScheduler: 每个领域事件一个定时任务
+
+    loop 每秒
+        EventNotificationScheduler->>NotificationService: publishNotifications(domainEventClass,limit)
+
+        activate NotificationService
+            NotificationService->>RedissonClient: tryLock()
+            RedissonClient-->>NotificationService: 是否加锁成功
+            alt 获取锁成功
+                loop while 循环判断是否还有领域事件需要通知
+                    NotificationService->>RabbitMQNotificationPublisher: publishNotifications(domainEventClass, limit)
+                    activate RabbitMQNotificationPublisher
+                    RabbitMQNotificationPublisher->>PublishedNotificationTrackerStore: 获取上次处理完的领域事件记录最大自增 ID
+                    PublishedNotificationTrackerStore-->>RabbitMQNotificationPublisher: 上次处理完的领域事件记录最大自增 ID
+                    RabbitMQNotificationPublisher->>EventStore: 获取待通知的领域事件
+                    EventStore-->>RabbitMQNotificationPublisher: limit 条领域事件数据
+                    RabbitMQNotificationPublisher->>RabbitMQ: 使用 topic 类型交换机发送领域事件消息到消息队列
+                    RabbitMQNotificationPublisher->>PublishedNotificationTrackerStore: 更新处理完的领域事件记录最大自增 ID
+                    RabbitMQNotificationPublisher-->>NotificationService: 是否还有领域事件需要通知
+                    deactivate RabbitMQNotificationPublisher
+                end
+                NotificationService->>RedissonClient: unlock()
+            end
+
+        deactivate NotificationService
+
+    end
+
+
+
+
+
+
+
+

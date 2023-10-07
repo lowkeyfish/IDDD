@@ -30,6 +30,7 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
+import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 
 public class Dealer {
     private DealerId id;
@@ -39,13 +40,15 @@ public class Dealer {
     private BrandId brandId;
     private LocalDateTime createTime;
     private DealerStatusType status;
+    private TimeRange servicePeriod;
 
     public Dealer(
             DealerId id,
             String name,
             Address address,
             String telephone,
-            BrandId brandId) {
+            BrandId brandId,
+            TimeRange servicePeriod) {
 
         this(
                 id,
@@ -54,8 +57,8 @@ public class Dealer {
                 telephone,
                 brandId,
                 LocalDateTime.now(),
-                DealerStatusType.ENABLED
-        );
+                DealerStatusType.ENABLED,
+                servicePeriod);
 
         DomainEventPublisher.instance().publish(new DealerCreated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
@@ -70,7 +73,8 @@ public class Dealer {
             String telephone,
             BrandId brandId,
             LocalDateTime createTime,
-            DealerStatusType status) {
+            DealerStatusType status, TimeRange servicePeriod) {
+        this.servicePeriod = servicePeriod;
         CheckUtils.notNull(id, "id 必须不为 null");
         CheckUtils.notBlank(name, "name 必须不为空");
         CheckUtils.notNull(address, "address 必须不为 null");

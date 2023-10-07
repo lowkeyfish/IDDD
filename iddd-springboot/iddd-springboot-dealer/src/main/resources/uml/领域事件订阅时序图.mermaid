@@ -1,0 +1,49 @@
+sequenceDiagram
+    title 基于 RabbitMQ 的领域事件订阅
+
+    autonumber
+
+    participant App
+    participant RabbitMQ
+    participant RabbitMQListener
+    participant 应用层
+    participant 配置中心
+
+
+
+
+    Note over App,RabbitMQ: 使用 topic 类型交换机，routingKey 按通配符配置
+    App->>RabbitMQ: 初始化队列
+
+    activate RabbitMQListener
+    RabbitMQ->>RabbitMQListener: 发送消息
+
+    RabbitMQListener->>配置中心: 获取无需处理的消息 ID
+
+    配置中心-->>RabbitMQListener: 消息 ID
+
+    alt 处理消息
+        RabbitMQListener->>应用层: 消息处理
+
+        alt 消息处理成功
+            RabbitMQListener-->>RabbitMQ: 确认消息 channel.basicAck(deliveryTag, false)
+        else 消息处理失败
+            RabbitMQListener-->>RabbitMQListener: log.error()
+            RabbitMQListener-->>RabbitMQ: 消息重回队列 channel.basicReject(deliveryTag, true)
+        end
+
+        RabbitMQListener-->>RabbitMQListener: log.info() 记录消息
+    else 不处理消息
+        RabbitMQListener-->>RabbitMQListener: log.warn() 记录消息
+    end
+
+
+    deactivate RabbitMQListener
+
+
+
+
+
+
+
+
