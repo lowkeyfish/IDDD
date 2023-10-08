@@ -17,38 +17,40 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package com.yujunyang.iddd.car.domain.brand;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
-import com.yujunyang.iddd.common.domain.id.AbstractStringId;
-import org.apache.commons.lang3.StringUtils;
+public class BrandSnapshot {
+    private BrandId id;
+    private String name;
+    private String logo;
+    private String firstLetter;
 
-public class BrandId extends AbstractLongId {
-    @JsonCreator
-    public BrandId(@JsonProperty("id") Long id) {
-        super(id);
+    public BrandSnapshot(
+            BrandId id,
+            String name,
+            String logo,
+            String firstLetter) {
+        this.id = id;
+        this.name = name;
+        this.logo = logo;
+        this.firstLetter = firstLetter;
     }
 
-    @Override
-    protected int initialNonZeroOddNumber() {
-        return 5;
+    public BrandId getId() {
+        return id;
     }
 
-    @Override
-    protected int multiplierNonZeroOddNumber() {
-        return 55;
+    public String getName() {
+        return name;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static BrandId parse(Long id) {
-        if (id == null || id <= 0) {
-            return null;
-        }
-        return new BrandId(id);
+    public String getLogo() {
+        return logo;
+    }
+
+    public String getFirstLetter() {
+        return firstLetter;
     }
 }

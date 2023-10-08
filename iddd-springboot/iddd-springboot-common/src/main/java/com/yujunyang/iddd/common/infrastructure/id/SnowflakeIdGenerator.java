@@ -17,28 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper;
+package com.yujunyang.iddd.common.infrastructure.id;
 
-import java.util.List;
+import com.yujunyang.iddd.common.domain.id.IdGenerator;
 
-import com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.VariantDatabaseModel;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+public class SnowflakeIdGenerator implements IdGenerator {
+    private Snowflake snowflake;
 
-@Mapper
-public interface VariantMapper {
-    int insert(VariantDatabaseModel model);
+    public SnowflakeIdGenerator(int workerId, long epoch) {
+        this.snowflake = new Snowflake(workerId, epoch);
+    }
 
-    int update(VariantDatabaseModel model);
-
-    VariantDatabaseModel selectById(@Param("id") long id);
-
-    List<VariantDatabaseModel> selectByModelId(@Param("modelId") long modelId);
-
-    List<VariantDatabaseModel> selectByIds(@Param("ids") List<Long> ids);
-
-    List<VariantDatabaseModel> selectByModelIds(@Param("modelIds") List<Long> modelIds);
+    @Override
+    public long nextId() {
+        return snowflake.nextId();
+    }
 }

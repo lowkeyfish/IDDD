@@ -26,9 +26,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.ManufacturerMapper">
     <insert id="insert"
-            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel">
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.ManufacturerDatabaseModel">
         INSERT INTO `manufacturer`(
-            `uid`,
+            `id`,
             `name`,
             `brand_id`
         ) VALUE(
@@ -39,27 +39,27 @@
     </insert>
 
     <select id="selectById"
-            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel">
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.ManufacturerDatabaseModel">
         SELECT
-            `uid` AS id,
+            `id`,
             `name`,
             `brand_id` AS brandId
         FROM
             `manufacturer`
         WHERE
-            `deleted` = 0 AND `uid` = #{id};
+            `deleted` = 0 AND `id` = #{id};
     </select>
 
     <update id="update"
-            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel">
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.ManufacturerDatabaseModel">
         UPDATE `manufacturer` SET `name` = #{name}, `brand_id` = #{brandId}, `deleted` = 0
-        WHERE `uid` = #{id};
+        WHERE `id` = #{id};
     </update>
 
     <select id="selectByBrandId"
-            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel">
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.ManufacturerDatabaseModel">
         SELECT
-            `uid` AS id,
+            `id`,
             `name`,
             `brand_id` AS brandId
         FROM
@@ -69,24 +69,24 @@
     </select>
 
     <select id="selectByIds"
-            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel">
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.ManufacturerDatabaseModel">
         SELECT
-        `uid` AS id,
+        `id`,
         `name`,
         `brand_id` AS brandId
         FROM
         `manufacturer`
         WHERE
-        `deleted` = 0 AND `uid` IN
+        `deleted` = 0 AND `id` IN
         <foreach collection="ids" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
     </select>
 
     <select id="selectByBrandIds"
-            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel">
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.ManufacturerDatabaseModel">
         SELECT
-        `uid` AS id,
+        `id`,
         `name`,
         `brand_id` AS brandId
         FROM

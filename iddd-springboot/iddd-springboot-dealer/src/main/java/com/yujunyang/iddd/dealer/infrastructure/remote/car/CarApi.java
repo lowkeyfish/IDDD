@@ -22,9 +22,14 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.remote.car;
 
+import com.yujunyang.iddd.common.data.RestResponse;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient("api-car")
 public interface CarApi {
-
+    @GetMapping("/brands/{brandId}")
+    RestResponse<BrandResponseData> findBrandById(
+            @PathVariable("brandId") String brandId);
 }

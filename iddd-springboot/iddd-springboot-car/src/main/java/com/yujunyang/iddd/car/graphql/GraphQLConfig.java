@@ -5,14 +5,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.yujunyang.iddd.car.application.query.BrandQueryService;
-import com.yujunyang.iddd.car.application.query.ManufacturerQueryService;
-import com.yujunyang.iddd.car.application.query.ModelQueryService;
-import com.yujunyang.iddd.car.application.query.VariantQueryService;
-import com.yujunyang.iddd.car.application.query.data.BrandViewModel;
-import com.yujunyang.iddd.car.application.query.data.ManufacturerViewModel;
-import com.yujunyang.iddd.car.application.query.data.ModelViewModel;
-import com.yujunyang.iddd.car.application.query.data.VariantViewModel;
+import com.google.common.primitives.Longs;
+import com.yujunyang.iddd.car.application.BrandQueryService;
+import com.yujunyang.iddd.car.application.ManufacturerQueryService;
+import com.yujunyang.iddd.car.application.ModelQueryService;
+import com.yujunyang.iddd.car.application.VariantQueryService;
+import com.yujunyang.iddd.car.application.data.BrandViewModel;
+import com.yujunyang.iddd.car.application.data.ManufacturerViewModel;
+import com.yujunyang.iddd.car.application.data.ModelViewModel;
+import com.yujunyang.iddd.car.application.data.VariantViewModel;
 import com.yujunyang.iddd.car.domain.brand.BrandId;
 import com.yujunyang.iddd.car.domain.manufacturer.ManufacturerId;
 import com.yujunyang.iddd.car.domain.model.ModelId;
@@ -163,7 +164,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findModelsInBrandDataFetcher() {
         return environment -> {
             BrandViewModel brandViewModel = environment.getSource();
-            DataLoader<String, List<ModelViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODELS_BY_BRAND_IDS);
+            DataLoader<Long, List<ModelViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODELS_BY_BRAND_IDS);
             return dataLoader.load(brandViewModel.getId());
         };
     }
@@ -171,7 +172,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findModelsInManufacturerDataFetcher() {
         return environment -> {
             ManufacturerViewModel manufacturerViewModel = environment.getSource();
-            DataLoader<String, List<ModelViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODELS_BY_MANUFACTURER_IDS);
+            DataLoader<Long, List<ModelViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODELS_BY_MANUFACTURER_IDS);
             return dataLoader.load(manufacturerViewModel.getId());
         };
     }
@@ -179,20 +180,22 @@ public class GraphQLConfig {
     private DataFetcher<?> findManufacturersInBrandDataFetcher() {
         return environment -> {
             BrandViewModel brandViewModel = environment.getSource();
-            DataLoader<String, List<ManufacturerViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURERS_BY_BRAND_IDS);
+            DataLoader<Long, List<ManufacturerViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURERS_BY_BRAND_IDS);
             return dataLoader.load(brandViewModel.getId());
         };
     }
 
     private DataFetcher<List<ModelViewModel>> modelsDataFetcher() {
         return environment -> {
-            String brandId = environment.getArgument("brandId");
-            List<String> modelIds = environment.getArgument("modelIds");
+            long brandId = environment.getArgument("brandId");
+            List<Long> modelIds = environment.getArgument("modelIds");
 
             return modelQueryService.findBy(
                     BrandId.parse(brandId),
                     Optional.ofNullable(modelIds)
-                            .orElse(new ArrayList<>()).stream().map(n -> ModelId.parse(n))
+                            .orElse(new ArrayList<>())
+                            .stream()
+                            .map(n -> ModelId.parse(n))
                             .collect(Collectors.toList())
             );
         };
@@ -201,7 +204,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findVariantsInModelDataFetcher() {
         return environment -> {
             ModelViewModel modelViewModel = environment.getSource();
-            DataLoader<String, List<VariantViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_VARIANTS_BY_MODEL_IDS);
+            DataLoader<Long, List<VariantViewModel>> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_VARIANTS_BY_MODEL_IDS);
             return dataLoader.load(modelViewModel.getId());
         };
     }
@@ -209,7 +212,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findBrandInModelDataFetcher() {
         return environment -> {
             ModelViewModel modelViewModel = environment.getSource();
-            DataLoader<String, BrandViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_BRAND_BY_IDS);
+            DataLoader<Long, BrandViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_BRAND_BY_IDS);
             return dataLoader.load(modelViewModel.getBrandId());
         };
     }
@@ -217,7 +220,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findManufacturerInModelDataFetcher() {
         return environment -> {
             ModelViewModel modelViewModel = environment.getSource();
-            DataLoader<String, ManufacturerViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURER_BY_IDS);
+            DataLoader<Long, ManufacturerViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURER_BY_IDS);
             return dataLoader.load(modelViewModel.getManufacturerId());
         };
     }
@@ -225,7 +228,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findModelInVariantDataFetcher() {
         return environment -> {
             VariantViewModel variantViewModel = environment.getSource();
-            DataLoader<String, ModelViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODEL_BY_IDS);
+            DataLoader<Long, ModelViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MODEL_BY_IDS);
             return dataLoader.load(variantViewModel.getModelId());
         };
     }
@@ -233,7 +236,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findBrandInVariantDataFetcher() {
         return environment -> {
             VariantViewModel variantViewModel = environment.getSource();
-            DataLoader<String, BrandViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_BRAND_BY_IDS);
+            DataLoader<Long, BrandViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_BRAND_BY_IDS);
             return dataLoader.load(variantViewModel.getBrandId());
         };
     }
@@ -241,7 +244,7 @@ public class GraphQLConfig {
     private DataFetcher<?> findManufacturerInVariantDataFetcher() {
         return environment -> {
             VariantViewModel variantViewModel = environment.getSource();
-            DataLoader<String, ManufacturerViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURER_BY_IDS);
+            DataLoader<Long, ManufacturerViewModel> dataLoader = environment.getDataLoader(DataLoaderConfig.DATALOADER_MANUFACTURER_BY_IDS);
             return dataLoader.load(variantViewModel.getManufacturerId());
         };
     }

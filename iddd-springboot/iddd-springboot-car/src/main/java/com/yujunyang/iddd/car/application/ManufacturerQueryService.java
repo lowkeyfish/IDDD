@@ -17,21 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.application.query;
+package com.yujunyang.iddd.car.application;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.yujunyang.iddd.car.application.query.data.ManufacturerViewModel;
+import com.yujunyang.iddd.car.application.data.ManufacturerViewModel;
 import com.yujunyang.iddd.car.domain.brand.BrandId;
 import com.yujunyang.iddd.car.domain.manufacturer.ManufacturerId;
 import com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.ManufacturerMapper;
-import com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.ManufacturerDatabaseModel;
+import com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.ManufacturerDatabaseModel;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

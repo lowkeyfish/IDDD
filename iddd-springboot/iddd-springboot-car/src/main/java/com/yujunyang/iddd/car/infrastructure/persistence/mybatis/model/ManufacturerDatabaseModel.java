@@ -20,25 +20,34 @@
  *
  */
 
-package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper;
+package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model;
 
-import java.util.List;
+public class ManufacturerDatabaseModel {
+    private long id;
+    private long brandId;
+    private String name;
 
-import com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.VariantDatabaseModel;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+    public long getId() {
+        return id;
+    }
 
-@Mapper
-public interface VariantMapper {
-    int insert(VariantDatabaseModel model);
+    public void setId(long id) {
+        this.id = id;
+    }
 
-    int update(VariantDatabaseModel model);
+    public long getBrandId() {
+        return brandId;
+    }
 
-    VariantDatabaseModel selectById(@Param("id") long id);
+    public void setBrandId(long brandId) {
+        this.brandId = brandId;
+    }
 
-    List<VariantDatabaseModel> selectByModelId(@Param("modelId") long modelId);
+    public String getName() {
+        return name;
+    }
 
-    List<VariantDatabaseModel> selectByIds(@Param("ids") List<Long> ids);
-
-    List<VariantDatabaseModel> selectByModelIds(@Param("modelIds") List<Long> modelIds);
+    public void setName(String name) {
+        this.name = name;
+    }
 }

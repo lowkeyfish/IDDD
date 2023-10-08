@@ -20,19 +20,19 @@
  *
  */
 
-package com.yujunyang.iddd.car.application.query.data;
+package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model;
 
-public class BrandViewModel {
-    private String id;
+public class BrandDatabaseModel {
+    private long id;
     private String name;
     private String firstLetter;
     private String logo;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 

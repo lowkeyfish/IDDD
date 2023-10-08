@@ -17,28 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper;
+package com.yujunyang.iddd.car.application.data;
 
-import java.util.List;
-
-import com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.VariantDatabaseModel;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
-@Mapper
-public interface VariantMapper {
-    int insert(VariantDatabaseModel model);
-
-    int update(VariantDatabaseModel model);
-
-    VariantDatabaseModel selectById(@Param("id") long id);
-
-    List<VariantDatabaseModel> selectByModelId(@Param("modelId") long modelId);
-
-    List<VariantDatabaseModel> selectByIds(@Param("ids") List<Long> ids);
-
-    List<VariantDatabaseModel> selectByModelIds(@Param("modelIds") List<Long> modelIds);
+public interface BrandCreateCommandResult {
+    void resultingBrandId(long brandId);
 }

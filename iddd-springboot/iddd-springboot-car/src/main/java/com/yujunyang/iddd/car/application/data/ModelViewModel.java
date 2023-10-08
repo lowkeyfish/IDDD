@@ -17,42 +17,40 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model;
+package com.yujunyang.iddd.car.application.data;
 
-public class ModelDatabaseModel {
-    private String id;
-    private String brandId;
-    private String manufacturerId;
+public class ModelViewModel {
+    private long id;
+    private long brandId;
+    private long manufacturerId;
     private String name;
     private String image;
     private int priceMin;
     private int priceMax;
-    private int deleted;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public String getBrandId() {
+    public long getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(String brandId) {
+    public void setBrandId(long brandId) {
         this.brandId = brandId;
     }
 
-    public String getManufacturerId() {
+    public long getManufacturerId() {
         return manufacturerId;
     }
 
-    public void setManufacturerId(String manufacturerId) {
+    public void setManufacturerId(long manufacturerId) {
         this.manufacturerId = manufacturerId;
     }
 
@@ -86,13 +84,5 @@ public class ModelDatabaseModel {
 
     public void setPriceMax(int priceMax) {
         this.priceMax = priceMax;
-    }
-
-    public int getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(int deleted) {
-        this.deleted = deleted;
     }
 }

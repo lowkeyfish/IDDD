@@ -19,27 +19,25 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.car;
+package com.yujunyang.iddd.car.application.command;
 
-public class Brand {
-    private BrandId id;
+import com.yujunyang.iddd.common.utils.CheckUtils;
+
+public class BrandCreateCommand {
     private String name;
     private String logo;
     private String firstLetter;
 
-    public Brand(
-            BrandId id,
+    public BrandCreateCommand(
             String name,
             String logo,
             String firstLetter) {
-        this.id = id;
+        CheckUtils.notBlank(name, "name 必须不为空");
+        CheckUtils.notBlank(logo, "logo 必须不为空");
+        CheckUtils.notBlank(firstLetter, "firstLetter 必须不为空");
         this.name = name;
         this.logo = logo;
         this.firstLetter = firstLetter;
-    }
-
-    public BrandId getId() {
-        return id;
     }
 
     public String getName() {

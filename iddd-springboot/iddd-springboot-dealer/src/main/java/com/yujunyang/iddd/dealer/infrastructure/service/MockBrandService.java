@@ -36,8 +36,8 @@ public class MockBrandService implements BrandService {
             new Brand(
                     new BrandId(IdUtils.newId()),
                     "Mock_Brand_1",
-                    "/images/brand/audi.png"
-            )
+                    "/images/brand/audi.png",
+                    "M")
     );
     @Override
     public Brand findById(BrandId brandId) {

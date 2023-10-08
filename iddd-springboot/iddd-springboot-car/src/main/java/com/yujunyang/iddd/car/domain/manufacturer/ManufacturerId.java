@@ -24,12 +24,13 @@ package com.yujunyang.iddd.car.domain.manufacturer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.domain.id.AbstractStringId;
 import org.apache.commons.lang3.StringUtils;
 
-public class ManufacturerId extends AbstractStringId {
+public class ManufacturerId extends AbstractLongId {
     @JsonCreator
-    public ManufacturerId(@JsonProperty("id") String id) {
+    public ManufacturerId(@JsonProperty("id") Long id) {
         super(id);
     }
 
@@ -44,8 +45,8 @@ public class ManufacturerId extends AbstractStringId {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static ManufacturerId parse(String id) {
-        if (StringUtils.isBlank(id)) {
+    public static ManufacturerId parse(Long id) {
+        if (id == null || id <= 0) {
             return null;
         }
         return new ManufacturerId(id);

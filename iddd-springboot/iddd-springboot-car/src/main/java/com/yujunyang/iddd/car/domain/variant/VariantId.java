@@ -24,12 +24,13 @@ package com.yujunyang.iddd.car.domain.variant;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.domain.id.AbstractStringId;
 import org.apache.commons.lang3.StringUtils;
 
-public class VariantId extends AbstractStringId {
+public class VariantId extends AbstractLongId {
     @JsonCreator
-    public VariantId(@JsonProperty("id") String id) {
+    public VariantId(@JsonProperty("id") Long id) {
         super(id);
     }
 
@@ -44,8 +45,8 @@ public class VariantId extends AbstractStringId {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static VariantId parse(String id) {
-        if (StringUtils.isBlank(id)) {
+    public static VariantId parse(Long id) {
+        if (id == null || id <= 0) {
             return null;
         }
         return new VariantId(id);

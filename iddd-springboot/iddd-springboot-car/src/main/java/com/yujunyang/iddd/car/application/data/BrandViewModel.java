@@ -17,49 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.application.query.data;
+package com.yujunyang.iddd.car.application.data;
 
-public class VariantViewModel {
-    private String id;
-    private String brandId;
-    private String manufacturerId;
-    private String modelId;
+public class BrandViewModel {
+    private long id;
     private String name;
-    private int price;
+    private String firstLetter;
+    private String logo;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
-    }
-
-    public String getBrandId() {
-        return brandId;
-    }
-
-    public void setBrandId(String brandId) {
-        this.brandId = brandId;
-    }
-
-    public String getManufacturerId() {
-        return manufacturerId;
-    }
-
-    public void setManufacturerId(String manufacturerId) {
-        this.manufacturerId = manufacturerId;
-    }
-
-    public String getModelId() {
-        return modelId;
-    }
-
-    public void setModelId(String modelId) {
-        this.modelId = modelId;
     }
 
     public String getName() {
@@ -70,11 +43,19 @@ public class VariantViewModel {
         this.name = name;
     }
 
-    public int getPrice() {
-        return price;
+    public String getFirstLetter() {
+        return firstLetter;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
+    public void setFirstLetter(String firstLetter) {
+        this.firstLetter = firstLetter;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 }

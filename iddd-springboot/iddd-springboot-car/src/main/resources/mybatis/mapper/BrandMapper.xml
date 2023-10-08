@@ -26,9 +26,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.BrandMapper">
     <insert id="insert"
-            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.BrandDatabaseModel">
-        INSERT INTO `brand`(
-            `uid`,
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.BrandDatabaseModel">
+        INSERT IGNORE INTO `brand`(
+            `id`,
             `name`,
             `first_letter`,
             `logo`
@@ -41,28 +41,41 @@
     </insert>
 
     <select id="selectById"
-            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.BrandDatabaseModel">
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.BrandDatabaseModel">
         SELECT
-            `uid` AS id,
+            `id`,
             `name`,
             `first_letter` AS firstLetter,
             `logo`
         FROM
             `brand`
         WHERE
-            `deleted` = 0 AND `uid` = #{id};
+            `deleted` = 0 AND `id` = #{id};
+    </select>
+
+    <select id="selectByName"
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.BrandDatabaseModel">
+        SELECT
+            `id`,
+            `name`,
+            `first_letter` AS firstLetter,
+            `logo`
+        FROM
+            `brand`
+        WHERE
+            `deleted` = 0 AND `name` = #{name};
     </select>
 
     <update id="update"
-            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.BrandDatabaseModel">
+            parameterType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.BrandDatabaseModel">
         UPDATE `brand` SET `name` = #{name}, `first_letter` = #{firstLetter}, `logo` = #{logo}, `deleted` = 0
-        WHERE `uid` = #{id};
+        WHERE `id` = #{id};
     </update>
 
     <select id="selectAll"
-            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.BrandDatabaseModel">
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.BrandDatabaseModel">
         SELECT
-            `uid` AS id,
+            `id`,
             `name`,
             `first_letter` AS firstLetter,
             `logo`
@@ -73,16 +86,16 @@
     </select>
 
     <select id="selectByIds"
-            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model.BrandDatabaseModel">
+            resultType="com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model.BrandDatabaseModel">
         SELECT
-            `uid` AS id,
+            `id`,
             `name`,
             `first_letter` AS firstLetter,
             `logo`
         FROM
             `brand`
         WHERE
-            `deleted` = 0 AND `uid` IN
+            `deleted` = 0 AND `id` IN
         <foreach collection="ids" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>

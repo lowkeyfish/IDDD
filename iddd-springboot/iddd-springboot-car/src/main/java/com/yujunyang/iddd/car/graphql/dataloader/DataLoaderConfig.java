@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import com.yujunyang.iddd.car.application.query.BrandQueryService;
-import com.yujunyang.iddd.car.application.query.ManufacturerQueryService;
-import com.yujunyang.iddd.car.application.query.ModelQueryService;
-import com.yujunyang.iddd.car.application.query.VariantQueryService;
-import com.yujunyang.iddd.car.application.query.data.BrandViewModel;
-import com.yujunyang.iddd.car.application.query.data.ManufacturerViewModel;
-import com.yujunyang.iddd.car.application.query.data.ModelViewModel;
-import com.yujunyang.iddd.car.application.query.data.VariantViewModel;
+import com.yujunyang.iddd.car.application.BrandQueryService;
+import com.yujunyang.iddd.car.application.ManufacturerQueryService;
+import com.yujunyang.iddd.car.application.ModelQueryService;
+import com.yujunyang.iddd.car.application.VariantQueryService;
+import com.yujunyang.iddd.car.application.data.BrandViewModel;
+import com.yujunyang.iddd.car.application.data.ManufacturerViewModel;
+import com.yujunyang.iddd.car.application.data.ModelViewModel;
+import com.yujunyang.iddd.car.application.data.VariantViewModel;
 import com.yujunyang.iddd.car.domain.brand.BrandId;
 import com.yujunyang.iddd.car.domain.manufacturer.ManufacturerId;
 import com.yujunyang.iddd.car.domain.model.ModelId;
@@ -65,8 +65,8 @@ public class DataLoaderConfig {
         return dataLoaderRegistry;
     }
 
-    private BatchLoaderWithContext<String, BrandViewModel> findBrandByIdsBatchLoader() {
-        BatchLoaderWithContext<String, BrandViewModel> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
+    private BatchLoaderWithContext<Long, BrandViewModel> findBrandByIdsBatchLoader() {
+        BatchLoaderWithContext<Long, BrandViewModel> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
             if (CollectionUtils.isEmpty(list)) {
                 return new ArrayList<>();
             }
@@ -74,15 +74,15 @@ public class DataLoaderConfig {
                     list.stream().map(n -> new BrandId(n)).distinct().collect(Collectors.toList()));
             List<BrandViewModel> ret = new ArrayList<>();
             list.forEach(n -> {
-                ret.add(brandViewModelList.stream().filter(n2 -> n2.getId().equals(n)).findFirst().orElse(null));
+                ret.add(brandViewModelList.stream().filter(n2 -> n2.getId() == n).findFirst().orElse(null));
             });
             return ret;
         });
         return batchLoaderWithContext;
     }
 
-    private BatchLoaderWithContext<String, ManufacturerViewModel> findManufacturerByIdsBatchLoader() {
-        BatchLoaderWithContext<String, ManufacturerViewModel> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
+    private BatchLoaderWithContext<Long, ManufacturerViewModel> findManufacturerByIdsBatchLoader() {
+        BatchLoaderWithContext<Long, ManufacturerViewModel> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
             if (CollectionUtils.isEmpty(list)) {
                 return new ArrayList<>();
             }
@@ -90,15 +90,15 @@ public class DataLoaderConfig {
                     list.stream().map(n -> new ManufacturerId(n)).distinct().collect(Collectors.toList()));
             List<ManufacturerViewModel> ret = new ArrayList<>();
             list.forEach(n -> {
-                ret.add(manufacturerViewModelList.stream().filter(n2 -> n2.getId().equals(n)).findFirst().orElse(null));
+                ret.add(manufacturerViewModelList.stream().filter(n2 -> n2.getId() == n).findFirst().orElse(null));
             });
             return ret;
         });
         return batchLoaderWithContext;
     }
 
-    private BatchLoaderWithContext<String, List<ManufacturerViewModel>> findManufacturersByBrandIdsBatchLoader() {
-        BatchLoaderWithContext<String, List<ManufacturerViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
+    private BatchLoaderWithContext<Long, List<ManufacturerViewModel>> findManufacturersByBrandIdsBatchLoader() {
+        BatchLoaderWithContext<Long, List<ManufacturerViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
             if (CollectionUtils.isEmpty(list)) {
                 return new ArrayList<>();
             }
@@ -106,15 +106,15 @@ public class DataLoaderConfig {
                     list.stream().map(n -> new BrandId(n)).distinct().collect(Collectors.toList()));
             List<List<ManufacturerViewModel>> ret = new ArrayList<>();
             list.forEach(n -> {
-                ret.add(manufacturerViewModelList.stream().filter(n2 -> n2.getBrandId().equals(n)).collect(Collectors.toList()));
+                ret.add(manufacturerViewModelList.stream().filter(n2 -> n2.getBrandId() == n).collect(Collectors.toList()));
             });
             return ret;
         });
         return batchLoaderWithContext;
     }
 
-    private BatchLoaderWithContext<String, ModelViewModel> findModelByIdsBatchLoader() {
-        BatchLoaderWithContext<String, ModelViewModel> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
+    private BatchLoaderWithContext<Long, ModelViewModel> findModelByIdsBatchLoader() {
+        BatchLoaderWithContext<Long, ModelViewModel> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
             if (CollectionUtils.isEmpty(list)) {
                 return new ArrayList<>();
             }
@@ -122,15 +122,15 @@ public class DataLoaderConfig {
                     list.stream().map(n -> new ModelId(n)).distinct().collect(Collectors.toList()));
             List<ModelViewModel> ret = new ArrayList<>();
             list.forEach(n -> {
-                ret.add(modelViewModelList.stream().filter(n2 -> n2.getId().equals(n)).findFirst().orElse(null));
+                ret.add(modelViewModelList.stream().filter(n2 -> n2.getId() == n).findFirst().orElse(null));
             });
             return ret;
         });
         return batchLoaderWithContext;
     }
 
-    private BatchLoaderWithContext<String, List<ModelViewModel>> findModelsByBrandIdsBatchLoader() {
-        BatchLoaderWithContext<String, List<ModelViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
+    private BatchLoaderWithContext<Long, List<ModelViewModel>> findModelsByBrandIdsBatchLoader() {
+        BatchLoaderWithContext<Long, List<ModelViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
             if (CollectionUtils.isEmpty(list)) {
                 return new ArrayList<>();
             }
@@ -138,15 +138,15 @@ public class DataLoaderConfig {
                     list.stream().map(n -> new BrandId(n)).distinct().collect(Collectors.toList()));
             List<List<ModelViewModel>> ret = new ArrayList<>();
             list.forEach(n -> {
-                ret.add(modelViewModelList.stream().filter(n2 -> n2.getBrandId().equals(n)).collect(Collectors.toList()));
+                ret.add(modelViewModelList.stream().filter(n2 -> n2.getBrandId() == n).collect(Collectors.toList()));
             });
             return ret;
         });
         return batchLoaderWithContext;
     }
 
-    private BatchLoaderWithContext<String, List<ModelViewModel>> findModelsByManufacturerIdsBatchLoader() {
-        BatchLoaderWithContext<String, List<ModelViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
+    private BatchLoaderWithContext<Long, List<ModelViewModel>> findModelsByManufacturerIdsBatchLoader() {
+        BatchLoaderWithContext<Long, List<ModelViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
             if (CollectionUtils.isEmpty(list)) {
                 return new ArrayList<>();
             }
@@ -154,15 +154,15 @@ public class DataLoaderConfig {
                     list.stream().map(n -> new ManufacturerId(n)).distinct().collect(Collectors.toList()));
             List<List<ModelViewModel>> ret = new ArrayList<>();
             list.forEach(n -> {
-                ret.add(modelViewModelList.stream().filter(n2 -> n2.getManufacturerId().equals(n)).collect(Collectors.toList()));
+                ret.add(modelViewModelList.stream().filter(n2 -> n2.getManufacturerId() == n).collect(Collectors.toList()));
             });
             return ret;
         });
         return batchLoaderWithContext;
     }
 
-    private BatchLoaderWithContext<String, List<VariantViewModel>> findVariantsByModelIdsBatchLoader() {
-        BatchLoaderWithContext<String, List<VariantViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
+    private BatchLoaderWithContext<Long, List<VariantViewModel>> findVariantsByModelIdsBatchLoader() {
+        BatchLoaderWithContext<Long, List<VariantViewModel>> batchLoaderWithContext = (list, batchLoaderEnvironment) -> CompletableFuture.supplyAsync(() -> {
             if (CollectionUtils.isEmpty(list)) {
                 return new ArrayList<>();
             }
@@ -170,7 +170,7 @@ public class DataLoaderConfig {
                     list.stream().map(n -> new ModelId(n)).distinct().collect(Collectors.toList()));
             List<List<VariantViewModel>> ret = new ArrayList<>();
             list.forEach(n -> {
-                ret.add(variantViewModelList.stream().filter(n2 -> n2.getModelId().equals(n)).collect(Collectors.toList()));
+                ret.add(variantViewModelList.stream().filter(n2 -> n2.getModelId() == n).collect(Collectors.toList()));
             });
             return ret;
         });

@@ -23,32 +23,34 @@
 package com.yujunyang.iddd.car.domain.brand;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
-import com.yujunyang.iddd.common.domain.id.AbstractStringId;
-import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
+import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public class BrandId extends AbstractLongId {
-    @JsonCreator
-    public BrandId(@JsonProperty("id") Long id) {
-        super(id);
+public enum BrandStatusType implements ValueDescriptionEnum<Integer> {
+    DEFAULT(0, "默认");
+
+    @JsonValue
+    private int value;
+    private String description;
+
+    BrandStatusType(int value, String description) {
+        this.value = value;
+        this.description = description;
     }
 
     @Override
-    protected int initialNonZeroOddNumber() {
-        return 5;
+    public String getDescription() {
+        return description;
     }
 
     @Override
-    protected int multiplierNonZeroOddNumber() {
-        return 55;
+    public Integer getValue() {
+        return value;
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static BrandId parse(Long id) {
-        if (id == null || id <= 0) {
-            return null;
-        }
-        return new BrandId(id);
+    public static BrandStatusType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, BrandStatusType.class);
     }
 }

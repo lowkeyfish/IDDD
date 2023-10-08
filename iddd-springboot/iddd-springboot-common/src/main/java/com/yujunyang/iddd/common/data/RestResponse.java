@@ -17,46 +17,51 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model;
+package com.yujunyang.iddd.common.data;
 
-public class BrandDatabaseModel {
-    private String id;
-    private String name;
-    private String firstLetter;
-    private String logo;
+public class RestResponse<T> {
+    private int code = 0;
+    private String message;
+    private T data;
 
-    public String getId() {
-        return id;
+    public RestResponse() {
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public RestResponse(
+            int code,
+            String message,
+            T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
     }
 
-    public String getName() {
-        return name;
+    public RestResponse(
+            int code,
+            String message) {
+        this.code = code;
+        this.message = message;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public RestResponse(T data) {
+        this.data = data;
     }
 
-    public String getFirstLetter() {
-        return firstLetter;
+    public int getCode() {
+        return code;
     }
 
-    public void setFirstLetter(String firstLetter) {
-        this.firstLetter = firstLetter;
+    public String getMessage() {
+        return message;
     }
 
-    public String getLogo() {
-        return logo;
+    public T getData() {
+        return data;
     }
 
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public void setData(T data) {
+        this.data = data;
     }
 }

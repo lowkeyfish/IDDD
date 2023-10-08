@@ -20,38 +20,46 @@
  *
  */
 
-package com.yujunyang.iddd.car.application.query.data;
+package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.model;
 
-public class ModelViewModel {
-    private String id;
-    private String brandId;
-    private String manufacturerId;
+public class VariantDatabaseModel {
+    private long id;
+    private long modelId;
+    private long brandId;
+    private long manufacturerId;
     private String name;
-    private String image;
-    private int priceMin;
-    private int priceMax;
+    private int price;
+    private int deleted;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public String getBrandId() {
+    public long getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(long modelId) {
+        this.modelId = modelId;
+    }
+
+    public long getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(String brandId) {
+    public void setBrandId(long brandId) {
         this.brandId = brandId;
     }
 
-    public String getManufacturerId() {
+    public long getManufacturerId() {
         return manufacturerId;
     }
 
-    public void setManufacturerId(String manufacturerId) {
+    public void setManufacturerId(long manufacturerId) {
         this.manufacturerId = manufacturerId;
     }
 
@@ -63,27 +71,19 @@ public class ModelViewModel {
         this.name = name;
     }
 
-    public String getImage() {
-        return image;
+    public int getPrice() {
+        return price;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setPrice(int price) {
+        this.price = price;
     }
 
-    public int getPriceMin() {
-        return priceMin;
+    public int getDeleted() {
+        return deleted;
     }
 
-    public void setPriceMin(int priceMin) {
-        this.priceMin = priceMin;
-    }
-
-    public int getPriceMax() {
-        return priceMax;
-    }
-
-    public void setPriceMax(int priceMax) {
-        this.priceMax = priceMax;
+    public void setDeleted(int deleted) {
+        this.deleted = deleted;
     }
 }

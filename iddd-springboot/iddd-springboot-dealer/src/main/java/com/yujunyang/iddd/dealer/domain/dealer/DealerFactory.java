@@ -23,6 +23,7 @@ package com.yujunyang.iddd.dealer.domain.dealer;
 
 import java.text.MessageFormat;
 
+import com.yujunyang.iddd.common.domain.id.IdGenerator;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.domain.address.Address;
@@ -35,14 +36,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DealerFactory {
-    private BrandService brandService;
+    private IdGenerator idGenerator;
     private DealerNameUniquenessCheckService dealerNameUniquenessCheckService;
 
     @Autowired
     public DealerFactory(
-            BrandService brandService,
+            IdGenerator idGenerator,
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService) {
-        this.brandService = brandService;
+        this.idGenerator = idGenerator;
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
     }
 
@@ -58,8 +59,7 @@ public class DealerFactory {
         CheckUtils.notNull(brandId, "brandId 必须不为 null");
         CheckUtils.notBlank(telephone, "telephone 必须不为空");
 
-        Brand brand = brandService.findById(brandId);
-        CheckUtils.notNull(brand, "BrandId({0}) 无效", brandId);
+
 
         boolean nameNotUsed = dealerNameUniquenessCheckService.isNameNotUsed(name);
         if (!nameNotUsed) {
@@ -76,7 +76,6 @@ public class DealerFactory {
                         specificAddress
                 ),
                 telephone,
-                brandId,
-                servicePeriod);
+                brandId);
     }
 }

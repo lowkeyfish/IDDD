@@ -17,37 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model;
+package com.yujunyang.iddd.dealer.infrastructure.service;
 
-public class ManufacturerDatabaseModel {
-    private String id;
-    private String brandId;
-    private String name;
+import com.yujunyang.iddd.dealer.domain.car.Brand;
+import com.yujunyang.iddd.dealer.domain.car.BrandId;
+import com.yujunyang.iddd.dealer.domain.car.BrandService;
+import org.springframework.stereotype.Service;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getBrandId() {
-        return brandId;
-    }
-
-    public void setBrandId(String brandId) {
-        this.brandId = brandId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+@Service
+public class RemoteApiBrandService implements BrandService {
+    @Override
+    public Brand findById(BrandId brandId) {
+        return null;
     }
 }

@@ -17,38 +17,45 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package com.yujunyang.iddd.car.domain.brand;
 
+import java.text.MessageFormat;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
-import com.yujunyang.iddd.common.domain.id.AbstractStringId;
-import org.apache.commons.lang3.StringUtils;
+import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class BrandId extends AbstractLongId {
+public class BrandCreated implements DomainEvent {
+    private long timestamp;
+    private long brandId;
+
     @JsonCreator
-    public BrandId(@JsonProperty("id") Long id) {
-        super(id);
+    public BrandCreated(
+            @JsonProperty("timestamp") long timestamp,
+            @JsonProperty("brandId") long brandId) {
+        this.timestamp = timestamp;
+        this.brandId = brandId;
+    }
+
+
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public long getBrandId() {
+        return brandId;
     }
 
     @Override
-    protected int initialNonZeroOddNumber() {
-        return 5;
+    public String eventKey() {
+        return MessageFormat.format("BrandId({0,number,#})", brandId);
     }
 
     @Override
-    protected int multiplierNonZeroOddNumber() {
-        return 55;
-    }
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static BrandId parse(Long id) {
-        if (id == null || id <= 0) {
-            return null;
-        }
-        return new BrandId(id);
+    public String notificationRoutingKey() {
+        return "Brand." + notificationType();
     }
 }

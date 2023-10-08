@@ -17,19 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.car.infrastructure.persistence.mybatis.mapper.model;
+package com.yujunyang.iddd.dealer.infrastructure.remote.car;
 
-public class VariantDatabaseModel {
+public class BrandResponseData {
     private String id;
-    private String modelId;
-    private String brandId;
-    private String manufacturerId;
     private String name;
-    private int price;
-    private int deleted;
+    private String firstLetter;
+    private String logo;
 
     public String getId() {
         return id;
@@ -37,30 +33,6 @@ public class VariantDatabaseModel {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getModelId() {
-        return modelId;
-    }
-
-    public void setModelId(String modelId) {
-        this.modelId = modelId;
-    }
-
-    public String getBrandId() {
-        return brandId;
-    }
-
-    public void setBrandId(String brandId) {
-        this.brandId = brandId;
-    }
-
-    public String getManufacturerId() {
-        return manufacturerId;
-    }
-
-    public void setManufacturerId(String manufacturerId) {
-        this.manufacturerId = manufacturerId;
     }
 
     public String getName() {
@@ -71,19 +43,19 @@ public class VariantDatabaseModel {
         this.name = name;
     }
 
-    public int getPrice() {
-        return price;
+    public String getFirstLetter() {
+        return firstLetter;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
+    public void setFirstLetter(String firstLetter) {
+        this.firstLetter = firstLetter;
     }
 
-    public int getDeleted() {
-        return deleted;
+    public String getLogo() {
+        return logo;
     }
 
-    public void setDeleted(int deleted) {
-        this.deleted = deleted;
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 }

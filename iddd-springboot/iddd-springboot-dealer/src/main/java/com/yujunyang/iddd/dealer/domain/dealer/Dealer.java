@@ -47,8 +47,7 @@ public class Dealer {
             String name,
             Address address,
             String telephone,
-            BrandId brandId,
-            TimeRange servicePeriod) {
+            BrandId brandId) {
 
         this(
                 id,
@@ -58,7 +57,7 @@ public class Dealer {
                 brandId,
                 LocalDateTime.now(),
                 DealerStatusType.ENABLED,
-                servicePeriod);
+                null);
 
         DomainEventPublisher.instance().publish(new DealerCreated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
@@ -73,7 +72,8 @@ public class Dealer {
             String telephone,
             BrandId brandId,
             LocalDateTime createTime,
-            DealerStatusType status, TimeRange servicePeriod) {
+            DealerStatusType status,
+            TimeRange servicePeriod) {
         this.servicePeriod = servicePeriod;
         CheckUtils.notNull(id, "id 必须不为 null");
         CheckUtils.notBlank(name, "name 必须不为空");
