@@ -22,6 +22,8 @@
 
 package com.yujunyang.iddd.common.utils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Map;
@@ -126,6 +128,16 @@ public final class CheckUtils {
         }
     }
 
+    public static <E extends RuntimeException> void isTrue(
+            boolean expression, Class<E> exceptionType, String errorMessagePattern, Object... errorMessageArgs) {
+        isTrue(expression, createException(exceptionType, errorMessagePattern, errorMessageArgs));
+    }
+
+    public static <E extends Exception> void isTrueCheckException(
+            boolean expression, Class<E> exceptionType, String errorMessagePattern, Object... errorMessageArgs) throws E {
+        isTrue(expression, createException(exceptionType, errorMessagePattern, errorMessageArgs));
+    }
+
     public static void moreThan(int number, int compareNumber, String errorMessagePattern, Object... errorMessageArgs) {
         moreThan(number, compareNumber, new IllegalArgumentException(MessageFormat.format(errorMessagePattern, errorMessageArgs)));
     }
@@ -189,4 +201,22 @@ public final class CheckUtils {
             throw exception;
         }
     }
+
+    private static <E extends Exception> E createException(
+            Class<E> exceptionType, String errorMessagePattern, Object... errorMessageArgs) {
+        try {
+            Constructor<?> constructor = exceptionType.getConstructor(String.class);
+            E exception = (E) constructor.newInstance(MessageFormat.format(errorMessagePattern, errorMessageArgs));
+            return exception;
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

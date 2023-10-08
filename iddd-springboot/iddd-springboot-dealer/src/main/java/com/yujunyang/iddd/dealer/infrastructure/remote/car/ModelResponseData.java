@@ -21,11 +21,14 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.remote.car;
 
-public class BrandResponseData {
+public class ModelResponseData {
     private long id;
+    private long brandId;
+    private long manufacturerId;
     private String name;
-    private String firstLetter;
-    private String logo;
+    private String image;
+    private int priceMin;
+    private int priceMax;
 
     public long getId() {
         return id;
@@ -33,6 +36,22 @@ public class BrandResponseData {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(long brandId) {
+        this.brandId = brandId;
+    }
+
+    public long getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(long manufacturerId) {
+        this.manufacturerId = manufacturerId;
     }
 
     public String getName() {
@@ -43,19 +62,27 @@ public class BrandResponseData {
         this.name = name;
     }
 
-    public String getFirstLetter() {
-        return firstLetter;
+    public String getImage() {
+        return image;
     }
 
-    public void setFirstLetter(String firstLetter) {
-        this.firstLetter = firstLetter;
+    public void setImage(String image) {
+        this.image = image;
     }
 
-    public String getLogo() {
-        return logo;
+    public int getPriceMin() {
+        return priceMin;
     }
 
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public void setPriceMin(int priceMin) {
+        this.priceMin = priceMin;
+    }
+
+    public int getPriceMax() {
+        return priceMax;
+    }
+
+    public void setPriceMax(int priceMax) {
+        this.priceMax = priceMax;
     }
 }

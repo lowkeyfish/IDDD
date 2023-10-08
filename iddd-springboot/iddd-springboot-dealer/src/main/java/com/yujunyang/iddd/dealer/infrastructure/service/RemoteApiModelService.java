@@ -25,22 +25,29 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.yujunyang.iddd.common.utils.IdUtils;
-import com.yujunyang.iddd.dealer.domain.car.Brand;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
-import com.yujunyang.iddd.dealer.domain.car.BrandService;
+import com.yujunyang.iddd.dealer.domain.car.ManufacturerId;
+import com.yujunyang.iddd.dealer.domain.car.Model;
+import com.yujunyang.iddd.dealer.domain.car.ModelId;
+import com.yujunyang.iddd.dealer.domain.car.ModelService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MockBrandService implements BrandService {
-    private static final List<Brand> MOCK_BRANDS = Arrays.asList(
-            new Brand(
+public class RemoteApiModelService implements ModelService {
+    private static final List<Model> MOCK_MODELS = Arrays.asList(
+            new Model(
+                    new ModelId(IdUtils.newId()),
                     new BrandId(IdUtils.newId()),
-                    "Mock_Brand_1",
-                    "/images/brand/audi.png",
-                    "M")
+                    new ManufacturerId(IdUtils.newId()),
+                    "Mock_Model_1",
+                    "/images/model/a6l.png",
+                    230000,
+                    330000
+            )
     );
+
     @Override
-    public Brand findById(BrandId brandId) {
-        return MOCK_BRANDS.stream().filter(n -> n.getId().equals(brandId)).findFirst().orElse(null);
+    public Model findById(ModelId modelId) {
+        return MOCK_MODELS.stream().filter(n -> n.getId().equals(modelId)).findFirst().orElse(null);
     }
 }

@@ -31,5 +31,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CarApi {
     @GetMapping("/brands/{brandId}")
     RestResponse<BrandResponseData> findBrandById(
-            @PathVariable("brandId") String brandId);
+            @PathVariable("brandId") long brandId);
+
+    @GetMapping("/models/{modelId}")
+    RestResponse<ModelResponseData> findModelById(
+            @PathVariable("modelId") long modelId);
+
+    @GetMapping("/variants/{variantId}")
+    RestResponse<VariantResponseData> findVariantById(
+            @PathVariable("variantId") long variantId);
 }

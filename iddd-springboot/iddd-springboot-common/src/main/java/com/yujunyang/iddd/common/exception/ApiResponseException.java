@@ -19,43 +19,25 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.infrastructure.remote.car;
+package com.yujunyang.iddd.common.exception;
 
-public class BrandResponseData {
-    private long id;
-    private String name;
-    private String firstLetter;
-    private String logo;
-
-    public long getId() {
-        return id;
+public class ApiResponseException extends RuntimeException {
+    public ApiResponseException() {
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public ApiResponseException(String message) {
+        super(message);
     }
 
-    public String getName() {
-        return name;
+    public ApiResponseException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public ApiResponseException(Throwable cause) {
+        super(cause);
     }
 
-    public String getFirstLetter() {
-        return firstLetter;
-    }
-
-    public void setFirstLetter(String firstLetter) {
-        this.firstLetter = firstLetter;
-    }
-
-    public String getLogo() {
-        return logo;
-    }
-
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public ApiResponseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

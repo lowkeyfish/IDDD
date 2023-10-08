@@ -21,15 +21,49 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.service;
 
+import java.util.Optional;
+
+import com.yujunyang.iddd.common.data.RestResponse;
+import com.yujunyang.iddd.common.exception.ApiResponseException;
+import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.car.Brand;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.car.BrandService;
+import com.yujunyang.iddd.dealer.infrastructure.remote.car.BrandResponseData;
+import com.yujunyang.iddd.dealer.infrastructure.remote.car.CarApi;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RemoteApiBrandService implements BrandService {
+    private CarApi carApi;
+
+    @Autowired
+    public RemoteApiBrandService(
+            CarApi carApi) {
+        this.carApi = carApi;
+    }
+
     @Override
     public Brand findById(BrandId brandId) {
-        return null;
+        RestResponse<BrandResponseData> response = carApi.findBrandById(brandId.getId());
+        CheckUtils.isTrue(
+            response.getCode() == 0,
+                ApiResponseException.class,
+                "查询单个品牌接口调用失败,code({0}),message({1})",
+                response.getCode(),
+                response.getMessage()
+        );
+
+        return Optional.ofNullable(response.getData()).map(n -> convert(n)).orElse(null);
+    }
+
+    private Brand convert(BrandResponseData responseData) {
+        return new Brand(
+                BrandId.parse(responseData.getId()),
+                responseData.getName(),
+                responseData.getLogo(),
+                responseData.getFirstLetter()
+        );
     }
 }

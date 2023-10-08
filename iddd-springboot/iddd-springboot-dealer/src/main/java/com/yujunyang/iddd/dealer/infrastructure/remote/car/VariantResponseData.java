@@ -21,11 +21,13 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.remote.car;
 
-public class BrandResponseData {
+public class VariantResponseData {
     private long id;
+    private long brandId;
+    private long manufacturerId;
+    private long modelId;
     private String name;
-    private String firstLetter;
-    private String logo;
+    private int price;
 
     public long getId() {
         return id;
@@ -33,6 +35,30 @@ public class BrandResponseData {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(long brandId) {
+        this.brandId = brandId;
+    }
+
+    public long getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(long manufacturerId) {
+        this.manufacturerId = manufacturerId;
+    }
+
+    public long getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(long modelId) {
+        this.modelId = modelId;
     }
 
     public String getName() {
@@ -43,19 +69,11 @@ public class BrandResponseData {
         this.name = name;
     }
 
-    public String getFirstLetter() {
-        return firstLetter;
+    public int getPrice() {
+        return price;
     }
 
-    public void setFirstLetter(String firstLetter) {
-        this.firstLetter = firstLetter;
-    }
-
-    public String getLogo() {
-        return logo;
-    }
-
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public void setPrice(int price) {
+        this.price = price;
     }
 }
