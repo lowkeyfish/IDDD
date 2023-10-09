@@ -24,11 +24,12 @@ package com.yujunyang.iddd.dealer.domain.activity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.domain.id.AbstractStringId;
 import org.apache.commons.lang3.StringUtils;
 
-public class ActivityId extends AbstractStringId {
-    public ActivityId(@JsonProperty("id") String id) {
+public class ActivityId extends AbstractLongId {
+    public ActivityId(@JsonProperty("id") Long id) {
         super(id);
     }
 
@@ -43,8 +44,8 @@ public class ActivityId extends AbstractStringId {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static ActivityId parse(String id) {
-        if (StringUtils.isBlank(id)) {
+    public static ActivityId parse(Long id) {
+        if (id == null || id <= 0) {
             return null;
         }
         return new ActivityId(id);

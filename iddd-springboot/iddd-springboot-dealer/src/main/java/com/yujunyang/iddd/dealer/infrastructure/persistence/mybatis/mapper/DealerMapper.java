@@ -32,7 +32,7 @@ public interface DealerMapper {
 
     int update(DealerDatabaseModel model);
 
-    DealerDatabaseModel selectById(@Param("id") String id);
+    DealerDatabaseModel selectById(@Param("id") long id);
 
     DealerDatabaseModel selectByName(@Param("name") String name);
 }

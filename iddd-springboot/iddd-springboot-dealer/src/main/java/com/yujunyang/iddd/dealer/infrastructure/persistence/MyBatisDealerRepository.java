@@ -24,13 +24,14 @@ package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
 import java.util.Optional;
 
+import com.yujunyang.iddd.common.domain.id.IdGenerator;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerStatusType;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerServiceStatusType;
 import com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.DealerMapper;
 import com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,20 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class MyBatisDealerRepository implements DealerRepository {
+    private IdGenerator idGenerator;
     private DealerMapper dealerMapper;
 
     @Autowired
     public MyBatisDealerRepository(
+            IdGenerator idGenerator,
             DealerMapper dealerMapper) {
+        this.idGenerator = idGenerator;
         this.dealerMapper = dealerMapper;
+    }
+
+    @Override
+    public DealerId nextId() {
+        return new DealerId(idGenerator.nextId());
     }
 
     @Override
@@ -81,8 +90,8 @@ public class MyBatisDealerRepository implements DealerRepository {
                 databaseModel.getTelephone(),
                 new BrandId(databaseModel.getBrandId()),
                 databaseModel.getCreateTime(),
-                DealerStatusType.parse(databaseModel.getStatus()),
-                null);
+                DealerServiceStatusType.parse(databaseModel.getStatus()),
+                serviceStatus, null);
     }
 
     private DealerDatabaseModel convert(Dealer model) {

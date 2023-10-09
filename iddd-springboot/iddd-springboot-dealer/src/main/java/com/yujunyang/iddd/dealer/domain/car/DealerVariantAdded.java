@@ -29,16 +29,16 @@ import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
 public class DealerVariantAdded implements DomainEvent {
     private long timestamp;
-    private String dealerId;
-    private String modelId;
-    private String variantId;
+    private long dealerId;
+    private long modelId;
+    private long variantId;
 
     @JsonCreator
     public DealerVariantAdded(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") String dealerId,
-            @JsonProperty("modelId") String modelId,
-            @JsonProperty("variantId") String variantId) {
+            @JsonProperty("dealerId") long dealerId,
+            @JsonProperty("modelId") long modelId,
+            @JsonProperty("variantId") long variantId) {
         this.timestamp = timestamp;
         this.dealerId = dealerId;
         this.modelId = modelId;
@@ -50,15 +50,15 @@ public class DealerVariantAdded implements DomainEvent {
         return timestamp;
     }
 
-    public String getDealerId() {
+    public long getDealerId() {
         return dealerId;
     }
 
-    public String getModelId() {
+    public long getModelId() {
         return modelId;
     }
 
-    public String getVariantId() {
+    public long getVariantId() {
         return variantId;
     }
 

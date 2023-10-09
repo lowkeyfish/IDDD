@@ -25,16 +25,16 @@ package com.yujunyang.iddd.dealer.application;
 import java.text.MessageFormat;
 
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeTelephoneCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
-import com.yujunyang.iddd.dealer.application.command.DealerDisableCommand;
+import com.yujunyang.iddd.dealer.application.command.DealerActivationCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
 import com.yujunyang.iddd.dealer.domain.address.Address;
+import com.yujunyang.iddd.dealer.domain.address.CityService;
+import com.yujunyang.iddd.dealer.domain.car.BrandService;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerFactory;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
@@ -46,16 +46,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class DealerApplicationService {
     private DealerNameUniquenessCheckService dealerNameUniquenessCheckService;
     private DealerRepository dealerRepository;
-    private DealerFactory dealerFactory;
+    private BrandService brandService;
+    private CityService cityService;
 
     @Autowired
     public DealerApplicationService(
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService,
             DealerRepository dealerRepository,
-            DealerFactory dealerFactory) {
+            BrandService brandService,
+            CityService cityService) {
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
         this.dealerRepository = dealerRepository;
-        this.dealerFactory = dealerFactory;
+        this.brandService = brandService;
+        this.cityService = cityService;
     }
 
     @Transactional
@@ -64,16 +67,37 @@ public class DealerApplicationService {
             DealerCreateCommandResult dealerCreateCommandResult) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = dealerFactory.createDealer(
+        CheckUtils.notNull(
+                brandService.findById(command.getBrandId()),
+                "brandId({0}) 无效", command.getBrandId()
+        );
+
+        CheckUtils.notNull(
+                cityService.findById(command.getCityId()),
+                "cityId({0}) 无效",
+                command.getCityId()
+        );
+
+        CheckUtils.isTrue(
+                dealerNameUniquenessCheckService.isNameNotUsed(command.getName()),
+                "name({0}) 已被使用",
+                command.getName()
+        );
+
+        Dealer dealer = new Dealer(
+                dealerRepository.nextId(),
                 command.getName(),
-                command.getCityId(),
-                command.getSpecificAddress(),
+                new Address(
+                        command.getCityId(),
+                        command.getSpecificAddress()
+                ),
                 command.getTelephone(),
                 command.getBrandId()
         );
+
         dealerRepository.save(dealer);
 
-        dealerCreateCommandResult.resultingDealerId(dealer.getId().getId());
+        dealerCreateCommandResult.resultingDealerId(dealer.id().getId());
     }
 
     @Transactional
@@ -110,21 +134,21 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void disable(DealerDisableCommand command) {
+    public void deactivate(DealerActivationCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = findById(command.getDealerId());
-        dealer.disable();
+        dealer.deactivate();
 
         dealerRepository.save(dealer);
     }
 
     @Transactional
-    public void enable(DealerDisableCommand command) {
+    public void activate(DealerActivationCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = findById(command.getDealerId());
-        dealer.enable();
+        dealer.activate();
 
         dealerRepository.save(dealer);
     }

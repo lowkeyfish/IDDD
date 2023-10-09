@@ -24,10 +24,10 @@ package com.yujunyang.iddd.dealer.application.command;
 
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 
-public class DealerDisableCommand {
+public class DealerActivationCommand {
     private DealerId dealerId;
 
-    public DealerDisableCommand(
+    public DealerActivationCommand(
             DealerId dealerId) {
         this.dealerId = dealerId;
     }

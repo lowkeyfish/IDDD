@@ -25,6 +25,8 @@ package com.yujunyang.iddd.dealer.domain.activity;
 import java.util.List;
 
 public interface ActivityRepository {
+    ActivityId nextId();
+
     Activity findById(ActivityId activityId);
 
     List<Activity> findBy(String name, List<ActivityStatusType> statusList);

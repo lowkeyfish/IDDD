@@ -30,12 +30,12 @@ import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
 public class DealerUpdated implements DomainEvent {
     private long timestamp;
-    private String dealerId;
+    private long dealerId;
 
     @JsonCreator
     public DealerUpdated(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") String dealerId) {
+            @JsonProperty("dealerId") long dealerId) {
         this.timestamp = timestamp;
         this.dealerId = dealerId;
     }
@@ -45,7 +45,7 @@ public class DealerUpdated implements DomainEvent {
         return timestamp;
     }
 
-    public String getDealerId() {
+    public long getDealerId() {
         return dealerId;
     }
 

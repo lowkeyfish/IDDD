@@ -23,6 +23,8 @@
 package com.yujunyang.iddd.dealer.domain.dealer;
 
 public interface DealerRepository {
+    DealerId nextId();
+
     Dealer findById(DealerId dealerId);
 
     Dealer findByName(String name);

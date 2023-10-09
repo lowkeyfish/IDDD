@@ -17,30 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model;
+package com.yujunyang.iddd.dealer.controller.input;
 
-import java.time.LocalDateTime;
+import com.yujunyang.iddd.dealer.domain.address.CityId;
+import com.yujunyang.iddd.dealer.domain.car.BrandId;
 
-public class DealerDatabaseModel {
-    private long id;
+public class DealerCreateRequestBody {
     private String name;
-    private int cityId;
+    private CityId cityId;
     private String specificAddress;
     private String telephone;
-    private LocalDateTime createTime;
-    private long brandId;
-    private int status;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
+    private BrandId brandId;
 
     public String getName() {
         return name;
@@ -48,6 +37,14 @@ public class DealerDatabaseModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public CityId getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(CityId cityId) {
+        this.cityId = cityId;
     }
 
     public String getSpecificAddress() {
@@ -66,35 +63,11 @@ public class DealerDatabaseModel {
         this.telephone = telephone;
     }
 
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-
-    public long getBrandId() {
+    public BrandId getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(long brandId) {
+    public void setBrandId(BrandId brandId) {
         this.brandId = brandId;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public int getCityId() {
-        return cityId;
-    }
-
-    public void setCityId(int cityId) {
-        this.cityId = cityId;
     }
 }

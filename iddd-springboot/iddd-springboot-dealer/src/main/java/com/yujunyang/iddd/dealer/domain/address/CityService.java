@@ -17,22 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.application.command;
+package com.yujunyang.iddd.dealer.domain.address;
 
-import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
-
-public class DealerEnableCommand {
-    private DealerId dealerId;
-
-    public DealerEnableCommand(
-            DealerId dealerId) {
-        this.dealerId = dealerId;
-    }
-
-    public DealerId getDealerId() {
-        return dealerId;
-    }
+public interface CityService {
+    City findById(CityId id);
 }

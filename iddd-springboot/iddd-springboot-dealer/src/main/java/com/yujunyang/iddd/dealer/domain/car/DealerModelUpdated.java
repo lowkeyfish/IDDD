@@ -27,13 +27,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerModelAdded implements DomainEvent {
+public class DealerModelUpdated implements DomainEvent {
     private long timestamp;
     private long dealerId;
     private long modelId;
 
     @JsonCreator
-    public DealerModelAdded(
+    public DealerModelUpdated(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("dealerId") long dealerId,
             @JsonProperty("modelId") long modelId) {

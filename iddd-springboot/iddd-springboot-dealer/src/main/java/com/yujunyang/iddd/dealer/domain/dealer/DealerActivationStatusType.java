@@ -23,31 +23,35 @@
 package com.yujunyang.iddd.dealer.domain.dealer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
-import com.yujunyang.iddd.common.domain.id.AbstractStringId;
-import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
+import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public class DealerId extends AbstractLongId {
-    public DealerId(@JsonProperty("id") Long id) {
-        super(id);
+public enum DealerActivationStatusType implements ValueDescriptionEnum<Integer> {
+    ACTIVATED(1, "启用"),
+    DEACTIVATED(2, "禁用");
+
+    @JsonValue
+    private int value;
+    private String description;
+
+    DealerActivationStatusType(int value, String description) {
+        this.value = value;
+        this.description = description;
     }
 
     @Override
-    protected int initialNonZeroOddNumber() {
-        return 5;
+    public String getDescription() {
+        return description;
     }
 
     @Override
-    protected int multiplierNonZeroOddNumber() {
-        return 17;
+    public Integer getValue() {
+        return value;
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static DealerId parse(Long id) {
-        if (id == null || id <= 0) {
-            return null;
-        }
-        return new DealerId(id);
+    public static DealerActivationStatusType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerActivationStatusType.class);
     }
 }

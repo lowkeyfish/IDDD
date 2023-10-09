@@ -25,14 +25,29 @@ package com.yujunyang.iddd.dealer.infrastructure.persistence;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yujunyang.iddd.common.domain.id.IdGenerator;
 import com.yujunyang.iddd.dealer.domain.activity.Activity;
 import com.yujunyang.iddd.dealer.domain.activity.ActivityId;
 import com.yujunyang.iddd.dealer.domain.activity.ActivityRepository;
 import com.yujunyang.iddd.dealer.domain.activity.ActivityStatusType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class MyBatisActivityRepository implements ActivityRepository {
+    private IdGenerator idGenerator;
+
+    @Autowired
+    public MyBatisActivityRepository(
+            IdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
+
+    @Override
+    public ActivityId nextId() {
+        return new ActivityId(idGenerator.nextId());
+    }
+
     @Override
     public Activity findById(ActivityId activityId) {
         return null;

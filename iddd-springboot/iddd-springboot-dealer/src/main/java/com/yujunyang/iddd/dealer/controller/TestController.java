@@ -47,16 +47,16 @@ public class TestController {
     private DealerRepository dealerRepository;
 
     @PostMapping("createDealer")
-    public String createDealer() {
+    public Long createDealer() {
         DealerCreateCommand command = new DealerCreateCommand(
                 "Dealer20230903",
                 new CityId(110100),
                 "海淀区丹棱街3号",
                 "010-1234567",
-                new BrandId("7bca2d994a6111eeb3860242ac150004")
+                new BrandId(1L)
         );
 
-        final String[] newDealerId = new String[1];
+        final Long[] newDealerId = new Long[1];
         dealerApplicationService.create(
                 command,
                 dealerId -> newDealerId[0] = dealerId);
@@ -64,7 +64,7 @@ public class TestController {
     }
 
     @PostMapping("dealer")
-    public Dealer dealer(String dealerId) {
+    public Dealer dealer(long dealerId) {
         return dealerRepository.findById(new DealerId(dealerId));
     }
 }

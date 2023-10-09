@@ -50,7 +50,8 @@ public class RemoteApiBrandService implements BrandService {
         CheckUtils.isTrue(
             response.getCode() == 0,
                 ApiResponseException.class,
-                "查询单个品牌接口调用失败,code({0}),message({1})",
+                "查询单个品牌接口调用失败,BrandId({0}),code({1}),message({2})",
+                brandId,
                 response.getCode(),
                 response.getMessage()
         );

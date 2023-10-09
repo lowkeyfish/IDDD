@@ -21,33 +21,56 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
-import com.yujunyang.iddd.common.utils.IdUtils;
+import com.yujunyang.iddd.common.data.RestResponse;
+import com.yujunyang.iddd.common.exception.ApiResponseException;
+import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.car.ManufacturerId;
 import com.yujunyang.iddd.dealer.domain.car.Model;
 import com.yujunyang.iddd.dealer.domain.car.ModelId;
 import com.yujunyang.iddd.dealer.domain.car.ModelService;
+import com.yujunyang.iddd.dealer.infrastructure.remote.car.BrandResponseData;
+import com.yujunyang.iddd.dealer.infrastructure.remote.car.CarApi;
+import com.yujunyang.iddd.dealer.infrastructure.remote.car.ModelResponseData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RemoteApiModelService implements ModelService {
-    private static final List<Model> MOCK_MODELS = Arrays.asList(
-            new Model(
-                    new ModelId(IdUtils.newId()),
-                    new BrandId(IdUtils.newId()),
-                    new ManufacturerId(IdUtils.newId()),
-                    "Mock_Model_1",
-                    "/images/model/a6l.png",
-                    230000,
-                    330000
-            )
-    );
+    private CarApi carApi;
+
+    @Autowired
+    public RemoteApiModelService(
+            CarApi carApi) {
+        this.carApi = carApi;
+    }
 
     @Override
     public Model findById(ModelId modelId) {
-        return MOCK_MODELS.stream().filter(n -> n.getId().equals(modelId)).findFirst().orElse(null);
+        RestResponse<ModelResponseData> response = carApi.findModelById(modelId.getId());
+        CheckUtils.isTrue(
+                response.getCode() == 0,
+                ApiResponseException.class,
+                "查询单个车系接口调用失败,ModelId({0}),code({1}),message({2})",
+                modelId,
+                response.getCode(),
+                response.getMessage()
+        );
+
+        return Optional.ofNullable(response.getData()).map(n -> convert(n)).orElse(null);
+    }
+
+    private Model convert(ModelResponseData responseData) {
+        return new Model(
+                ModelId.parse(responseData.getId()),
+                BrandId.parse(responseData.getBrandId()),
+                ManufacturerId.parse(responseData.getManufacturerId()),
+                responseData.getName(),
+                responseData.getImage(),
+                responseData.getPriceMin(),
+                responseData.getPriceMax()
+        );
     }
 }

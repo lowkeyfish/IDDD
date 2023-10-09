@@ -25,25 +25,23 @@ import java.text.MessageFormat;
 
 import com.yujunyang.iddd.common.domain.id.IdGenerator;
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
-import com.yujunyang.iddd.dealer.domain.car.Brand;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
-import com.yujunyang.iddd.dealer.domain.car.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Deprecated
 @Service
 public class DealerFactory {
-    private IdGenerator idGenerator;
+    private DealerRepository dealerRepository;
     private DealerNameUniquenessCheckService dealerNameUniquenessCheckService;
 
     @Autowired
     public DealerFactory(
-            IdGenerator idGenerator,
+            DealerRepository dealerRepository,
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService) {
-        this.idGenerator = idGenerator;
+        this.dealerRepository = dealerRepository;
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
     }
 
@@ -69,7 +67,7 @@ public class DealerFactory {
         }
 
         return new Dealer(
-                new DealerId(IdUtils.newId()),
+                dealerRepository.nextId(),
                 name,
                 new Address(
                         cityId,

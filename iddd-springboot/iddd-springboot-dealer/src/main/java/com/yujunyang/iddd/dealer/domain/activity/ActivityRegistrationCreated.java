@@ -29,20 +29,20 @@ import com.yujunyang.iddd.common.domain.event.DomainEvent;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 
 public class ActivityRegistrationCreated implements DomainEvent {
-    private String dealerId;
-    private String activityId;
+    private long dealerId;
+    private long activityId;
     private String activityRegistrationId;
     private long timestamp;
 
     @JsonCreator
     public ActivityRegistrationCreated(
-            @JsonProperty("dealerId") String dealerId,
-            @JsonProperty("activityId") String activityId,
+            @JsonProperty("dealerId") long dealerId,
+            @JsonProperty("activityId") long activityId,
             @JsonProperty("activityRegistrationId") String activityRegistrationId,
             @JsonProperty("timestamp") long timestamp) {
         this.activityRegistrationId = activityRegistrationId;
-        CheckUtils.notBlank(dealerId, "dealer 必须不为空");
-        CheckUtils.notBlank(activityId, "activityId 必须不为空");
+        CheckUtils.moreThan(dealerId, 0, "dealer 必须大于 0");
+        CheckUtils.moreThan(activityId, 0, "activityId 必须大于 0");
         CheckUtils.moreThan(timestamp, 0, "timestamp 必须大于 0");
 
         this.dealerId = dealerId;
@@ -55,11 +55,11 @@ public class ActivityRegistrationCreated implements DomainEvent {
         return timestamp;
     }
 
-    public String getDealerId() {
+    public long getDealerId() {
         return dealerId;
     }
 
-    public String getActivityId() {
+    public long getActivityId() {
         return activityId;
     }
 

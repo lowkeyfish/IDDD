@@ -23,25 +23,25 @@
 package com.yujunyang.iddd.dealer.domain.activity;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import com.yujunyang.iddd.common.domain.id.IdGenerator;
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.common.utils.IdUtils;
 import com.yujunyang.iddd.dealer.domain.common.TimeRange;
-import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
-import com.yujunyang.iddd.dealer.domain.gift.Gift;
 import com.yujunyang.iddd.dealer.domain.gift.GiftId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityFactory {
+    private ActivityRepository activityRepository;
     private ActivityNameUniquenessCheckService activityNameUniquenessCheckService;
 
     @Autowired
     public ActivityFactory(
+            ActivityRepository activityRepository,
             ActivityNameUniquenessCheckService activityNameUniquenessCheckService) {
+        this.activityRepository = activityRepository;
         this.activityNameUniquenessCheckService = activityNameUniquenessCheckService;
     }
 
@@ -66,7 +66,7 @@ public class ActivityFactory {
         CheckUtils.isTrue(!nameUsed, "name 已被其他活动使用");
 
         return new Activity(
-                new ActivityId(IdUtils.newId()),
+                activityRepository.nextId(),
                 dealerId,
                 name,
                 summary,

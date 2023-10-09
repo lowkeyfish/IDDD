@@ -23,5 +23,5 @@
 package com.yujunyang.iddd.dealer.application.data;
 
 public interface DealerCreateCommandResult {
-    void resultingDealerId(String dealerId);
+    void resultingDealerId(long dealerId);
 }

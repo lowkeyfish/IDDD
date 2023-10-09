@@ -28,14 +28,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerDisabled implements DomainEvent {
+public class DealerActivated implements DomainEvent {
     private long timestamp;
-    private String dealerId;
+    private long dealerId;
 
     @JsonCreator
-    public DealerDisabled(
+    public DealerActivated(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") String dealerId) {
+            @JsonProperty("dealerId") long dealerId) {
         this.timestamp = timestamp;
         this.dealerId = dealerId;
     }
@@ -45,7 +45,7 @@ public class DealerDisabled implements DomainEvent {
         return timestamp;
     }
 
-    public String getDealerId() {
+    public long getDealerId() {
         return dealerId;
     }
 

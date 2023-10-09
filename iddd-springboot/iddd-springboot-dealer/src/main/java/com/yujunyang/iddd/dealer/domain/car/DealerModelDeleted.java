@@ -29,14 +29,14 @@ import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
 public class DealerModelDeleted implements DomainEvent {
     private long timestamp;
-    private String dealerId;
-    private String modelId;
+    private long dealerId;
+    private long modelId;
 
     @JsonCreator
     public DealerModelDeleted(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") String dealerId,
-            @JsonProperty("modelId") String modelId) {
+            @JsonProperty("dealerId") long dealerId,
+            @JsonProperty("modelId") long modelId) {
         this.timestamp = timestamp;
         this.dealerId = dealerId;
         this.modelId = modelId;
@@ -47,11 +47,11 @@ public class DealerModelDeleted implements DomainEvent {
         return timestamp;
     }
 
-    public String getDealerId() {
+    public long getDealerId() {
         return dealerId;
     }
 
-    public String getModelId() {
+    public long getModelId() {
         return modelId;
     }
 

@@ -30,7 +30,6 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
-import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 
 public class Dealer {
     private DealerId id;
@@ -39,8 +38,7 @@ public class Dealer {
     private String telephone;
     private BrandId brandId;
     private LocalDateTime createTime;
-    private DealerStatusType status;
-    private TimeRange servicePeriod;
+    private DealerActivationStatusType activationStatus;
 
     public Dealer(
             DealerId id,
@@ -48,7 +46,6 @@ public class Dealer {
             Address address,
             String telephone,
             BrandId brandId) {
-
         this(
                 id,
                 name,
@@ -56,8 +53,14 @@ public class Dealer {
                 telephone,
                 brandId,
                 LocalDateTime.now(),
-                DealerStatusType.ENABLED,
-                null);
+                DealerActivationStatusType.ACTIVATED
+                );
+
+        CheckUtils.notNull(id, "id 必须不为 null");
+        CheckUtils.notBlank(name, "name 必须不为空");
+        CheckUtils.notNull(address, "address 必须不为 null");
+        CheckUtils.notBlank(telephone, "telephone 必须不为空");
+        CheckUtils.notNull(brandId, "brandId 必须不为 null");
 
         DomainEventPublisher.instance().publish(new DealerCreated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
@@ -72,59 +75,21 @@ public class Dealer {
             String telephone,
             BrandId brandId,
             LocalDateTime createTime,
-            DealerStatusType status,
-            TimeRange servicePeriod) {
-        this.servicePeriod = servicePeriod;
-        CheckUtils.notNull(id, "id 必须不为 null");
-        CheckUtils.notBlank(name, "name 必须不为空");
-        CheckUtils.notNull(address, "address 必须不为 null");
-        CheckUtils.notBlank(telephone, "telephone 必须不为空");
-        CheckUtils.notNull(brandId, "brandId 必须不为 null");
-        CheckUtils.notNull(createTime, "createTime 必须不为 null");
-        CheckUtils.notNull(status, "status 必须不为 null");
-
+            DealerActivationStatusType activationStatus) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.telephone = telephone;
         this.brandId = brandId;
         this.createTime = createTime;
-        this.status = status;
-    }
-
-    public DealerId getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public BrandId getBrandId() {
-        return brandId;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public DealerStatusType getStatus() {
-        return status;
+        this.activationStatus = activationStatus;
     }
 
     public void changeName(
             String name,
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService) {
-        if (DealerStatusType.DISABLED.equals(status)) {
-            throw new UnsupportedOperationException("Dealer 被禁用");
+        if (!isAvailable()) {
+            throw new UnsupportedOperationException("Dealer 当前不可用");
         }
 
         CheckUtils.notBlank(name, "name 必须不为空");
@@ -146,8 +111,8 @@ public class Dealer {
     }
 
     public void changeAddress(Address address) {
-        if (DealerStatusType.DISABLED.equals(status)) {
-            throw new UnsupportedOperationException("Dealer 被禁用");
+        if (!isAvailable()) {
+            throw new UnsupportedOperationException("Dealer 当前不可用");
         }
 
         CheckUtils.notNull(address, "address 必须不为 null");
@@ -161,8 +126,8 @@ public class Dealer {
     }
 
     public void changeTelephone(String telephone) {
-        if (DealerStatusType.DISABLED.equals(status)) {
-            throw new UnsupportedOperationException("Dealer 被禁用");
+        if (!isAvailable()) {
+            throw new UnsupportedOperationException("Dealer 当前不可用");
         }
 
         CheckUtils.notBlank(telephone, "telephone 必须不为空");
@@ -175,29 +140,57 @@ public class Dealer {
         ));
     }
 
-    public void disable() {
-        if (DealerStatusType.DISABLED.equals(status)) {
-            throw new UnsupportedOperationException("Dealer 当前已是禁用状态");
+    public void deactivate() {
+        if (activationStatus.equals(DealerActivationStatusType.DEACTIVATED)) {
+            return;
         }
 
-        status = DealerStatusType.DISABLED;
+        if (!activationStatus.equals(DealerActivationStatusType.ACTIVATED)) {
+            throw new UnsupportedOperationException("Dealer 当前非启用状态");
+        }
 
-        DomainEventPublisher.instance().publish(new DealerDisabled(
+        activationStatus = DealerActivationStatusType.DEACTIVATED;
+
+        DomainEventPublisher.instance().publish(new DealerDeactivated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));
     }
 
-    public void enable() {
-        if (DealerStatusType.ENABLED.equals(status)) {
-            throw new UnsupportedOperationException("Dealer 当前已是启用状态");
+    public void activate() {
+        if (activationStatus.equals(DealerActivationStatusType.ACTIVATED)) {
+            return;
         }
 
-        status = DealerStatusType.ENABLED;
+        if (!activationStatus.equals(DealerActivationStatusType.DEACTIVATED)) {
+            throw new UnsupportedOperationException("Dealer 当前非禁用状态");
+        }
 
-        DomainEventPublisher.instance().publish(new DealerEnabled(
+        activationStatus = DealerActivationStatusType.ACTIVATED;
+
+        DomainEventPublisher.instance().publish(new DealerActivated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));
+    }
+
+    public DealerId id() {
+        return id;
+    }
+
+    public boolean isAvailable() {
+        return activationStatus.equals(DealerActivationStatusType.ACTIVATED);
+    }
+
+    public DealerSnapshot snapshot() {
+        return new DealerSnapshot(
+                id,
+                name,
+                telephone,
+                address,
+                brandId,
+                createTime,
+                activationStatus
+        );
     }
 }

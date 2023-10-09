@@ -27,15 +27,15 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public enum DealerStatusType implements ValueDescriptionEnum<Integer> {
-    ENABLED(1, "开启的"),
-    DISABLED(2, "关闭的");
+public enum DealerServiceStatusType implements ValueDescriptionEnum<Integer> {
+    PURCHASED(1, "已购买服务"),
+    EXPIRED(2, "服务已到期");
 
     @JsonValue
     private int value;
     private String description;
 
-    DealerStatusType(int value, String description) {
+    DealerServiceStatusType(int value, String description) {
         this.value = value;
         this.description = description;
     }
@@ -51,7 +51,7 @@ public enum DealerStatusType implements ValueDescriptionEnum<Integer> {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static DealerStatusType parse(Object value) {
-        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerStatusType.class);
+    public static DealerServiceStatusType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerServiceStatusType.class);
     }
 }

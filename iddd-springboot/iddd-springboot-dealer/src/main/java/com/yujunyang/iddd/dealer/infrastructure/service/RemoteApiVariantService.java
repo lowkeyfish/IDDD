@@ -21,33 +21,55 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
-import com.yujunyang.iddd.common.utils.IdUtils;
+import com.yujunyang.iddd.common.data.RestResponse;
+import com.yujunyang.iddd.common.exception.ApiResponseException;
+import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.car.ManufacturerId;
 import com.yujunyang.iddd.dealer.domain.car.ModelId;
 import com.yujunyang.iddd.dealer.domain.car.Variant;
 import com.yujunyang.iddd.dealer.domain.car.VariantId;
 import com.yujunyang.iddd.dealer.domain.car.VariantService;
+import com.yujunyang.iddd.dealer.infrastructure.remote.car.CarApi;
+import com.yujunyang.iddd.dealer.infrastructure.remote.car.VariantResponseData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RemoteApiVariantService implements VariantService {
-    private static final List<Variant> MOCK_VARIANTS = Arrays.asList(
-            new Variant(
-                    new VariantId(IdUtils.newId()),
-                    "Mock_Variant_1",
-                    125000,
-                    new BrandId(IdUtils.newId()),
-                    new ManufacturerId(IdUtils.newId()),
-                    new ModelId(IdUtils.newId())
-            )
-    );
+    private CarApi carApi;
+
+    @Autowired
+    public RemoteApiVariantService(
+            CarApi carApi) {
+        this.carApi = carApi;
+    }
 
     @Override
     public Variant findById(VariantId variantId) {
-        return MOCK_VARIANTS.stream().filter(n -> n.getId().equals(variantId)).findFirst().orElse(null);
+        RestResponse<VariantResponseData> response = carApi.findVariantById(variantId.getId());
+        CheckUtils.isTrue(
+                response.getCode() == 0,
+                ApiResponseException.class,
+                "查询单个车型接口调用失败,VariantId({0}),code({1}),message({2})",
+                variantId,
+                response.getCode(),
+                response.getMessage()
+        );
+
+        return Optional.ofNullable(response.getData()).map(n -> convert(n)).orElse(null);
+    }
+
+    private Variant convert(VariantResponseData responseData) {
+        return new Variant(
+                VariantId.parse(responseData.getId()),
+                responseData.getName(),
+                responseData.getPrice(),
+                BrandId.parse(responseData.getBrandId()),
+                ManufacturerId.parse(responseData.getManufacturerId()),
+                ModelId.parse(responseData.getModelId())
+        );
     }
 }
