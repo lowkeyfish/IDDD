@@ -23,4 +23,6 @@ package com.yujunyang.iddd.dealer.domain.car;
 
 public interface BrandService {
     Brand findById(BrandId brandId);
+
+    Brand findByName(String name);
 }

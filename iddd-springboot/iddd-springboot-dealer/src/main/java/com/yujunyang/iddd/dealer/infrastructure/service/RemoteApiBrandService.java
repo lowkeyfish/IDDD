@@ -59,6 +59,11 @@ public class RemoteApiBrandService implements BrandService {
         return Optional.ofNullable(response.getData()).map(n -> convert(n)).orElse(null);
     }
 
+    @Override
+    public Brand findByName(String name) {
+        return null;
+    }
+
     private Brand convert(BrandResponseData responseData) {
         return new Brand(
                 BrandId.parse(responseData.getId()),

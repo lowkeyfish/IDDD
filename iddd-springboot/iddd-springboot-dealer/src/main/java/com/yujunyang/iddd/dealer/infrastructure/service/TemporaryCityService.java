@@ -43,4 +43,9 @@ public class TemporaryCityService implements CityService {
                 .findFirst()
                 .orElse(null);
     }
+
+    @Override
+    public City findByName(String name) {
+        return LIST.stream().filter(n -> n.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    }
 }

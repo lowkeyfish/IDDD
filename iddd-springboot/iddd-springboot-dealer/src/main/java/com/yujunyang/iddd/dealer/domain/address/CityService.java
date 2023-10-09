@@ -23,4 +23,6 @@ package com.yujunyang.iddd.dealer.domain.address;
 
 public interface CityService {
     City findById(CityId id);
+
+    City findByName(String name);
 }

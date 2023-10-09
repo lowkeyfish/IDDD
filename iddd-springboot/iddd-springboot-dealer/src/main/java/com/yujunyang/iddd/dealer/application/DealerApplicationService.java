@@ -32,8 +32,13 @@ import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerActivationCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
 import com.yujunyang.iddd.dealer.domain.address.Address;
+import com.yujunyang.iddd.dealer.domain.address.City;
+import com.yujunyang.iddd.dealer.domain.address.CityId;
 import com.yujunyang.iddd.dealer.domain.address.CityService;
+import com.yujunyang.iddd.dealer.domain.car.Brand;
+import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.car.BrandService;
+import com.yujunyang.iddd.dealer.domain.dealer.CityBrandSupportedService;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
@@ -48,17 +53,20 @@ public class DealerApplicationService {
     private DealerRepository dealerRepository;
     private BrandService brandService;
     private CityService cityService;
+    private CityBrandSupportedService cityBrandSupportedService;
 
     @Autowired
     public DealerApplicationService(
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService,
             DealerRepository dealerRepository,
             BrandService brandService,
-            CityService cityService) {
+            CityService cityService,
+            CityBrandSupportedService cityBrandSupportedService) {
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
         this.dealerRepository = dealerRepository;
         this.brandService = brandService;
         this.cityService = cityService;
+        this.cityBrandSupportedService = cityBrandSupportedService;
     }
 
     @Transactional
@@ -67,16 +75,9 @@ public class DealerApplicationService {
             DealerCreateCommandResult dealerCreateCommandResult) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        CheckUtils.notNull(
-                brandService.findById(command.getBrandId()),
-                "brandId({0}) 无效", command.getBrandId()
-        );
-
-        CheckUtils.notNull(
-                cityService.findById(command.getCityId()),
-                "cityId({0}) 无效",
-                command.getCityId()
-        );
+        City city = existingCity(command.getCityId());
+        Brand brand = existingBrand(command.getBrandId());
+        cityBrandSupportedService.check(city, brand);
 
         CheckUtils.isTrue(
                 dealerNameUniquenessCheckService.isNameNotUsed(command.getName()),
@@ -104,7 +105,7 @@ public class DealerApplicationService {
     public void changeName(DealerChangeNameCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = findById(command.getDealerId());
+        Dealer dealer = existingDealer(command.getDealerId());
         dealer.changeName(command.getName(), dealerNameUniquenessCheckService);
 
         dealerRepository.save(dealer);
@@ -114,7 +115,7 @@ public class DealerApplicationService {
     public void changeTelephone(DealerChangeTelephoneCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = findById(command.getDealerId());
+        Dealer dealer = existingDealer(command.getDealerId());
         dealer.changeTelephone(command.getTelephone());
 
         dealerRepository.save(dealer);
@@ -124,7 +125,7 @@ public class DealerApplicationService {
     public void changeAddress(DealerChangeAddressCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = findById(command.getDealerId());
+        Dealer dealer = existingDealer(command.getDealerId());
         dealer.changeAddress(new Address(
                 command.getCityId(),
                 command.getSpecificAddress()
@@ -137,7 +138,7 @@ public class DealerApplicationService {
     public void deactivate(DealerActivationCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = findById(command.getDealerId());
+        Dealer dealer = existingDealer(command.getDealerId());
         dealer.deactivate();
 
         dealerRepository.save(dealer);
@@ -147,13 +148,13 @@ public class DealerApplicationService {
     public void activate(DealerActivationCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = findById(command.getDealerId());
+        Dealer dealer = existingDealer(command.getDealerId());
         dealer.activate();
 
         dealerRepository.save(dealer);
     }
 
-    private Dealer findById(DealerId dealerId) {
+    private Dealer existingDealer(DealerId dealerId) {
         Dealer dealer = dealerRepository.findById(dealerId);
         if (dealer == null) {
             throw new IllegalArgumentException(
@@ -161,5 +162,24 @@ public class DealerApplicationService {
             );
         }
         return dealer;
+    }
+
+    private City existingCity(CityId cityId) {
+        City city = cityService.findById(cityId);
+        CheckUtils.notNull(
+                city,
+                "cityId({0}) 无效",
+                cityId
+        );
+        return city;
+    }
+
+    private Brand existingBrand(BrandId brandId) {
+        Brand brand = brandService.findById(brandId);
+        CheckUtils.notNull(
+                brand,
+                "brandId({0}) 无效", brandId
+        );
+        return brand;
     }
 }
