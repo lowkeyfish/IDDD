@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
-import com.yujunyang.iddd.dealer.domain.common.TimeRange;
 
 public class DealerSnapshot {
     private DealerId id;

@@ -17,9 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package com.yujunyang.iddd.dealer.domain.common;
+package com.yujunyang.iddd.dealer.common;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

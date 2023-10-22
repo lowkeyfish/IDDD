@@ -24,6 +24,8 @@ package com.yujunyang.iddd.dealer.application;
 
 import java.text.MessageFormat;
 
+import com.yujunyang.iddd.common.exception.InvalidStatusException;
+import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
@@ -72,7 +74,8 @@ public class DealerApplicationService {
     @Transactional
     public void create(
             DealerCreateCommand command,
-            DealerCreateCommandResult dealerCreateCommandResult) {
+            DealerCreateCommandResult dealerCreateCommandResult)
+            throws NameNotUniqueException {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         City city = existingCity(command.getCityId());
@@ -81,8 +84,7 @@ public class DealerApplicationService {
 
         CheckUtils.isTrue(
                 dealerNameUniquenessCheckService.isNameNotUsed(command.getName()),
-                "name({0}) 已被使用",
-                command.getName()
+                new NameNotUniqueException(command.getName())
         );
 
         Dealer dealer = new Dealer(
@@ -102,7 +104,8 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void changeName(DealerChangeNameCommand command) {
+    public void changeName(DealerChangeNameCommand command)
+            throws NameNotUniqueException, InvalidStatusException {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
@@ -112,7 +115,8 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void changeTelephone(DealerChangeTelephoneCommand command) {
+    public void changeTelephone(DealerChangeTelephoneCommand command)
+            throws InvalidStatusException {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
@@ -122,7 +126,8 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void changeAddress(DealerChangeAddressCommand command) {
+    public void changeAddress(DealerChangeAddressCommand command)
+            throws InvalidStatusException {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
@@ -135,7 +140,8 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void deactivate(DealerActivationCommand command) {
+    public void deactivate(DealerActivationCommand command)
+            throws InvalidStatusException {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
@@ -145,7 +151,8 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void activate(DealerActivationCommand command) {
+    public void activate(DealerActivationCommand command)
+            throws InvalidStatusException {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());

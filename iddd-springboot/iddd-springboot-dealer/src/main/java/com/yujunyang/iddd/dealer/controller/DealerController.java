@@ -22,6 +22,8 @@
 package com.yujunyang.iddd.dealer.controller;
 
 import com.yujunyang.iddd.common.data.RestResponse;
+import com.yujunyang.iddd.common.exception.InvalidStatusException;
+import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.command.DealerActivationCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
@@ -52,16 +54,20 @@ public class DealerController {
             @RequestBody DealerCreateRequestBody requestBody) {
         RestResponse<Long> response = new RestResponse<>();
 
-        dealerApplicationService.create(
-                new DealerCreateCommand(
-                        requestBody.getName(),
-                        requestBody.getCityId(),
-                        requestBody.getSpecificAddress(),
-                        requestBody.getTelephone(),
-                        requestBody.getBrandId()
-                ),
-                dealerId -> response.setData(dealerId)
-        );
+        try {
+            dealerApplicationService.create(
+                    new DealerCreateCommand(
+                            requestBody.getName(),
+                            requestBody.getCityId(),
+                            requestBody.getSpecificAddress(),
+                            requestBody.getTelephone(),
+                            requestBody.getBrandId()
+                    ),
+                    dealerId -> response.setData(dealerId)
+            );
+        } catch (NameNotUniqueException e) {
+            return new RestResponse<>(400101, e.getMessage());
+        }
 
         return response;
     }
@@ -70,11 +76,15 @@ public class DealerController {
     public RestResponse deactivateDealer(@PathVariable("dealerId") long dealerId) {
         RestResponse<Long> response = new RestResponse<>();
 
-        dealerApplicationService.deactivate(
-                new DealerActivationCommand(
-                        DealerId.parse(dealerId)
-                )
-        );
+        try {
+            dealerApplicationService.deactivate(
+                    new DealerActivationCommand(
+                            DealerId.parse(dealerId)
+                    )
+            );
+        } catch (InvalidStatusException e) {
+            return new RestResponse(400102, e.getMessage());
+        }
 
         return response;
     }
@@ -83,11 +93,15 @@ public class DealerController {
     public RestResponse activateDealer(@PathVariable("dealerId") long dealerId) {
         RestResponse<Long> response = new RestResponse<>();
 
-        dealerApplicationService.activate(
-                new DealerActivationCommand(
-                        DealerId.parse(dealerId)
-                )
-        );
+        try {
+            dealerApplicationService.activate(
+                    new DealerActivationCommand(
+                            DealerId.parse(dealerId)
+                    )
+            );
+        } catch (InvalidStatusException e) {
+            return new RestResponse(400102, e.getMessage());
+        }
 
         return response;
     }

@@ -24,7 +24,7 @@ package com.yujunyang.iddd.dealer.domain.activity;
 
 import java.util.List;
 
-import com.yujunyang.iddd.dealer.domain.common.TimeRange;
+import com.yujunyang.iddd.dealer.common.TimeRange;
 
 public class ActivitySnapshot {
     private ActivityId id;

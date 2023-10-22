@@ -30,7 +30,7 @@ import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.common.utils.IdUtils;
-import com.yujunyang.iddd.dealer.domain.common.TimeRange;
+import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.gift.GiftId;
 

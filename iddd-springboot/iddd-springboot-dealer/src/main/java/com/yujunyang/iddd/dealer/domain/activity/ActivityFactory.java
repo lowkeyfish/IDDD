@@ -24,9 +24,8 @@ package com.yujunyang.iddd.dealer.domain.activity;
 
 import java.util.Map;
 
-import com.yujunyang.iddd.common.domain.id.IdGenerator;
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.domain.common.TimeRange;
+import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.gift.GiftId;
 import org.springframework.beans.factory.annotation.Autowired;

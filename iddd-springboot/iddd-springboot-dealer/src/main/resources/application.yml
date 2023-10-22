@@ -42,15 +42,6 @@ spring:
     password: 123456
     connect-timeout: 2000
     timeout: 5000
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: iddd
-    password: 123456
-    virtual-host: /
-    listener:
-      simple:
-        acknowledge-mode: manual
   web:
     resources:
       static-locations: classpath:/static/
@@ -62,6 +53,14 @@ mybatis:
     use-generated-keys: true
     default-fetch-size: 100
     default-statement-timeout: 30
+
+rabbitmq:
+  iddd:
+    host: 127.0.0.1
+    port: 5672
+    username: iddd
+    password: 123456
+    virtual-host: /
 
 feign:
   client:

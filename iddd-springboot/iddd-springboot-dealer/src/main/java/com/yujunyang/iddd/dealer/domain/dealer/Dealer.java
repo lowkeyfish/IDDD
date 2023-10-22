@@ -22,10 +22,11 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
-import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
+import com.yujunyang.iddd.common.exception.InvalidStatusException;
+import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.address.Address;
@@ -87,20 +88,21 @@ public class Dealer {
 
     public void changeName(
             String name,
-            DealerNameUniquenessCheckService dealerNameUniquenessCheckService) {
-        if (!isAvailable()) {
-            throw new UnsupportedOperationException("Dealer 当前不可用");
-        }
+            DealerNameUniquenessCheckService dealerNameUniquenessCheckService)
+            throws NameNotUniqueException, InvalidStatusException {
+        CheckUtils.isTrue(
+                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
+                new InvalidStatusException(
+                        activationStatus.getDescription(),
+                        "Dealer 修改名称"
+                )
+        );
 
         CheckUtils.notBlank(name, "name 必须不为空");
-        if (!dealerNameUniquenessCheckService.isNameNotUsed(name, id)) {
-            throw new IllegalArgumentException(
-                    MessageFormat.format(
-                            "name({0}) 已被使用",
-                            name
-                    )
-            );
-        }
+        CheckUtils.isTrue(
+                dealerNameUniquenessCheckService.isNameNotUsed(name, id),
+                new NameNotUniqueException(name)
+        );
 
         this.name = name;
 
@@ -110,10 +112,14 @@ public class Dealer {
         ));
     }
 
-    public void changeAddress(Address address) {
-        if (!isAvailable()) {
-            throw new UnsupportedOperationException("Dealer 当前不可用");
-        }
+    public void changeAddress(Address address) throws InvalidStatusException {
+        CheckUtils.isTrue(
+                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
+                new InvalidStatusException(
+                        activationStatus.getDescription(),
+                        "Dealer 修改地址"
+                )
+        );
 
         CheckUtils.notNull(address, "address 必须不为 null");
 
@@ -125,10 +131,14 @@ public class Dealer {
         ));
     }
 
-    public void changeTelephone(String telephone) {
-        if (!isAvailable()) {
-            throw new UnsupportedOperationException("Dealer 当前不可用");
-        }
+    public void changeTelephone(String telephone) throws InvalidStatusException {
+        CheckUtils.isTrue(
+                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
+                new InvalidStatusException(
+                        activationStatus.getDescription(),
+                        "Dealer 修改联系电话"
+                )
+        );
 
         CheckUtils.notBlank(telephone, "telephone 必须不为空");
 
@@ -140,14 +150,18 @@ public class Dealer {
         ));
     }
 
-    public void deactivate() {
+    public void deactivate() throws InvalidStatusException {
         if (activationStatus.equals(DealerActivationStatusType.DEACTIVATED)) {
             return;
         }
 
-        if (!activationStatus.equals(DealerActivationStatusType.ACTIVATED)) {
-            throw new UnsupportedOperationException("Dealer 当前非启用状态");
-        }
+        CheckUtils.isTrue(
+                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
+                new InvalidStatusException(
+                        activationStatus.getDescription(),
+                        "Dealer 禁用"
+                )
+        );
 
         activationStatus = DealerActivationStatusType.DEACTIVATED;
 
@@ -157,14 +171,18 @@ public class Dealer {
         ));
     }
 
-    public void activate() {
+    public void activate() throws InvalidStatusException {
         if (activationStatus.equals(DealerActivationStatusType.ACTIVATED)) {
             return;
         }
 
-        if (!activationStatus.equals(DealerActivationStatusType.DEACTIVATED)) {
-            throw new UnsupportedOperationException("Dealer 当前非禁用状态");
-        }
+        CheckUtils.isTrue(
+                activationStatus.equals(DealerActivationStatusType.DEACTIVATED),
+                new InvalidStatusException(
+                        activationStatus.getDescription(),
+                        "Dealer 启用"
+                )
+        );
 
         activationStatus = DealerActivationStatusType.ACTIVATED;
 
@@ -193,4 +211,5 @@ public class Dealer {
                 activationStatus
         );
     }
+
 }

@@ -20,27 +20,27 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.common.exception;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import java.text.MessageFormat;
 
-@Service
-public class DealerNameUniquenessCheckService {
-    private DealerRepository dealerRepository;
+public class NameNotUniqueException extends Exception {
+    private String name;
 
-    @Autowired
-    public DealerNameUniquenessCheckService(
-            DealerRepository dealerRepository) {
-        this.dealerRepository = dealerRepository;
+    public NameNotUniqueException(String name) {
+        super(MessageFormat.format(
+                "名称({0})已被使用",
+                name
+        ));
+        this.name = name;
     }
 
-    public boolean isNameNotUsed(String name) {
-        return dealerRepository.findByName(name) == null;
+    public NameNotUniqueException(String message, String name) {
+        super(message);
+        this.name = name;
     }
 
-    public boolean isNameNotUsed(String name, DealerId excludeDealerId) {
-        Dealer dealer = dealerRepository.findByName(name);
-        return dealer == null || dealer.id().equals(excludeDealerId);
+    public String getName() {
+        return name;
     }
 }

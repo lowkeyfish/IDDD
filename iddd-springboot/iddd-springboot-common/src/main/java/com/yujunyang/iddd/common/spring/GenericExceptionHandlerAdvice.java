@@ -25,6 +25,7 @@ import com.yujunyang.iddd.common.data.RestResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,7 +44,6 @@ public class GenericExceptionHandlerAdvice {
     public RestResponse handleBadRequest(Exception exception) {
         RestResponse responseMessage;
         if (exception instanceof MissingServletRequestParameterException) {
-
             MissingServletRequestParameterException parameterException = (MissingServletRequestParameterException) exception;
             String message = String.format("参数'%s'未提供", parameterException.getParameterName());
             responseMessage = new RestResponse(400, message);
@@ -60,7 +60,6 @@ public class GenericExceptionHandlerAdvice {
     })
     @ResponseBody
     public RestResponse handleApplicationProactiveException(Exception exception) {
-
         RestResponse responseMessage;
         if (exception instanceof IllegalArgumentException) {
             IllegalArgumentException illegalArgumentException = (IllegalArgumentException) exception;
@@ -81,6 +80,15 @@ public class GenericExceptionHandlerAdvice {
     @ResponseBody
     public RestResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
         RestResponse responseMessage = new RestResponse(405, String.format("当前链接不支持%s方式请求", exception.getMethod()));
+        return responseMessage;
+    }
+
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class
+    })
+    @ResponseBody
+    public RestResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+        RestResponse responseMessage = new RestResponse(400, "未提供请求参数");
         return responseMessage;
     }
 
