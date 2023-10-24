@@ -24,6 +24,7 @@ package com.yujunyang.iddd.dealer.controller;
 
 import javax.annotation.Resource;
 
+import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
@@ -47,7 +48,7 @@ public class TestController {
     private DealerRepository dealerRepository;
 
     @PostMapping("createDealer")
-    public Long createDealer() {
+    public Long createDealer() throws NameNotUniqueException {
         DealerCreateCommand command = new DealerCreateCommand(
                 "Dealer20230903",
                 new CityId(110100),

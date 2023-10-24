@@ -20,11 +20,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class IDDDRabbitMQConfig {
+public class RabbitMQConfig {
     public static final String EXCHANGE_NAME = "iddd.topic";
 
-    public final String INTERNAL_DEALER_QUEUE_NAME = "iddd_internal_dealer";
-    public final String INTERNAL_DEALER_QUEUE_ROUTING_KEY = "Dealer.#";
+    public final String internalDealerQueueName = "iddd_internal_dealer";
+    public final String internalDealerQueueRoutingKey = "Dealer.#";
 
     @Value("${rabbitmq.iddd.host}")
     private String host;
@@ -87,7 +87,7 @@ public class IDDDRabbitMQConfig {
 
     @Bean
     public Queue internalDealerQueue(RabbitAdmin rabbitAdmin) {
-        Queue queue = new Queue(INTERNAL_DEALER_QUEUE_NAME, true);
+        Queue queue = new Queue(internalDealerQueueName, true);
         queue.setShouldDeclare(true);
         rabbitAdmin.declareQueue(queue);
         return queue;
@@ -97,7 +97,7 @@ public class IDDDRabbitMQConfig {
     public Binding internalDealerQueueBinding(RabbitAdmin rabbitAdmin) {
         Binding binding = BindingBuilder.
                 bind(internalDealerQueue(rabbitAdmin)).
-                to(new TopicExchange(EXCHANGE_NAME)).with(INTERNAL_DEALER_QUEUE_ROUTING_KEY);
+                to(new TopicExchange(EXCHANGE_NAME)).with(internalDealerQueueRoutingKey);
         binding.setAdminsThatShouldDeclare(rabbitAdmin);
         return binding;
     }

@@ -42,6 +42,7 @@
     <redisson.version>3.20.1</redisson.version>
     <mybatis.version>3.5.11</mybatis.version>
     <graphql-java.version>20.2</graphql-java.version>
+    <spring-cloud.version>2021.0.8</spring-cloud.version>
   </properties>
 
   <modules>
@@ -164,8 +165,8 @@
 
       <dependency>
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-openfeign-dependencies</artifactId>
-        <version>3.1.8</version>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

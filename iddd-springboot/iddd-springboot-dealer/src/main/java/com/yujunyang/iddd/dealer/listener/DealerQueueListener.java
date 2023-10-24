@@ -26,7 +26,7 @@ import java.util.Arrays;
 
 import com.rabbitmq.client.Channel;
 import com.yujunyang.iddd.common.rabbitmq.AbstractRabbitMQListener;
-import com.yujunyang.iddd.dealer.config.rabbitmq.IDDDRabbitMQConfig;
+import com.yujunyang.iddd.dealer.config.rabbitmq.RabbitMQConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.core.Message;
@@ -42,16 +42,16 @@ public class DealerQueueListener extends AbstractRabbitMQListener {
 
     @Autowired
     public DealerQueueListener(
-            IDDDRabbitMQConfig rabbitMQConfig) {
+            RabbitMQConfig rabbitMQConfig) {
         super(
-                rabbitMQConfig.INTERNAL_DEALER_QUEUE_NAME,
+                rabbitMQConfig.internalDealerQueueName,
                 Arrays.asList("*"),
                 LOGGER
         );
     }
 
     @RabbitListener(
-            queues = "#{testDriveRabbitMQConfig.internalTestDriveQueueName}",
+            queues = "#{rabbitMQConfig.internalDealerQueueName}",
             concurrency = "1-5"
     )
     @Transactional

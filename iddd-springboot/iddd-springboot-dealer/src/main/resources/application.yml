@@ -71,5 +71,4 @@ feign:
         loggerLevel: FULL
 
 api-car:
-  ribbon:
-    listOfServers: http://localhost:4002
+  url: http://localhost:4002
