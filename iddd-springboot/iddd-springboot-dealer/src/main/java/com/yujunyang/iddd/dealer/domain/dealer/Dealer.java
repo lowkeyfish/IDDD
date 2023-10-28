@@ -29,6 +29,7 @@ import com.yujunyang.iddd.common.exception.InvalidStatusException;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
+import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 
@@ -40,6 +41,8 @@ public class Dealer {
     private BrandId brandId;
     private LocalDateTime createTime;
     private DealerActivationStatusType activationStatus;
+    private DealerServiceStatusType serviceStatus;
+    private TimeRange servicePeriod;
 
     public Dealer(
             DealerId id,

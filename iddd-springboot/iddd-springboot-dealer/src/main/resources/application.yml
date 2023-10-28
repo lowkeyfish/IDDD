@@ -71,4 +71,4 @@ feign:
         loggerLevel: FULL
 
 api-car:
-  url: http://localhost:4002
+  url: localhost:4002

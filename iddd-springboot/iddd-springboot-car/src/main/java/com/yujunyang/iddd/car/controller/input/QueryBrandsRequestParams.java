@@ -20,23 +20,16 @@
  *
  */
 
-package com.yujunyang.iddd.dealer;
+package com.yujunyang.iddd.car.controller.input;
 
-import java.time.LocalDate;
+public class QueryBrandsRequestParams {
+    private String name;
 
-import com.yujunyang.iddd.common.infrastructure.id.SnowflakeIdGenerator;
-import com.yujunyang.iddd.common.utils.TripleDESUtils;
-import com.yujunyang.iddd.dealer.domain.activity.ActivityRegistrationVerificationCodeService;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class IdddSpringbootDealerApplicationTests {
-
-    @Test
-    public void test_id() {
-        SnowflakeIdGenerator idGenerator = new SnowflakeIdGenerator(1, 1696118400000L);
-        System.out.println(idGenerator.nextId());
+    public String getName() {
+        return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }

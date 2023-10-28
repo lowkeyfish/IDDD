@@ -21,6 +21,8 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.yujunyang.iddd.common.data.RestResponse;
@@ -31,6 +33,7 @@ import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.car.BrandService;
 import com.yujunyang.iddd.dealer.infrastructure.remote.car.BrandResponseData;
 import com.yujunyang.iddd.dealer.infrastructure.remote.car.CarApi;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +64,28 @@ public class RemoteApiBrandService implements BrandService {
 
     @Override
     public Brand findByName(String name) {
-        return null;
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
+        RestResponse<List<BrandResponseData>> response = carApi.queryBrands(name);
+        CheckUtils.isTrue(
+                response.getCode() == 0,
+                ApiResponseException.class,
+                "查询品牌接口调用失败,name({0}),code({1}),message({2})",
+                name,
+                response.getCode(),
+                response.getMessage()
+        );
+        return Optional.ofNullable(response.getData()).orElse(new ArrayList<>())
+                .stream()
+                .findFirst()
+                .map(n -> new Brand(
+                        new BrandId(n.getId()),
+                        n.getName(),
+                        n.getLogo(),
+                        n.getFirstLetter()
+                ))
+                .orElse(null);
     }
 
     private Brand convert(BrandResponseData responseData) {

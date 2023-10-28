@@ -51,7 +51,7 @@ public class DealerActivated implements DomainEvent {
 
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerId({0})", dealerId);
+        return MessageFormat.format("DealerId({0,number,#})", dealerId);
     }
 
     @Override

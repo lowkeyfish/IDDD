@@ -38,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class DealerQueueListener extends AbstractRabbitMQListener {
     private static final Logger LOGGER = LogManager.getLogger();
-    
 
     @Autowired
     public DealerQueueListener(

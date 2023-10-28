@@ -21,8 +21,10 @@
 
 package com.yujunyang.iddd.car.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.yujunyang.iddd.car.application.BrandApplicationService;
 import com.yujunyang.iddd.car.application.BrandQueryService;
@@ -31,8 +33,10 @@ import com.yujunyang.iddd.car.application.command.BrandCreateCommand;
 import com.yujunyang.iddd.car.application.data.BrandViewModel;
 import com.yujunyang.iddd.car.application.data.ModelViewModel;
 import com.yujunyang.iddd.car.controller.input.BrandCreateRequestBody;
+import com.yujunyang.iddd.car.controller.input.QueryBrandsRequestParams;
 import com.yujunyang.iddd.car.domain.brand.BrandId;
 import com.yujunyang.iddd.common.data.RestResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,9 +87,15 @@ public class BrandController {
     }
 
     @GetMapping("")
-    public RestResponse<List<BrandViewModel>> queryBrands() {
-        List<BrandViewModel> brandList = brandQueryService.allBrand();
-        return new RestResponse<>(brandList);
+    public RestResponse<List<BrandViewModel>> queryBrands(
+            QueryBrandsRequestParams requestParams) {
+        List<BrandViewModel> result = brandQueryService.allBrand();
+        if (StringUtils.isNotBlank(requestParams.getName())) {
+            result = result.stream()
+                    .filter(n -> n.getName().equals(requestParams.getName()))
+                    .collect(Collectors.toList());
+        }
+        return new RestResponse<>(result);
     }
 
     @GetMapping("{brandId}/models")

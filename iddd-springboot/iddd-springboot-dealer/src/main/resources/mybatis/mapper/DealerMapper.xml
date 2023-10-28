@@ -28,7 +28,7 @@
     <insert id="insertOrIgnore"
             parameterType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel">
         INSERT IGNORE INTO `dealer`(
-            `uid`,
+            `id`,
             `name`,
             `city_id`,
             `specific_address`,
@@ -51,7 +51,7 @@
     <select id="selectById"
             resultType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel">
         SELECT
-            `uid` AS id,
+            `id`,
             `name`,
             `city_id` AS cityId,
             `specific_address` AS specificAddress,
@@ -62,7 +62,7 @@
         FROM
             `dealer`
         WHERE
-            `deleted` = 0 AND `uid` = #{id};
+            `deleted` = 0 AND `id` = #{id};
     </select>
 
     <update id="update"
@@ -75,13 +75,13 @@
             `deleted` = 0,
             `brand_id` = #{brandId},
             `status` = {status}
-        WHERE `uid` = #{id};
+        WHERE `id` = #{id};
     </update>
 
     <select id="selectByName"
             resultType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel">
         SELECT
-            `uid` AS id,
+            `id`,
             `name`,
             `city_id` AS cityId,
             `specific_address` AS specificAddress,
