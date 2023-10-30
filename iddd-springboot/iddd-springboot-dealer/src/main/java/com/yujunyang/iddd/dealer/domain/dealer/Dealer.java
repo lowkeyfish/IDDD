@@ -40,9 +40,10 @@ public class Dealer {
     private String telephone;
     private BrandId brandId;
     private LocalDateTime createTime;
-    private DealerActivationStatusType activationStatus;
+    private DealerVisibilityStatusType visibilityStatus;
     private DealerServiceStatusType serviceStatus;
-    private TimeRange servicePeriod;
+    private LocalDateTime serviceExpiryTime;
+
 
     public Dealer(
             DealerId id,
@@ -57,8 +58,9 @@ public class Dealer {
                 telephone,
                 brandId,
                 LocalDateTime.now(),
-                DealerActivationStatusType.ACTIVATED
-                );
+                DealerVisibilityStatusType.VISIBLE,
+                DealerServiceStatusType.EXPIRED,
+                null);
 
         CheckUtils.notNull(id, "id 必须不为 null");
         CheckUtils.notBlank(name, "name 必须不为空");
@@ -79,14 +81,18 @@ public class Dealer {
             String telephone,
             BrandId brandId,
             LocalDateTime createTime,
-            DealerActivationStatusType activationStatus) {
+            DealerVisibilityStatusType visibilityStatus,
+            DealerServiceStatusType serviceStatus,
+            LocalDateTime serviceExpiryTime) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.telephone = telephone;
         this.brandId = brandId;
         this.createTime = createTime;
-        this.activationStatus = activationStatus;
+        this.visibilityStatus = visibilityStatus;
+        this.serviceStatus = serviceStatus;
+        this.serviceExpiryTime = serviceExpiryTime;
     }
 
     public void changeName(
@@ -94,9 +100,9 @@ public class Dealer {
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService)
             throws NameNotUniqueException, InvalidStatusException {
         CheckUtils.isTrue(
-                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
+                serviceStatus.equals(DealerServiceStatusType.IN_SERVICE),
                 new InvalidStatusException(
-                        activationStatus.getDescription(),
+                        serviceStatus.getDescription(),
                         "Dealer 修改名称"
                 )
         );
@@ -117,9 +123,9 @@ public class Dealer {
 
     public void changeAddress(Address address) throws InvalidStatusException {
         CheckUtils.isTrue(
-                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
+                serviceStatus.equals(DealerServiceStatusType.IN_SERVICE),
                 new InvalidStatusException(
-                        activationStatus.getDescription(),
+                        serviceStatus.getDescription(),
                         "Dealer 修改地址"
                 )
         );
@@ -136,9 +142,9 @@ public class Dealer {
 
     public void changeTelephone(String telephone) throws InvalidStatusException {
         CheckUtils.isTrue(
-                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
+                serviceStatus.equals(DealerServiceStatusType.IN_SERVICE),
                 new InvalidStatusException(
-                        activationStatus.getDescription(),
+                        serviceStatus.getDescription(),
                         "Dealer 修改联系电话"
                 )
         );
@@ -153,54 +159,73 @@ public class Dealer {
         ));
     }
 
-    public void deactivate() throws InvalidStatusException {
-        if (activationStatus.equals(DealerActivationStatusType.DEACTIVATED)) {
+    public void makeDealerVisible() {
+        if (visibilityStatus.equals(DealerVisibilityStatusType.HIDDEN)) {
             return;
         }
 
-        CheckUtils.isTrue(
-                activationStatus.equals(DealerActivationStatusType.ACTIVATED),
-                new InvalidStatusException(
-                        activationStatus.getDescription(),
-                        "Dealer 禁用"
-                )
-        );
+        visibilityStatus = DealerVisibilityStatusType.HIDDEN;
 
-        activationStatus = DealerActivationStatusType.DEACTIVATED;
-
-        DomainEventPublisher.instance().publish(new DealerDeactivated(
+        DomainEventPublisher.instance().publish(new DealerVisibilityChangedToHidden(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));
     }
 
-    public void activate() throws InvalidStatusException {
-        if (activationStatus.equals(DealerActivationStatusType.ACTIVATED)) {
+    public void makeDealerHidden() {
+        if (visibilityStatus.equals(DealerVisibilityStatusType.VISIBLE)) {
             return;
         }
 
-        CheckUtils.isTrue(
-                activationStatus.equals(DealerActivationStatusType.DEACTIVATED),
-                new InvalidStatusException(
-                        activationStatus.getDescription(),
-                        "Dealer 启用"
-                )
-        );
+        visibilityStatus = DealerVisibilityStatusType.VISIBLE;
 
-        activationStatus = DealerActivationStatusType.ACTIVATED;
-
-        DomainEventPublisher.instance().publish(new DealerActivated(
+        DomainEventPublisher.instance().publish(new DealerVisibilityChangedToVisible(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));
+    }
+
+    public DealerServicePurchaseOrder purchaseService(
+            DealerServicePurchaseOrderService dealerServicePurchaseOrderService,
+            DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator) {
+        if (dealerServicePurchaseOrderService.existsOrderInProcessing(this)) {
+            throw new RuntimeException();
+        }
+
+        LocalDateTime servicePeriodBegin;
+        if (DealerServiceStatusType.IN_SERVICE.equals(serviceStatus)) {
+            servicePeriodBegin = serviceExpiryTime;
+
+        } else {
+            servicePeriodBegin = LocalDateTime.now();
+        }
+        LocalDateTime servicePeriodEnd = servicePeriodBegin.plusYears(1);
+
+        return new DealerServicePurchaseOrder(
+                dealerServicePurchaseOrderIdGenerator.nextId(),
+                this.id,
+                new TimeRange(servicePeriodBegin, servicePeriodEnd)
+        );
+    }
+
+    public void extendServiceExpiryTime(TimeRange servicePeriod) {
+
+    }
+
+    public void terminateServiceUponExpiration() {
+
     }
 
     public DealerId id() {
         return id;
     }
 
-    public boolean isAvailable() {
-        return activationStatus.equals(DealerActivationStatusType.ACTIVATED);
+    public boolean isInService() {
+        return serviceStatus.equals(DealerServiceStatusType.IN_SERVICE);
+    }
+
+    public boolean isVisible() {
+        return visibilityStatus.equals(DealerVisibilityStatusType.VISIBLE);
     }
 
     public DealerSnapshot snapshot() {
@@ -211,7 +236,9 @@ public class Dealer {
                 address,
                 brandId,
                 createTime,
-                activationStatus
+                visibilityStatus,
+                serviceStatus,
+                serviceExpiryTime
         );
     }
 

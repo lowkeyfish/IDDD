@@ -33,7 +33,9 @@ public class DealerSnapshot {
     private Address address;
     private BrandId brandId;
     private LocalDateTime createTime;
-    private DealerActivationStatusType activationStatus;
+    private DealerVisibilityStatusType visibilityStatus;
+    private DealerServiceStatusType serviceStatus;
+    private LocalDateTime serviceExpiryTime;
 
     public DealerSnapshot(
             DealerId id,
@@ -42,14 +44,18 @@ public class DealerSnapshot {
             Address address,
             BrandId brandId,
             LocalDateTime createTime,
-            DealerActivationStatusType activationStatus) {
+            DealerVisibilityStatusType visibilityStatus,
+            DealerServiceStatusType serviceStatus,
+            LocalDateTime serviceExpiryTime) {
         this.id = id;
         this.name = name;
         this.telephone = telephone;
         this.address = address;
         this.brandId = brandId;
         this.createTime = createTime;
-        this.activationStatus = activationStatus;
+        this.visibilityStatus = visibilityStatus;
+        this.serviceStatus = serviceStatus;
+        this.serviceExpiryTime = serviceExpiryTime;
     }
 
     public DealerId getId() {
@@ -76,7 +82,15 @@ public class DealerSnapshot {
         return createTime;
     }
 
-    public DealerActivationStatusType getActivationStatus() {
-        return activationStatus;
+    public DealerVisibilityStatusType getVisibilityStatus() {
+        return visibilityStatus;
+    }
+
+    public DealerServiceStatusType getServiceStatus() {
+        return serviceStatus;
+    }
+
+    public LocalDateTime getServiceExpiryTime() {
+        return serviceExpiryTime;
     }
 }

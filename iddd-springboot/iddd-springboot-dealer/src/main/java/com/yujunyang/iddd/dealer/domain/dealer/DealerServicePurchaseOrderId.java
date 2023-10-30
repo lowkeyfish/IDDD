@@ -17,41 +17,35 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
-import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 
-public enum DealerActivationStatusType implements ValueDescriptionEnum<Integer> {
-    ACTIVATED(1, "启用"),
-    DEACTIVATED(2, "禁用");
-
-    @JsonValue
-    private int value;
-    private String description;
-
-    DealerActivationStatusType(int value, String description) {
-        this.value = value;
-        this.description = description;
+public class DealerServicePurchaseOrderId extends AbstractLongId {
+    @JsonCreator
+    public DealerServicePurchaseOrderId(@JsonProperty("id") Long id) {
+        super(id);
     }
 
     @Override
-    public String getDescription() {
-        return description;
+    protected int initialNonZeroOddNumber() {
+        return 67;
     }
 
     @Override
-    public Integer getValue() {
-        return value;
+    protected int multiplierNonZeroOddNumber() {
+        return 761;
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static DealerActivationStatusType parse(Object value) {
-        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerActivationStatusType.class);
+    public static DealerServicePurchaseOrderId parse(Long id) {
+        if (id == null || id <= 0) {
+            return null;
+        }
+        return new DealerServicePurchaseOrderId(id);
     }
 }

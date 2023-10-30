@@ -25,6 +25,18 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.mapper.DealerMapper">
+    <sql id="selectColumns">
+        `id`,
+        `name`,
+        `city_id` AS cityId,
+        `specific_address` AS specificAddress,
+        `telephone`,
+        `brand_id` AS brandId,
+        `visibility_status` AS visibilityStatus,
+        `create_time` AS createTime,
+        `service_status` AS serviceStatus,
+        `service_expiry_time` AS serviceExpiryTime
+    </sql>
     <insert id="insertOrIgnore"
             parameterType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel">
         INSERT IGNORE INTO `dealer`(
@@ -34,8 +46,10 @@
             `specific_address`,
             `telephone`,
             `brand_id`,
-            `status`,
-            `create_time`
+            `visibility_status`,
+            `create_time`,
+            `service_status`,
+            `service_expiry_time`
         ) VALUE(
             #{id},
             #{name},
@@ -43,22 +57,17 @@
             #{specificAddress},
             #{telephone},
             #{brandId},
-            #{status},
-            #{createTime}
+            #{visibilityStatus},
+            #{createTime},
+            #{serviceStatus},
+            #{serviceExpiryTime}
         );
     </insert>
 
     <select id="selectById"
             resultType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel">
         SELECT
-            `id`,
-            `name`,
-            `city_id` AS cityId,
-            `specific_address` AS specificAddress,
-            `telephone`,
-            `brand_id` AS brandId,
-            `status`,
-            `create_time` AS createTime
+            <include refid="selectColumns"/>
         FROM
             `dealer`
         WHERE
@@ -74,21 +83,16 @@
             `telephone` = #{telephone},
             `deleted` = 0,
             `brand_id` = #{brandId},
-            `status` = {status}
+            `visibility_status` = #{visibilityStatus},
+            `service_status` = #{serviceStatus},
+            `service_expiry_time` = #{serviceExpiryTime}
         WHERE `id` = #{id};
     </update>
 
     <select id="selectByName"
             resultType="com.yujunyang.iddd.dealer.infrastructure.persistence.mybatis.model.DealerDatabaseModel">
         SELECT
-            `id`,
-            `name`,
-            `city_id` AS cityId,
-            `specific_address` AS specificAddress,
-            `telephone`,
-            `brand_id` AS brandId,
-            `status`,
-            `create_time` AS createTime
+            <include refid="selectColumns"/>
         FROM
             `dealer`
         WHERE

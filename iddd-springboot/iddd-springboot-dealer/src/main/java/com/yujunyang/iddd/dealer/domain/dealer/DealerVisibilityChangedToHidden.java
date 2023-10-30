@@ -28,12 +28,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerDeactivated implements DomainEvent {
+public class DealerVisibilityChangedToHidden implements DomainEvent {
     private long timestamp;
     private long dealerId;
 
     @JsonCreator
-    public DealerDeactivated(
+    public DealerVisibilityChangedToHidden(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("dealerId") long dealerId) {
         this.timestamp = timestamp;

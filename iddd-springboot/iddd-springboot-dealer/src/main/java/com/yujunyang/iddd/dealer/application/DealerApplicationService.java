@@ -43,6 +43,7 @@ import com.yujunyang.iddd.dealer.domain.car.BrandService;
 import com.yujunyang.iddd.dealer.domain.dealer.CityBrandSupportedService;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerIdGenerator;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DealerApplicationService {
     private DealerNameUniquenessCheckService dealerNameUniquenessCheckService;
     private DealerRepository dealerRepository;
+    private DealerIdGenerator dealerIdGenerator;
     private BrandService brandService;
     private CityService cityService;
     private CityBrandSupportedService cityBrandSupportedService;
@@ -61,11 +63,13 @@ public class DealerApplicationService {
     public DealerApplicationService(
             DealerNameUniquenessCheckService dealerNameUniquenessCheckService,
             DealerRepository dealerRepository,
+            DealerIdGenerator dealerIdGenerator,
             BrandService brandService,
             CityService cityService,
             CityBrandSupportedService cityBrandSupportedService) {
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
         this.dealerRepository = dealerRepository;
+        this.dealerIdGenerator = dealerIdGenerator;
         this.brandService = brandService;
         this.cityService = cityService;
         this.cityBrandSupportedService = cityBrandSupportedService;
@@ -88,7 +92,7 @@ public class DealerApplicationService {
         );
 
         Dealer dealer = new Dealer(
-                dealerRepository.nextId(),
+                dealerIdGenerator.nextId(),
                 command.getName(),
                 new Address(
                         command.getCityId(),

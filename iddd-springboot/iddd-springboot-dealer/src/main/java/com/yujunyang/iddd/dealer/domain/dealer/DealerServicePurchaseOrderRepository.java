@@ -17,15 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+public interface DealerServicePurchaseOrderRepository {
+    DealerServicePurchaseOrder findById(DealerServicePurchaseOrderId id);
 
-    Dealer findByName(String name);
-
-    void save(Dealer dealer);
+    void save(DealerServicePurchaseOrder dealerServicePurchaseOrder);
 }

@@ -25,11 +25,14 @@ package com.yujunyang.iddd.dealer.infrastructure.persistence;
 import java.util.Optional;
 
 import com.yujunyang.iddd.common.domain.id.IdGenerator;
+import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerActivationStatusType;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerIdGenerator;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerServiceStatusType;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerVisibilityStatusType;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerSnapshot;
@@ -39,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MyBatisDealerRepository implements DealerRepository {
+public class MyBatisDealerRepository implements DealerRepository, DealerIdGenerator {
     private IdGenerator idGenerator;
     private DealerMapper dealerMapper;
 
@@ -91,7 +94,9 @@ public class MyBatisDealerRepository implements DealerRepository {
                 databaseModel.getTelephone(),
                 new BrandId(databaseModel.getBrandId()),
                 databaseModel.getCreateTime(),
-                DealerActivationStatusType.parse(databaseModel.getStatus()));
+                DealerVisibilityStatusType.parse(databaseModel.getVisibleStatus()),
+                DealerServiceStatusType.parse(databaseModel.getServiceStatus()),
+                databaseModel.getServiceExpiryTime());
     }
 
     private DealerDatabaseModel convert(Dealer model) {
@@ -103,8 +108,10 @@ public class MyBatisDealerRepository implements DealerRepository {
         databaseModel.setCityId(snapshot.getAddress().getCityId().getId());
         databaseModel.setTelephone(snapshot.getTelephone());
         databaseModel.setBrandId(snapshot.getBrandId().getId());
-        databaseModel.setStatus(snapshot.getActivationStatus().getValue());
+        databaseModel.setVisibleStatus(snapshot.getVisibilityStatus().getValue());
         databaseModel.setCreateTime(snapshot.getCreateTime());
+        databaseModel.setServiceStatus(snapshot.getServiceStatus().getValue());
+        databaseModel.setServiceExpiryTime(snapshot.getServiceExpiryTime());
         return databaseModel;
     }
 }

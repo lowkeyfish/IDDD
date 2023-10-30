@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package com.yujunyang.iddd.dealer.domain.dealer;
@@ -27,15 +26,19 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public enum DealerServiceStatusType implements ValueDescriptionEnum<Integer> {
-    IN_SERVICE(1, "服务中"),
-    EXPIRED(2, "服务已到期");
+public enum DealerServicePurchaseOrderStatusType implements ValueDescriptionEnum<Integer> {
+    UNPAID(1, "未支付"),
+    PAYING(2, "支付中"),
+    PAID(3, "已支付"),
+    COMPLETED(4, "已完成"),
+    MANUALLY_CANCELLED(10, "手动取消"),
+    TIMEOUT_CANCELLED(11, "超时取消");
 
     @JsonValue
     private int value;
     private String description;
 
-    DealerServiceStatusType(int value, String description) {
+    DealerServicePurchaseOrderStatusType(int value, String description) {
         this.value = value;
         this.description = description;
     }
@@ -51,7 +54,7 @@ public enum DealerServiceStatusType implements ValueDescriptionEnum<Integer> {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static DealerServiceStatusType parse(Object value) {
-        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerServiceStatusType.class);
+    public static DealerServicePurchaseOrderStatusType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerServicePurchaseOrderStatusType.class);
     }
 }

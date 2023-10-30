@@ -22,40 +22,36 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
-import java.text.MessageFormat;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.event.DomainEvent;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
+import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public class DealerActivated implements DomainEvent {
-    private long timestamp;
-    private long dealerId;
+public enum DealerVisibilityStatusType implements ValueDescriptionEnum<Integer> {
+    VISIBLE(1, "露出"),
+    HIDDEN(2, "不露出");
 
-    @JsonCreator
-    public DealerActivated(
-            @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") long dealerId) {
-        this.timestamp = timestamp;
-        this.dealerId = dealerId;
+    @JsonValue
+    private int value;
+    private String description;
+
+    DealerVisibilityStatusType(int value, String description) {
+        this.value = value;
+        this.description = description;
     }
 
     @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getDealerId() {
-        return dealerId;
+    public String getDescription() {
+        return description;
     }
 
     @Override
-    public String eventKey() {
-        return MessageFormat.format("DealerId({0,number,#})", dealerId);
+    public Integer getValue() {
+        return value;
     }
 
-    @Override
-    public String notificationRoutingKey() {
-        return "Dealer." + notificationType();
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static DealerVisibilityStatusType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerVisibilityStatusType.class);
     }
 }

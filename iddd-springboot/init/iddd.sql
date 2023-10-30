@@ -128,7 +128,10 @@ CREATE TABLE `dealer` (
                           `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                           `deleted` tinyint NOT NULL DEFAULT 0,
-                          `status` tinyint not null default 0,
+                          `visibility_status` tinyint not null default 0,
+                          `service_status` tinyint not null default 0,
+                          `service_period_begin` datetime,
+                          `service_period_end` datetime,
                           PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

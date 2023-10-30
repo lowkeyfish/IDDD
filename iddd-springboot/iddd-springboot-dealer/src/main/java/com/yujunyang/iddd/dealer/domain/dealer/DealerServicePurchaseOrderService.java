@@ -17,15 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package com.yujunyang.iddd.dealer.domain.dealer;
 
-public interface DealerRepository {
-    Dealer findById(DealerId dealerId);
+import org.springframework.stereotype.Service;
 
-    Dealer findByName(String name);
-
-    void save(Dealer dealer);
+@Service
+public class DealerServicePurchaseOrderService {
+    public boolean existsOrderInProcessing(Dealer dealer) {
+        return false;
+    }
 }
