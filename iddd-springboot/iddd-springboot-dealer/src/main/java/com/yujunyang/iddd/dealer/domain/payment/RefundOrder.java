@@ -17,22 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.application.command;
+package com.yujunyang.iddd.dealer.domain.payment;
 
-import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
-
-public class DealerActivationCommand {
-    private DealerId dealerId;
-
-    public DealerActivationCommand(
-            DealerId dealerId) {
-        this.dealerId = dealerId;
-    }
-
-    public DealerId getDealerId() {
-        return dealerId;
-    }
+public class RefundOrder {
+    private String outTradeNo;
+    private String tradeNo;
+    private
 }

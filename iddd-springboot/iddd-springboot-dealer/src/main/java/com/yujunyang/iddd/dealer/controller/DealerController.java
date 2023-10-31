@@ -25,7 +25,7 @@ import com.yujunyang.iddd.common.data.RestResponse;
 import com.yujunyang.iddd.common.exception.InvalidStatusException;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
-import com.yujunyang.iddd.dealer.application.command.DealerActivationCommand;
+import com.yujunyang.iddd.dealer.application.command.ChangeDealerVisibilityCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
 import com.yujunyang.iddd.dealer.controller.input.DealerCreateRequestBody;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
@@ -77,8 +77,8 @@ public class DealerController {
         RestResponse<Long> response = new RestResponse<>();
 
         try {
-            dealerApplicationService.deactivate(
-                    new DealerActivationCommand(
+            dealerApplicationService.makeDealerHidden(
+                    new ChangeDealerVisibilityCommand(
                             DealerId.parse(dealerId)
                     )
             );
@@ -94,8 +94,8 @@ public class DealerController {
         RestResponse<Long> response = new RestResponse<>();
 
         try {
-            dealerApplicationService.activate(
-                    new DealerActivationCommand(
+            dealerApplicationService.makeDealerVisible(
+                    new ChangeDealerVisibilityCommand(
                             DealerId.parse(dealerId)
                     )
             );

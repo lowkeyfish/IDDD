@@ -63,7 +63,8 @@ public class DealerServicePurchaseOrder {
         this.createTime = createTime;
     }
 
-    public void pay() {
+    public void pay(
+            DealerServicePurchaseOrderPayService payService) {
 
     }
 
