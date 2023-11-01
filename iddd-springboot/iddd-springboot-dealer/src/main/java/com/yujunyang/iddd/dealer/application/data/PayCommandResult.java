@@ -19,10 +19,14 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.application.data;
 
-public interface DealerServicePurchaseOrderRepository {
-    DealerServicePurchaseOrder findById(DealerServicePurchaseOrderId id);
+public interface PayCommandResult {
+    void resultingWechatPayPrepayId(String prepayId);
 
-    void save(DealerServicePurchaseOrder dealerServicePurchaseOrder);
+    void resultingWechatPayCodeUrl(String codeUrl);
+
+    void resultingWechatPayH5Url(String h5Url);
+
+    void resultingAlipayForm(String form);
 }

@@ -19,74 +19,56 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
 import java.time.LocalDateTime;
 
-import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.common.TimeRange;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 
-public class DealerServicePurchaseOrder {
+public class DealerServicePurchaseOrderSnapshot {
     private DealerServicePurchaseOrderId id;
     private DealerId dealerId;
     private TimeRange servicePeriod;
     private DealerServicePurchaseOrderStatusType status;
     private LocalDateTime createTime;
+    private int amount;
 
-    public DealerServicePurchaseOrder(
-            DealerServicePurchaseOrderId id,
-            DealerId dealerId,
-            TimeRange servicePeriod) {
-        this(
-                id,
-                dealerId,
-                servicePeriod,
-                DealerServicePurchaseOrderStatusType.UNPAID,
-                LocalDateTime.now()
-        );
-
-        CheckUtils.notNull(id, "id 必须不为 null");
-        CheckUtils.notNull(dealerId, "dealerId 必须不为 null");
-        CheckUtils.notNull(servicePeriod, "servicePeriod 必须不为 null");
-    }
-
-    public DealerServicePurchaseOrder(
+    public DealerServicePurchaseOrderSnapshot(
             DealerServicePurchaseOrderId id,
             DealerId dealerId,
             TimeRange servicePeriod,
             DealerServicePurchaseOrderStatusType status,
-            LocalDateTime createTime) {
+            LocalDateTime createTime, int amount) {
         this.id = id;
         this.dealerId = dealerId;
         this.servicePeriod = servicePeriod;
         this.status = status;
         this.createTime = createTime;
+        this.amount = amount;
     }
 
-    public void pay(
-            DealerServicePurchaseOrderPayService payService) {
-
-    }
-
-    public void completePayment() {
-
-    }
-
-    public void cancel() {
-
-    }
-
-    public DealerServicePurchaseOrderId id() {
+    public DealerServicePurchaseOrderId getId() {
         return id;
     }
 
-    public DealerServicePurchaseOrderSnapshot snapshot() {
-        return new DealerServicePurchaseOrderSnapshot(
-                id,
-                dealerId,
-                servicePeriod,
-                status,
-                createTime
-        );
+    public DealerId getDealerId() {
+        return dealerId;
+    }
+
+    public TimeRange getServicePeriod() {
+        return servicePeriod;
+    }
+
+    public DealerServicePurchaseOrderStatusType getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public int getAmount() {
+        return amount;
     }
 }

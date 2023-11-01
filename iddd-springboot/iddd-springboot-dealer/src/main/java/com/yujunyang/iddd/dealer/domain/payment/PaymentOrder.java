@@ -34,6 +34,28 @@ public class PaymentOrder {
     private AbstractLongId scenarioRelationId;
     private LocalDateTime payTime;
     private int totalAmount;
+    private PaymentStatusType status;
+
+    public PaymentOrder(
+            String outTradeNo,
+            String tradeNo,
+            PaymentChannelType channel,
+            PaymentMethodType method,
+            PaymentScenarioType scenario,
+            AbstractLongId scenarioRelationId,
+            LocalDateTime payTime,
+            int totalAmount,
+            PaymentStatusType status) {
+        this.outTradeNo = outTradeNo;
+        this.tradeNo = tradeNo;
+        this.channel = channel;
+        this.method = method;
+        this.scenario = scenario;
+        this.scenarioRelationId = scenarioRelationId;
+        this.payTime = payTime;
+        this.totalAmount = totalAmount;
+        this.status = status;
+    }
 
 
 }

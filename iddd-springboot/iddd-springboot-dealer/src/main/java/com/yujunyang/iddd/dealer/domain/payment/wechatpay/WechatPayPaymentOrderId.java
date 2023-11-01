@@ -19,13 +19,33 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 
-public class RefundOrder {
-    private String outTradeNo;
-    private String outRefundNo;
-    private PaymentScenarioType scenario;
-    private AbstractLongId scenarioRelationId;
+public class WechatPayPaymentOrderId extends AbstractLongId {
+    @JsonCreator
+    public WechatPayPaymentOrderId(@JsonProperty("id") Long id) {
+        super(id);
+    }
+
+    @Override
+    protected int initialNonZeroOddNumber() {
+        return 5;
+    }
+
+    @Override
+    protected int multiplierNonZeroOddNumber() {
+        return 761;
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static WechatPayPaymentOrderId parse(Long id) {
+        if (id == null || id <= 0) {
+            return null;
+        }
+        return new WechatPayPaymentOrderId(id);
+    }
 }

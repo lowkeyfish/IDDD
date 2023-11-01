@@ -19,33 +19,40 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
+import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public class DealerServicePurchaseOrderId extends AbstractLongId {
-    @JsonCreator
-    public DealerServicePurchaseOrderId(@JsonProperty("id") Long id) {
-        super(id);
+public enum WechatPayMethodType implements ValueDescriptionEnum<Integer> {
+    JSAPI(1, "JSAPI"),
+    NATIVE(2, "Native"),
+    APP(3, "App"),
+    H5(4, "H5");
+
+    @JsonValue
+    private int value;
+    private String description;
+
+    WechatPayMethodType(int value, String description) {
+        this.value = value;
+        this.description = description;
     }
 
     @Override
-    protected int initialNonZeroOddNumber() {
-        return 67;
+    public String getDescription() {
+        return description;
     }
 
     @Override
-    protected int multiplierNonZeroOddNumber() {
-        return 761;
+    public Integer getValue() {
+        return value;
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static DealerServicePurchaseOrderId parse(Long id) {
-        if (id == null || id <= 0) {
-            return null;
-        }
-        return new DealerServicePurchaseOrderId(id);
+    public static WechatPayMethodType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, WechatPayMethodType.class);
     }
 }

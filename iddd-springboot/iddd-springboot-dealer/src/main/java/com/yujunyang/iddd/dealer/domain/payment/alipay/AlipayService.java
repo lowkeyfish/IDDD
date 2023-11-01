@@ -19,12 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.payment.alipay;
 
-public class AlipayOrder {
-    private String tradeNo;
-    private String outTradeNode;
-    private String sellerId;
-    private String merchantOrderNo;
-
+public interface AlipayService {
 }

@@ -19,11 +19,14 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
-public class AlipayDealerServicePurchaseOrderPayService implements DealerServicePurchaseOrderPayService {
-    @Override
-    public String pay(DealerServicePurchaseOrder dealerServicePurchaseOrder) {
-        return null;
-    }
+import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+
+public interface DealerServicePurchaseOrderRepository {
+    DealerServicePurchaseOrder findById(DealerServicePurchaseOrderId id);
+
+    void save(DealerServicePurchaseOrder dealerServicePurchaseOrder);
+
+    boolean existsInProcessing(DealerId dealerId);
 }

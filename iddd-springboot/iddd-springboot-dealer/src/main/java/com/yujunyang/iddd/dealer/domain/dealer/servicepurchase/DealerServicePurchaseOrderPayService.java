@@ -19,8 +19,11 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
-public interface DealerServicePurchaseOrderIdGenerator {
-    DealerServicePurchaseOrderId nextId();
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
+
+public interface DealerServicePurchaseOrderPayService {
+
+    String pay(DealerServicePurchaseOrder dealerServicePurchaseOrder);
 }

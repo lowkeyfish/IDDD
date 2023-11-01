@@ -19,13 +19,16 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+public class WechatPayPrepayIdTransaction {
+    private String h5Url;
 
-public class RefundOrder {
-    private String outTradeNo;
-    private String outRefundNo;
-    private PaymentScenarioType scenario;
-    private AbstractLongId scenarioRelationId;
+    public WechatPayPrepayIdTransaction(String h5Url) {
+        this.h5Url = h5Url;
+    }
+
+    public String getH5Url() {
+        return h5Url;
+    }
 }

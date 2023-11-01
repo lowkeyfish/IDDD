@@ -19,13 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
-
-public class RefundOrder {
-    private String outTradeNo;
-    private String outRefundNo;
-    private PaymentScenarioType scenario;
-    private AbstractLongId scenarioRelationId;
+public class WechatPayDealerServicePurchaseOrderPayService {
 }

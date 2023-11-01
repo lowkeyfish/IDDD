@@ -19,13 +19,17 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.infrastructure.service;
 
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayService;
+import org.springframework.stereotype.Service;
 
-public class RefundOrder {
-    private String outTradeNo;
-    private String outRefundNo;
-    private PaymentScenarioType scenario;
-    private AbstractLongId scenarioRelationId;
+@Service
+public class RemoteApiWechatPayService implements WechatPayService {
+
+    @Override
+    public String createTransaction(WechatPayPaymentOrder wechatPayPaymentOrder) {
+        return null;
+    }
 }

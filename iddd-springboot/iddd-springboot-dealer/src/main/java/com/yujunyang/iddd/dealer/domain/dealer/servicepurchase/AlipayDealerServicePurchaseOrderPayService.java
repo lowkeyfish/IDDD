@@ -19,13 +19,14 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPayService;
 
-public class RefundOrder {
-    private String outTradeNo;
-    private String outRefundNo;
-    private PaymentScenarioType scenario;
-    private AbstractLongId scenarioRelationId;
+public class AlipayDealerServicePurchaseOrderPayService implements DealerServicePurchaseOrderPayService {
+    @Override
+    public String pay(DealerServicePurchaseOrder dealerServicePurchaseOrder) {
+        return null;
+    }
 }

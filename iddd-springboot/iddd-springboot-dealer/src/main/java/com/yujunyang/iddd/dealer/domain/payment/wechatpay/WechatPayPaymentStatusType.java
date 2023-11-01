@@ -19,26 +19,24 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public enum DealerServicePurchaseOrderStatusType implements ValueDescriptionEnum<Integer> {
-    UNPAID(1, "未支付"),
-    PAYING(2, "支付中"),
-    PAID(3, "已支付"),
-    COMPLETED(4, "已完成"),
-    MANUALLY_CANCELLED(10, "手动取消"),
-    TIMEOUT_CANCELLED(11, "超时取消");
+public enum WechatPayPaymentStatusType implements ValueDescriptionEnum<Integer> {
+    PROCESSING(1, "支付中"),
+    PAID(2, "支付成功"),
+    PAYMENT_FAILED(3, "支付失败"),
+    CLOSED(4, "已关闭");
 
     @JsonValue
     private int value;
     private String description;
 
-    DealerServicePurchaseOrderStatusType(int value, String description) {
+    WechatPayPaymentStatusType(int value, String description) {
         this.value = value;
         this.description = description;
     }
@@ -54,7 +52,7 @@ public enum DealerServicePurchaseOrderStatusType implements ValueDescriptionEnum
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static DealerServicePurchaseOrderStatusType parse(Object value) {
-        return EnumUtilsEnhance.getByIntValueOrStringName(value, DealerServicePurchaseOrderStatusType.class);
+    public static WechatPayPaymentStatusType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, WechatPayPaymentStatusType.class);
     }
 }

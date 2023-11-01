@@ -19,7 +19,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
-public class WechatPayOrder {
+public interface WechatPayService {
+    String createTransaction(WechatPayPaymentOrder wechatPayPaymentOrder);
 }

@@ -19,13 +19,14 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
+import org.springframework.stereotype.Service;
 
-public class RefundOrder {
-    private String outTradeNo;
-    private String outRefundNo;
-    private PaymentScenarioType scenario;
-    private AbstractLongId scenarioRelationId;
+@Service
+public class DealerServicePurchaseOrderService {
+    public boolean existsOrderInProcessing(Dealer dealer) {
+        return false;
+    }
 }

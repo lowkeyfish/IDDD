@@ -19,13 +19,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
-import org.springframework.stereotype.Service;
-
-@Service
-public class DealerServicePurchaseOrderService {
-    public boolean existsOrderInProcessing(Dealer dealer) {
-        return false;
-    }
+public interface WechatPayPaymentOrderIdGenerator {
+    WechatPayPaymentOrderId nextId();
 }

@@ -22,10 +22,11 @@
 package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
 import com.yujunyang.iddd.common.domain.id.IdGenerator;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrder;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrderId;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrderIdGenerator;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrderRepository;
+import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderIdGenerator;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -53,5 +54,10 @@ public class MyBatisDealerServicePurchaseOrderRepository implements
     @Override
     public void save(DealerServicePurchaseOrder dealerServicePurchaseOrder) {
 
+    }
+
+    @Override
+    public boolean existsInProcessing(DealerId dealerId) {
+        return false;
     }
 }

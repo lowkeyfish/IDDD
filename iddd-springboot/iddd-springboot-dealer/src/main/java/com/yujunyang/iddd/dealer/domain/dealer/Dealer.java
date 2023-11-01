@@ -32,6 +32,9 @@ import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseAmountService;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderIdGenerator;
 
 public class Dealer {
     private DealerId id;
@@ -186,25 +189,22 @@ public class Dealer {
     }
 
     public DealerServicePurchaseOrder purchaseService(
-            DealerServicePurchaseOrderService dealerServicePurchaseOrderService,
+            DealerServicePurchaseAmountService amountService,
             DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator) {
-        if (dealerServicePurchaseOrderService.existsOrderInProcessing(this)) {
-            throw new RuntimeException();
-        }
-
         LocalDateTime servicePeriodBegin;
         if (DealerServiceStatusType.IN_SERVICE.equals(serviceStatus)) {
             servicePeriodBegin = serviceExpiryTime;
-
         } else {
             servicePeriodBegin = LocalDateTime.now();
         }
         LocalDateTime servicePeriodEnd = servicePeriodBegin.plusYears(1);
 
+        TimeRange servicePeriod = new TimeRange(servicePeriodBegin, servicePeriodEnd);
         return new DealerServicePurchaseOrder(
                 dealerServicePurchaseOrderIdGenerator.nextId(),
                 this.id,
-                new TimeRange(servicePeriodBegin, servicePeriodEnd)
+                servicePeriod,
+                amountService.calculateAmount(this, servicePeriod)
         );
     }
 

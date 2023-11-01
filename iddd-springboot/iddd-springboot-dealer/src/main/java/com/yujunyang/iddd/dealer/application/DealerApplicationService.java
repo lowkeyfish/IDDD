@@ -27,15 +27,12 @@ import java.text.MessageFormat;
 import com.yujunyang.iddd.common.exception.InvalidStatusException;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.dealer.application.command.ChangeDealerVisibilityCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeTelephoneCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
-import com.yujunyang.iddd.dealer.application.command.ChangeDealerVisibilityCommand;
-import com.yujunyang.iddd.dealer.application.command.PayPurchaseServiceOrderCommand;
-import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
-import com.yujunyang.iddd.dealer.application.data.PurchaseServiceCommandResult;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.City;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
@@ -49,10 +46,6 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerIdGenerator;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrder;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrderIdGenerator;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrderRepository;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServicePurchaseOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,9 +58,6 @@ public class DealerApplicationService {
     private BrandService brandService;
     private CityService cityService;
     private CityBrandSupportedService cityBrandSupportedService;
-    private DealerServicePurchaseOrderService dealerServicePurchaseOrderService;
-    private DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator;
-    private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
 
     @Autowired
     public DealerApplicationService(
@@ -76,19 +66,13 @@ public class DealerApplicationService {
             DealerIdGenerator dealerIdGenerator,
             BrandService brandService,
             CityService cityService,
-            CityBrandSupportedService cityBrandSupportedService,
-            DealerServicePurchaseOrderService dealerServicePurchaseOrderService,
-            DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator,
-            DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository) {
+            CityBrandSupportedService cityBrandSupportedService) {
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
         this.dealerRepository = dealerRepository;
         this.dealerIdGenerator = dealerIdGenerator;
         this.brandService = brandService;
         this.cityService = cityService;
         this.cityBrandSupportedService = cityBrandSupportedService;
-        this.dealerServicePurchaseOrderService = dealerServicePurchaseOrderService;
-        this.dealerServicePurchaseOrderIdGenerator = dealerServicePurchaseOrderIdGenerator;
-        this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
     }
 
     @Transactional
@@ -179,52 +163,6 @@ public class DealerApplicationService {
         dealer.makeDealerVisible();
 
         dealerRepository.save(dealer);
-    }
-
-    @Transactional
-    public void purchaseService(
-            PurchaseServiceCommand command,
-            PurchaseServiceCommandResult commandResult) {
-        CheckUtils.notNull(command, "command 必须不为 null");
-
-        Dealer dealer = existingDealer(command.getDealerId());
-        DealerServicePurchaseOrder dealerServicePurchaseOrder = dealer.purchaseService(
-                dealerServicePurchaseOrderService,
-                dealerServicePurchaseOrderIdGenerator
-        );
-        dealerServicePurchaseOrderRepository.save(dealerServicePurchaseOrder);
-        commandResult.resultingPurchaseServiceOrderId(dealerServicePurchaseOrder.id().getId());
-    }
-
-    @Transactional
-    public void payPurchaseServiceOrder(PayPurchaseServiceOrderCommand command) {
-        CheckUtils.notNull(command, "command 必须不为 null");
-
-        DealerServicePurchaseOrder dealerServicePurchaseOrder = dealerServicePurchaseOrderRepository
-                .findById(command.getDealerServicePurchaseOrderId());
-
-        CheckUtils.notNull(
-                dealerServicePurchaseOrder,
-                "DealerServicePurchaseOrderId({0})无效",
-                command.getDealerServicePurchaseOrderId()
-        );
-
-
-    }
-
-    @Transactional
-    public void notifyPurchaseServiceOrderPayment() {
-
-    }
-
-    @Transactional
-    public void refundPurchaseServiceOrder() {
-
-    }
-
-    @Transactional
-    public void notifyPurchaseServiceOrderRefund() {
-
     }
 
     private Dealer existingDealer(DealerId dealerId) {
