@@ -38,11 +38,9 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderIdGenerator;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderFactory;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +53,7 @@ public class DealerServicePurchaseApplicationService {
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
     private DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator;
     private DealerServicePurchaseAmountService dealerServicePurchaseAmountService;
-    private WechatPayPaymentOrderFactory wechatPayPaymentOrderFactory;
+    private PaymentOrderService paymentOrderService;
     private WechatPayPaymentOrderRepository wechatPayPaymentOrderRepository;
     private WechatPayService wechatPayService;
 
@@ -65,14 +63,14 @@ public class DealerServicePurchaseApplicationService {
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator,
             DealerServicePurchaseAmountService dealerServicePurchaseAmountService,
-            WechatPayPaymentOrderFactory wechatPayPaymentOrderFactory,
+            PaymentOrderService paymentOrderService,
             WechatPayPaymentOrderRepository wechatPayPaymentOrderRepository,
             WechatPayService wechatPayService) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderIdGenerator = dealerServicePurchaseOrderIdGenerator;
         this.dealerServicePurchaseAmountService = dealerServicePurchaseAmountService;
-        this.wechatPayPaymentOrderFactory = wechatPayPaymentOrderFactory;
+        this.paymentOrderService = paymentOrderService;
         this.wechatPayPaymentOrderRepository = wechatPayPaymentOrderRepository;
         this.wechatPayService = wechatPayService;
     }
@@ -86,13 +84,18 @@ public class DealerServicePurchaseApplicationService {
         Dealer dealer = existingDealer(command.getDealerId());
 
         // 只能有一个处理中的订单的规则不放到 dealer.purchaseService 中（即不为此创建领域服务再作为参数传递给 dealer.purchaseService）
-        // 只让 dealer.purchaseService 负责订单的创建，减少 dealer 的依赖，也是 dealer 的职责更单一
+        // 只让 dealer.purchaseService 负责订单的创建，减少 dealer 的依赖，也使得 dealer 的职责更单一，purchaseService 粒度更细更易复用
 
         boolean existsInProcessing = dealerServicePurchaseOrderRepository.existsInProcessing(command.getDealerId());
         CheckUtils.isTrue(
                 !existsInProcessing,
-                BusinessRuleException.class,
-                "存在未完成的订单"
+                new BusinessRuleException(
+                        "存在未完成的服务购买订单",
+                        ImmutableMap.of(
+                                "dealerId",
+                                command.getDealerId()
+                        )
+                )
         );
 
         DealerServicePurchaseOrder dealerServicePurchaseOrder = dealer.purchaseService(
@@ -105,31 +108,23 @@ public class DealerServicePurchaseApplicationService {
     }
 
     @Transactional
-    public void initiatePayment(
+    public void initiateWechatPayPayment(
             PurchaseServiceOrderInitiatePaymentCommand command,
             InitiatePaymentCommand commandResult) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder(command.getDealerServicePurchaseOrderId());
 
-        if (PaymentChannelType.WECHAT_PAY.equals(command.getPaymentChannel())) {
-            WechatPayPaymentOrder paymentOrder = wechatPayPaymentOrderFactory.createPaymentOrder(
-                    order,
-                    command.getPaymentMethod(),
-                    command.getWechatOpenId()
-            );
+        WechatPayPaymentOrder paymentOrder = paymentOrderService.createPaymentOrder(
+                order,
+                command.getPaymentMethod(),
+                command.getWechatOpenId()
+        );
 
-            PaymentInitiationData paymentInitiationData = paymentOrder.initiatePayment(wechatPayService);
-            wechatPayPaymentOrderRepository.save(paymentOrder);
+        PaymentInitiationData paymentInitiationData = paymentOrder.initiatePayment(wechatPayService);
+        wechatPayPaymentOrderRepository.save(paymentOrder);
 
-            commandResult.resultingPaymentInitiationData(paymentInitiationData.getData());
-            return;
-        }
-
-        throw new BusinessRuleException("支付渠道暂不支持", ImmutableMap.of(
-                "paymentChannel",
-                command.getPaymentChannel()
-        ));
+        commandResult.resultingPaymentInitiationData(paymentInitiationData.getData());
     }
 
     @Transactional

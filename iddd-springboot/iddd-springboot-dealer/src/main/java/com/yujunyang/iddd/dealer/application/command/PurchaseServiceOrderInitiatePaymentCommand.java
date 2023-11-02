@@ -23,42 +23,32 @@ package com.yujunyang.iddd.dealer.application.command;
 
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import org.apache.commons.lang3.StringUtils;
 
 public class PurchaseServiceOrderInitiatePaymentCommand {
     private DealerServicePurchaseOrderId dealerServicePurchaseOrderId;
-    private PaymentChannelType paymentChannel;
     private PaymentMethodType paymentMethod;
     private String wechatOpenId;
 
     public PurchaseServiceOrderInitiatePaymentCommand(
             DealerServicePurchaseOrderId dealerServicePurchaseOrderId,
-            PaymentChannelType paymentChannel,
             PaymentMethodType paymentMethod,
             String wechatOpenId) {
         CheckUtils.notNull(dealerServicePurchaseOrderId, "dealerServicePurchaseOrderId 必须不为 null");
-        CheckUtils.notNull(paymentChannel, "paymentChannel 必须不为 null");
         CheckUtils.notNull(paymentMethod, "paymentMethod 必须不为 null");
         CheckUtils.isTrue(
-                !PaymentChannelType.WECHAT_PAY.equals(paymentChannel)
-                        || !PaymentMethodType.WECHAT_PAY_JSAPI.equals(paymentMethod)
+                !PaymentMethodType.WECHAT_PAY_JSAPI.equals(paymentMethod)
                         || StringUtils.isNotBlank(wechatOpenId),
                 "wechatOpenId 必须不为空"
         );
         this.dealerServicePurchaseOrderId = dealerServicePurchaseOrderId;
-        this.paymentChannel = paymentChannel;
         this.paymentMethod = paymentMethod;
         this.wechatOpenId = wechatOpenId;
     }
 
     public DealerServicePurchaseOrderId getDealerServicePurchaseOrderId() {
         return dealerServicePurchaseOrderId;
-    }
-
-    public PaymentChannelType getPaymentChannel() {
-        return paymentChannel;
     }
 
     public PaymentMethodType getPaymentMethod() {

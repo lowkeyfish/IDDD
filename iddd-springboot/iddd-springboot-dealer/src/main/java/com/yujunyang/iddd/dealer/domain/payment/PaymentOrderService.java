@@ -19,26 +19,26 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
+package com.yujunyang.iddd.dealer.domain.payment;
 
 import java.time.LocalDateTime;
 import javax.annotation.Nullable;
 
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
+import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderIdGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class WechatPayPaymentOrderFactory {
+public class PaymentOrderService {
     private WechatPayPaymentOrderIdGenerator wechatPayPaymentOrderIdGenerator;
 
     @Autowired
-    public WechatPayPaymentOrderFactory(
+    public PaymentOrderService(
             WechatPayPaymentOrderIdGenerator wechatPayPaymentOrderIdGenerator) {
         this.wechatPayPaymentOrderIdGenerator = wechatPayPaymentOrderIdGenerator;
     }
@@ -68,7 +68,7 @@ public class WechatPayPaymentOrderFactory {
                 paymentOrderId.toString(),
                 null,
                 null,
-                dealerServicePurchaseOrder.snapshot().getAmount(),
+                dealerServicePurchaseOrder.getAmount(),
                 payerOpenId,
                 null,
                 null,

@@ -25,11 +25,16 @@ import com.yujunyang.iddd.common.data.RestResponse;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.DealerQueryService;
+import com.yujunyang.iddd.dealer.application.DealerServicePurchaseApplicationService;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
+import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
+import com.yujunyang.iddd.dealer.application.command.PurchaseServiceOrderInitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerViewModel;
 import com.yujunyang.iddd.dealer.controller.input.DealerRequestBody;
+import com.yujunyang.iddd.dealer.controller.input.InitiatePaymentRequestBody;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,20 +45,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/dealers")
+@RequestMapping("")
 public class DealerController {
     private DealerApplicationService dealerApplicationService;
     private DealerQueryService dealerQueryService;
+    private DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService;
 
     @Autowired
     public DealerController(
             DealerApplicationService dealerApplicationService,
-            DealerQueryService dealerQueryService) {
+            DealerQueryService dealerQueryService,
+            DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService) {
         this.dealerApplicationService = dealerApplicationService;
         this.dealerQueryService = dealerQueryService;
+        this.dealerServicePurchaseApplicationService = dealerServicePurchaseApplicationService;
     }
 
-    @PostMapping("")
+    @PostMapping("/dealers")
     public RestResponse<Long> createDealer(
             @RequestBody DealerRequestBody requestBody) {
         RestResponse<Long> response = new RestResponse<>();
@@ -76,14 +84,14 @@ public class DealerController {
         return response;
     }
 
-    @GetMapping("{dealerId}")
+    @GetMapping("/dealers/{dealerId}")
     public RestResponse<DealerViewModel> findDealerById(
             @PathVariable("dealerId") long dealerId) {
         DealerViewModel dealer = dealerQueryService.findDealerById(new DealerId(dealerId));
         return new RestResponse<>(dealer);
     }
 
-    @PutMapping("{dealerId}/name")
+    @PutMapping("/dealers/{dealerId}/name")
     public RestResponse changeDealerName(
             @PathVariable("dealerId") long dealerId,
             @RequestBody DealerRequestBody requestBody) {
@@ -92,5 +100,34 @@ public class DealerController {
                 requestBody.getName()
         ));
         return new RestResponse();
+    }
+
+    @PostMapping("/dealers/{dealerId}/service-purchase-orders")
+    public RestResponse<Long> purchaseService(
+            @PathVariable("dealerId") long dealerId) {
+        RestResponse<Long> response = new RestResponse<>();
+        dealerServicePurchaseApplicationService.purchaseService(
+                new PurchaseServiceCommand(
+                        new DealerId(dealerId)
+                ), id -> response.setData(id)
+        );
+        return response;
+    }
+
+    @PostMapping("/dealer-service-purchase-orders/{orderId}/payments")
+    public RestResponse initiatePayment(
+            @PathVariable("orderId") long orderId,
+            @RequestBody InitiatePaymentRequestBody requestBody) {
+        RestResponse<String> response = new RestResponse<>();
+        dealerServicePurchaseApplicationService.initiateWechatPayPayment(
+                new PurchaseServiceOrderInitiatePaymentCommand(
+                        new DealerServicePurchaseOrderId(orderId),
+                        requestBody.getPaymentChannel(),
+                        requestBody.getPaymentMethod(),
+                        requestBody.getWechatOpenId()
+                ),
+                paymentInitiationData -> response.setData(paymentInitiationData)
+        );
+        return response;
     }
 }

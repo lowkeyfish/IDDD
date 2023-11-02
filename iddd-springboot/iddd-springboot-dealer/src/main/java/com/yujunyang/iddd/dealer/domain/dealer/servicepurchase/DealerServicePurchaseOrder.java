@@ -91,6 +91,10 @@ public class DealerServicePurchaseOrder {
         return id;
     }
 
+    public int getAmount() {
+        return amount;
+    }
+
     public DealerServicePurchaseOrderSnapshot snapshot() {
         return new DealerServicePurchaseOrderSnapshot(
                 id,

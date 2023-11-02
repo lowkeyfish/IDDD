@@ -23,22 +23,19 @@ package com.yujunyang.iddd.dealer.controller;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("")
 public class PaymentController {
 
-    @PostMapping("/payment/dealer-service-purchase-orders/{id}/wechat-pay-payment-notify")
+    @PostMapping("/payment/notifications")
     public Map<String, String> wechatPayPaymentNotify(
-            @PathVariable("id") long dealerServicePurchaseOrderId,
             HttpServletResponse response) {
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         Map<String, String> responseData = new HashMap<>();
