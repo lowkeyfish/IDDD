@@ -23,11 +23,12 @@ package com.yujunyang.iddd.dealer.application;
 
 import java.text.MessageFormat;
 
+import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.application.command.RequestPayPurchaseServiceOrderCommand;
+import com.yujunyang.iddd.dealer.application.command.PurchaseServiceOrderInitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
-import com.yujunyang.iddd.dealer.application.data.PayCommandResult;
+import com.yujunyang.iddd.dealer.application.data.InitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.data.PurchaseServiceCommandResult;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
@@ -38,6 +39,7 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderIdGenerator;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderFactory;
@@ -103,9 +105,9 @@ public class DealerServicePurchaseApplicationService {
     }
 
     @Transactional
-    public void requestPayPurchaseServiceOrder(
-            RequestPayPurchaseServiceOrderCommand command,
-            PayCommandResult commandResult) {
+    public void initiatePayment(
+            PurchaseServiceOrderInitiatePaymentCommand command,
+            InitiatePaymentCommand commandResult) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder(command.getDealerServicePurchaseOrderId());
@@ -117,16 +119,15 @@ public class DealerServicePurchaseApplicationService {
                     command.getWechatOpenId()
             );
             wechatPayPaymentOrderRepository.save(paymentOrder);
-
-            if (PaymentMethodType.WECHAT_PAY_JSAPI.equals(command.getPaymentMethod())) {
-                commandResult.resultingWechatPayPrepayId(paymentOrder.createTransaction(wechatPayService));
-                return;
-            }
-
-            throw new BusinessRuleException("支付类型暂不支持");
+            PaymentInitiationData paymentInitiationData = paymentOrder.initiatePayment(wechatPayService);
+            commandResult.resultingPaymentInitiationData(paymentInitiationData.getData());
+            return;
         }
 
-        throw new BusinessRuleException("支付渠道暂不支持");
+        throw new BusinessRuleException("支付渠道暂不支持", ImmutableMap.of(
+                "paymentChannel",
+                command.getPaymentChannel()
+        ));
     }
 
     @Transactional

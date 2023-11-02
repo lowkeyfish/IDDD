@@ -24,6 +24,8 @@ package com.yujunyang.iddd.dealer.schedule;
 
 import com.yujunyang.iddd.common.domain.event.notification.NotificationService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerCreated;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiated;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentSucceeded;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -43,5 +45,14 @@ public class EventNotificationScheduler {
         notificationService.publishNotifications(DealerCreated.class, 50);
     }
 
+    @Scheduled(fixedDelay = 1000, initialDelay = 60 * 1000)
+    public void paymentInitiated() {
+        notificationService.publishNotifications(PaymentInitiated.class, 50);
+    }
+
+    @Scheduled(fixedDelay = 1000, initialDelay = 60 * 1000)
+    public void paymentSucceeded() {
+        notificationService.publishNotifications(PaymentSucceeded.class, 50);
+    }
 
 }

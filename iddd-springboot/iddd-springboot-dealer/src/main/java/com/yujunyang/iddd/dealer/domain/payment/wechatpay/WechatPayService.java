@@ -21,6 +21,18 @@
 
 package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
+
 public interface WechatPayService {
-    String createTransaction(WechatPayPaymentOrder wechatPayPaymentOrder);
+    PaymentInitiationData initiatePayment(WechatPayPaymentOrder paymentOrder);
+
+    WechatPayPaymentOrderDetails queryPaymentOrder(String outTradeNo);
+
+    void closePaymentOrder(String outTradeNo, String mchId);
+
+    WechatPayRefundInitiationData initiateRefund(WechatPayRefundOrder refundOrder);
+
+    WechatPayRefundOrderDetails queryRefundOrder(String outRefundNo);
+
+
 }

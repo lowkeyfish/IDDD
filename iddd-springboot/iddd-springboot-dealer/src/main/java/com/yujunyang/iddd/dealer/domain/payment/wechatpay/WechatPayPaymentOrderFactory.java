@@ -75,7 +75,7 @@ public class WechatPayPaymentOrderFactory {
                 null,
                 null,
                 null,
-                PaymentStatusType.PROCESSING
+                PaymentStatusType.NOT_INITIATED
         );
 
         return paymentOrder;

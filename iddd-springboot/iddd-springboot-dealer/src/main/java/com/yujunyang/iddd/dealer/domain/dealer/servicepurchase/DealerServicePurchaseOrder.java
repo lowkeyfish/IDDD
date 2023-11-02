@@ -47,7 +47,7 @@ public class DealerServicePurchaseOrder {
                 id,
                 dealerId,
                 servicePeriod,
-                DealerServicePurchaseOrderStatusType.AWAITING_PAYMENT,
+                DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED,
                 LocalDateTime.now(),
                 amount
         );

@@ -19,14 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.application.data;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
-public interface PayCommandResult {
-    void resultingWechatPayPrepayId(String prepayId);
-
-    void resultingWechatPayCodeUrl(String codeUrl);
-
-    void resultingWechatPayH5Url(String h5Url);
-
-    void resultingAlipayForm(String form);
+public class WechatPayRefundOrder {
 }

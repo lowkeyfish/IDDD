@@ -19,7 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
+package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
-public class WechatPayDealerServicePurchaseOrderPayService {
+public class WechatPayRefundInitiationData {
 }

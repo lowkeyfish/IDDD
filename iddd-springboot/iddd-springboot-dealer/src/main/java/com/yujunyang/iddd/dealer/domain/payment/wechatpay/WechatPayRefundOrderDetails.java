@@ -21,14 +21,5 @@
 
 package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
-public class WechatPayPrepayIdTransaction {
-    private String h5Url;
-
-    public WechatPayPrepayIdTransaction(String h5Url) {
-        this.h5Url = h5Url;
-    }
-
-    public String getH5Url() {
-        return h5Url;
-    }
+public class WechatPayRefundOrderDetails {
 }

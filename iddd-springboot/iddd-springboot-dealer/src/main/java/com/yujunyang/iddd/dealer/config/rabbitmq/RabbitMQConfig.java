@@ -26,6 +26,9 @@ public class RabbitMQConfig {
     public final String internalDealerQueueName = "iddd_internal_dealer";
     public final String internalDealerQueueRoutingKey = "Dealer.#";
 
+    public final String internalPaymentQueueName = "iddd_internal_payment";
+    public final String internalPaymentQueueRoutingKey = "Payment.#";
+
     @Value("${rabbitmq.iddd.host}")
     private String host;
 
@@ -98,6 +101,23 @@ public class RabbitMQConfig {
         Binding binding = BindingBuilder.
                 bind(internalDealerQueue(rabbitAdmin)).
                 to(new TopicExchange(EXCHANGE_NAME)).with(internalDealerQueueRoutingKey);
+        binding.setAdminsThatShouldDeclare(rabbitAdmin);
+        return binding;
+    }
+
+    @Bean
+    public Queue internalPaymentQueue(RabbitAdmin rabbitAdmin) {
+        Queue queue = new Queue(internalPaymentQueueName, true);
+        queue.setShouldDeclare(true);
+        rabbitAdmin.declareQueue(queue);
+        return queue;
+    }
+
+    @Bean
+    public Binding internalPaymentQueueBinding(RabbitAdmin rabbitAdmin) {
+        Binding binding = BindingBuilder.
+                bind(internalPaymentQueue(rabbitAdmin)).
+                to(new TopicExchange(EXCHANGE_NAME)).with(internalPaymentQueueRoutingKey);
         binding.setAdminsThatShouldDeclare(rabbitAdmin);
         return binding;
     }

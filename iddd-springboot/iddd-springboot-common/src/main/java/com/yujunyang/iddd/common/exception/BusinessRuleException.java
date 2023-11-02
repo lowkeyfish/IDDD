@@ -21,26 +21,32 @@
 
 package com.yujunyang.iddd.common.exception;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class BusinessRuleException extends RuntimeException {
     private int code;
+    private Map<String, Object> details;
 
     public BusinessRuleException(String message) {
-        this(message, 400);
+        this(message, 400, new HashMap<>());
     }
 
-    public BusinessRuleException(int code) {
-        this.code = code;
+    public BusinessRuleException(String message, Map<String, Object> details) {
+        this(message, 400, details);
     }
 
     public BusinessRuleException(String message, int code) {
-        super(message);
-        this.code = code;
+        this(message, code, new HashMap<>());
     }
 
-    public BusinessRuleException(String message, Throwable cause, int code) {
-        super(message, cause);
+    public BusinessRuleException(String message, int code, Map<String, Object> details) {
+        super(message);
         this.code = code;
+        this.details = details;
     }
+
+
 
     public BusinessRuleException(Throwable cause) {
         super(cause);
@@ -53,5 +59,9 @@ public class BusinessRuleException extends RuntimeException {
 
     public int getCode() {
         return code;
+    }
+
+    public Map<String, Object> getDetails() {
+        return details;
     }
 }

@@ -27,13 +27,13 @@ import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import org.apache.commons.lang3.StringUtils;
 
-public class RequestPayPurchaseServiceOrderCommand {
+public class PurchaseServiceOrderInitiatePaymentCommand {
     private DealerServicePurchaseOrderId dealerServicePurchaseOrderId;
     private PaymentChannelType paymentChannel;
     private PaymentMethodType paymentMethod;
     private String wechatOpenId;
 
-    public RequestPayPurchaseServiceOrderCommand(
+    public PurchaseServiceOrderInitiatePaymentCommand(
             DealerServicePurchaseOrderId dealerServicePurchaseOrderId,
             PaymentChannelType paymentChannel,
             PaymentMethodType paymentMethod,

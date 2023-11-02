@@ -19,17 +19,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
+package com.yujunyang.iddd.dealer.application.data;
 
-public class WechatPayH5UrlTransaction {
-    private String prepayId;
-
-    public WechatPayH5UrlTransaction(
-            String prepayId) {
-        this.prepayId = prepayId;
-    }
-
-    public String getPrepayId() {
-        return prepayId;
-    }
+public interface InitiatePaymentCommand {
+    void resultingPaymentInitiationData(String paymentInitiationData);
 }

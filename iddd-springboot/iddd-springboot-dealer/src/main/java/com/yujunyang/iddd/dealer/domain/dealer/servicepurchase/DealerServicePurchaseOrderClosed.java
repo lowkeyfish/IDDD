@@ -19,7 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
 import java.text.MessageFormat;
 
@@ -27,19 +27,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class PaymentStarted implements DomainEvent {
+public class DealerServicePurchaseOrderClosed implements DomainEvent {
     private long timestamp;
-    private PaymentChannelType paymentChannel;
-    private long paymentOrderId;
+    private long id;
 
     @JsonCreator
-    public PaymentStarted(
+    public DealerServicePurchaseOrderClosed(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentChannel") PaymentChannelType paymentChannel,
-            @JsonProperty("paymentOrderId") long paymentOrderId) {
+            @JsonProperty("orderId") long id) {
         this.timestamp = timestamp;
-        this.paymentChannel = paymentChannel;
-        this.paymentOrderId = paymentOrderId;
+        this.id = id;
     }
 
     @Override
@@ -47,25 +44,17 @@ public class PaymentStarted implements DomainEvent {
         return timestamp;
     }
 
-    public PaymentChannelType getPaymentChannel() {
-        return paymentChannel;
-    }
-
-    public long getPaymentOrderId() {
-        return paymentOrderId;
+    public long getId() {
+        return id;
     }
 
     @Override
     public String eventKey() {
-        return MessageFormat.format(
-                "Payment_Channel({0,number,#})_PaymentOrderId({1,number,#})",
-                paymentChannel.getValue(),
-                paymentOrderId
-        );
+        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", id);
     }
 
     @Override
     public String notificationRoutingKey() {
-        return "Payment." + notificationType();
+        return "Dealer.DealerServicePurchaseOrder." + notificationType();
     }
 }
