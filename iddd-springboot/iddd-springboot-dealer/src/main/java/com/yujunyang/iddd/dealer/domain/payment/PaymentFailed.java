@@ -17,10 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
+package com.yujunyang.iddd.dealer.domain.payment;
 
 import java.text.MessageFormat;
 
@@ -28,16 +27,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerVisibilityChangedToHidden implements DomainEvent {
+public class PaymentFailed implements DomainEvent {
     private long timestamp;
-    private long dealerId;
+    private PaymentChannelType paymentChannel;
+    private long paymentOrderId;
 
     @JsonCreator
-    public DealerVisibilityChangedToHidden(
+    public PaymentFailed(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") long dealerId) {
+            @JsonProperty("paymentChannel") PaymentChannelType paymentChannel,
+            @JsonProperty("paymentOrderId") long paymentOrderId) {
         this.timestamp = timestamp;
-        this.dealerId = dealerId;
+        this.paymentChannel = paymentChannel;
+        this.paymentOrderId = paymentOrderId;
     }
 
     @Override
@@ -45,17 +47,25 @@ public class DealerVisibilityChangedToHidden implements DomainEvent {
         return timestamp;
     }
 
-    public long getDealerId() {
-        return dealerId;
+    public PaymentChannelType getPaymentChannel() {
+        return paymentChannel;
+    }
+
+    public long getPaymentOrderId() {
+        return paymentOrderId;
     }
 
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerId({0,number,#})", dealerId);
+        return MessageFormat.format(
+                "Payment_Channel({0,number,#})_PaymentOrderId({1,number,#})",
+                paymentChannel.getValue(),
+                paymentOrderId
+        );
     }
 
     @Override
     public String notificationRoutingKey() {
-        return "Dealer." + notificationType();
+        return "Payment." + notificationType();
     }
 }

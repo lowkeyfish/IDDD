@@ -22,15 +22,16 @@
 package com.yujunyang.iddd.dealer.controller;
 
 import com.yujunyang.iddd.common.data.RestResponse;
-import com.yujunyang.iddd.common.exception.InvalidStatusException;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
-import com.yujunyang.iddd.dealer.application.command.ChangeDealerVisibilityCommand;
+import com.yujunyang.iddd.dealer.application.DealerQueryService;
+import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
-import com.yujunyang.iddd.dealer.controller.input.DealerCreateRequestBody;
+import com.yujunyang.iddd.dealer.application.data.DealerViewModel;
+import com.yujunyang.iddd.dealer.controller.input.DealerRequestBody;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,16 +43,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/dealers")
 public class DealerController {
     private DealerApplicationService dealerApplicationService;
+    private DealerQueryService dealerQueryService;
 
     @Autowired
     public DealerController(
-            DealerApplicationService dealerApplicationService) {
+            DealerApplicationService dealerApplicationService,
+            DealerQueryService dealerQueryService) {
         this.dealerApplicationService = dealerApplicationService;
+        this.dealerQueryService = dealerQueryService;
     }
 
     @PostMapping("")
     public RestResponse<Long> createDealer(
-            @RequestBody DealerCreateRequestBody requestBody) {
+            @RequestBody DealerRequestBody requestBody) {
         RestResponse<Long> response = new RestResponse<>();
 
         try {
@@ -72,37 +76,21 @@ public class DealerController {
         return response;
     }
 
-    @DeleteMapping("{dealerId}/activation")
-    public RestResponse deactivateDealer(@PathVariable("dealerId") long dealerId) {
-        RestResponse<Long> response = new RestResponse<>();
-
-        try {
-            dealerApplicationService.makeDealerHidden(
-                    new ChangeDealerVisibilityCommand(
-                            DealerId.parse(dealerId)
-                    )
-            );
-        } catch (InvalidStatusException e) {
-            return new RestResponse(400102, e.getMessage());
-        }
-
-        return response;
+    @GetMapping("{dealerId}")
+    public RestResponse<DealerViewModel> findDealerById(
+            @PathVariable("dealerId") long dealerId) {
+        DealerViewModel dealer = dealerQueryService.findDealerById(new DealerId(dealerId));
+        return new RestResponse<>(dealer);
     }
 
-    @PutMapping("{dealerId}/activation")
-    public RestResponse activateDealer(@PathVariable("dealerId") long dealerId) {
-        RestResponse<Long> response = new RestResponse<>();
-
-        try {
-            dealerApplicationService.makeDealerVisible(
-                    new ChangeDealerVisibilityCommand(
-                            DealerId.parse(dealerId)
-                    )
-            );
-        } catch (InvalidStatusException e) {
-            return new RestResponse(400102, e.getMessage());
-        }
-
-        return response;
+    @PutMapping("{dealerId}/name")
+    public RestResponse changeDealerName(
+            @PathVariable("dealerId") long dealerId,
+            @RequestBody DealerRequestBody requestBody) {
+        dealerApplicationService.changeName(new DealerChangeNameCommand(
+                new DealerId(dealerId),
+                requestBody.getName()
+        ));
+        return new RestResponse();
     }
 }

@@ -32,7 +32,7 @@ public class DealerDatabaseModel {
     private String telephone;
     private LocalDateTime createTime;
     private long brandId;
-    private int visibleStatus;
+    private int visibilityStatus;
     private int serviceStatus;
     private LocalDateTime serviceExpiryTime;
 
@@ -84,12 +84,12 @@ public class DealerDatabaseModel {
         this.brandId = brandId;
     }
 
-    public int getVisibleStatus() {
-        return visibleStatus;
+    public int getVisibilityStatus() {
+        return visibilityStatus;
     }
 
-    public void setVisibleStatus(int visibleStatus) {
-        this.visibleStatus = visibleStatus;
+    public void setVisibilityStatus(int visibilityStatus) {
+        this.visibilityStatus = visibilityStatus;
     }
 
     public int getCityId() {

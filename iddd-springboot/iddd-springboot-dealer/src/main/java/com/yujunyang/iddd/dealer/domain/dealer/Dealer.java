@@ -24,7 +24,9 @@ package com.yujunyang.iddd.dealer.domain.dealer;
 
 import java.time.LocalDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
+import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.exception.InvalidStatusException;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
@@ -100,20 +102,32 @@ public class Dealer {
 
     public void changeName(
             String name,
-            DealerNameUniquenessCheckService dealerNameUniquenessCheckService)
-            throws NameNotUniqueException, InvalidStatusException {
+            DealerNameUniquenessCheckService dealerNameUniquenessCheckService) {
         CheckUtils.isTrue(
                 serviceStatus.equals(DealerServiceStatusType.IN_SERVICE),
-                new InvalidStatusException(
-                        serviceStatus.getDescription(),
-                        "Dealer 修改名称"
+                new BusinessRuleException(
+                        "服务已到期",
+                        ImmutableMap.of(
+                                "dealerId",
+                                id,
+                                "serviceStatus",
+                                serviceStatus
+                        )
                 )
         );
 
         CheckUtils.notBlank(name, "name 必须不为空");
         CheckUtils.isTrue(
                 dealerNameUniquenessCheckService.isNameNotUsed(name, id),
-                new NameNotUniqueException(name)
+                new BusinessRuleException(
+                        "name 已被使用",
+                        ImmutableMap.of(
+                                "dealerId",
+                                id,
+                                "name",
+                                name
+                        )
+                )
         );
 
         this.name = name;
@@ -124,12 +138,17 @@ public class Dealer {
         ));
     }
 
-    public void changeAddress(Address address) throws InvalidStatusException {
+    public void changeAddress(Address address) {
         CheckUtils.isTrue(
                 serviceStatus.equals(DealerServiceStatusType.IN_SERVICE),
-                new InvalidStatusException(
-                        serviceStatus.getDescription(),
-                        "Dealer 修改地址"
+                new BusinessRuleException(
+                        "服务已到期",
+                        ImmutableMap.of(
+                                "dealerId",
+                                id,
+                                "serviceStatus",
+                                serviceStatus
+                        )
                 )
         );
 
@@ -143,12 +162,17 @@ public class Dealer {
         ));
     }
 
-    public void changeTelephone(String telephone) throws InvalidStatusException {
+    public void changeTelephone(String telephone) {
         CheckUtils.isTrue(
                 serviceStatus.equals(DealerServiceStatusType.IN_SERVICE),
-                new InvalidStatusException(
-                        serviceStatus.getDescription(),
-                        "Dealer 修改联系电话"
+                new BusinessRuleException(
+                        "服务已到期",
+                        ImmutableMap.of(
+                                "dealerId",
+                                id,
+                                "serviceStatus",
+                                serviceStatus
+                        )
                 )
         );
 
@@ -169,7 +193,7 @@ public class Dealer {
 
         visibilityStatus = DealerVisibilityStatusType.HIDDEN;
 
-        DomainEventPublisher.instance().publish(new DealerVisibilityChangedToHidden(
+        DomainEventPublisher.instance().publish(new DealerVisibilityChanged(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));
@@ -182,7 +206,7 @@ public class Dealer {
 
         visibilityStatus = DealerVisibilityStatusType.VISIBLE;
 
-        DomainEventPublisher.instance().publish(new DealerVisibilityChangedToVisible(
+        DomainEventPublisher.instance().publish(new DealerVisibilityChanged(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));

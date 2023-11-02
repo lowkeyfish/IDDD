@@ -108,8 +108,7 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void changeName(DealerChangeNameCommand command)
-            throws NameNotUniqueException, InvalidStatusException {
+    public void changeName(DealerChangeNameCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
@@ -119,8 +118,7 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void changeTelephone(DealerChangeTelephoneCommand command)
-            throws InvalidStatusException {
+    public void changeTelephone(DealerChangeTelephoneCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
@@ -130,8 +128,7 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void changeAddress(DealerChangeAddressCommand command)
-            throws InvalidStatusException {
+    public void changeAddress(DealerChangeAddressCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());

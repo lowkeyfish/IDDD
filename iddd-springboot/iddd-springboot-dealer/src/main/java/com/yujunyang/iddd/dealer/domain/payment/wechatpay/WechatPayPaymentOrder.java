@@ -116,6 +116,9 @@ public class WechatPayPaymentOrder {
         );
 
         PaymentInitiationData paymentInitiationData = wechatPayService.initiatePayment(this);
+
+        status = PaymentStatusType.INITIATED;
+
         DomainEventPublisher.instance().publish(new PaymentInitiated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 PaymentChannelType.WECHAT_PAY,

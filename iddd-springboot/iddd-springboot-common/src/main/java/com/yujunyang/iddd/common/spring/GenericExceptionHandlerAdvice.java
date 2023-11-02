@@ -22,6 +22,7 @@
 package com.yujunyang.iddd.common.spring;
 
 import com.yujunyang.iddd.common.data.RestResponse;
+import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -100,6 +101,14 @@ public class GenericExceptionHandlerAdvice {
         return responseMessage;
     }
 
+    @ExceptionHandler({
+            BusinessRuleException.class
+    })
+    @ResponseBody
+    public RestResponse handleBusinessRuleException(BusinessRuleException exception) {
+        RestResponse responseMessage = new RestResponse(exception.getCode(), exception.getMessage());
+        return responseMessage;
 
+    }
 }
 

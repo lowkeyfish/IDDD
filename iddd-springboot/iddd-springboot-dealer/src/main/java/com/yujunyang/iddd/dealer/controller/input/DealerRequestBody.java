@@ -24,7 +24,7 @@ package com.yujunyang.iddd.dealer.controller.input;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
 
-public class DealerCreateRequestBody {
+public class DealerRequestBody {
     private String name;
     private CityId cityId;
     private String specificAddress;

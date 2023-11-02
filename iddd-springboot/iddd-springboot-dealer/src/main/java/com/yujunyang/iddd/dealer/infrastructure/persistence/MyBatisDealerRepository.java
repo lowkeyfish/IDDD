@@ -25,7 +25,6 @@ package com.yujunyang.iddd.dealer.infrastructure.persistence;
 import java.util.Optional;
 
 import com.yujunyang.iddd.common.domain.id.IdGenerator;
-import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.CityId;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
@@ -94,7 +93,7 @@ public class MyBatisDealerRepository implements DealerRepository, DealerIdGenera
                 databaseModel.getTelephone(),
                 new BrandId(databaseModel.getBrandId()),
                 databaseModel.getCreateTime(),
-                DealerVisibilityStatusType.parse(databaseModel.getVisibleStatus()),
+                DealerVisibilityStatusType.parse(databaseModel.getVisibilityStatus()),
                 DealerServiceStatusType.parse(databaseModel.getServiceStatus()),
                 databaseModel.getServiceExpiryTime());
     }
@@ -108,7 +107,7 @@ public class MyBatisDealerRepository implements DealerRepository, DealerIdGenera
         databaseModel.setCityId(snapshot.getAddress().getCityId().getId());
         databaseModel.setTelephone(snapshot.getTelephone());
         databaseModel.setBrandId(snapshot.getBrandId().getId());
-        databaseModel.setVisibleStatus(snapshot.getVisibilityStatus().getValue());
+        databaseModel.setVisibilityStatus(snapshot.getVisibilityStatus().getValue());
         databaseModel.setCreateTime(snapshot.getCreateTime());
         databaseModel.setServiceStatus(snapshot.getServiceStatus().getValue());
         databaseModel.setServiceExpiryTime(snapshot.getServiceExpiryTime());

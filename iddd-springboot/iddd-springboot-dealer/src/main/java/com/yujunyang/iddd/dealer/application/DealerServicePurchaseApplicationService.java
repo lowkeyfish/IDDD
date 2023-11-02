@@ -118,8 +118,10 @@ public class DealerServicePurchaseApplicationService {
                     command.getPaymentMethod(),
                     command.getWechatOpenId()
             );
-            wechatPayPaymentOrderRepository.save(paymentOrder);
+
             PaymentInitiationData paymentInitiationData = paymentOrder.initiatePayment(wechatPayService);
+            wechatPayPaymentOrderRepository.save(paymentOrder);
+
             commandResult.resultingPaymentInitiationData(paymentInitiationData.getData());
             return;
         }

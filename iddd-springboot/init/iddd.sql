@@ -130,8 +130,7 @@ CREATE TABLE `dealer` (
                           `deleted` tinyint NOT NULL DEFAULT 0,
                           `visibility_status` tinyint not null default 0,
                           `service_status` tinyint not null default 0,
-                          `service_period_begin` datetime,
-                          `service_period_end` datetime,
+                          `service_expiry_time` datetime,
                           PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
