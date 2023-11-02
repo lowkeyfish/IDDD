@@ -122,7 +122,6 @@ public class DealerController {
         dealerServicePurchaseApplicationService.initiateWechatPayPayment(
                 new PurchaseServiceOrderInitiatePaymentCommand(
                         new DealerServicePurchaseOrderId(orderId),
-                        requestBody.getPaymentChannel(),
                         requestBody.getPaymentMethod(),
                         requestBody.getWechatOpenId()
                 ),
