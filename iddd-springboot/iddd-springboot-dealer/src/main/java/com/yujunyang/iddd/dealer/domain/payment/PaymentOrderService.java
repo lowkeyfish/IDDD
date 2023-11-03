@@ -26,9 +26,12 @@ import javax.annotation.Nullable;
 
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
+import com.yujunyang.iddd.dealer.domain.payment.alipay.AlipayPaymentOrderIdGenerator;
+import com.yujunyang.iddd.dealer.domain.payment.alipay.AlipayPaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderIdGenerator;
+import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,14 +39,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentOrderService {
     private WechatPayPaymentOrderIdGenerator wechatPayPaymentOrderIdGenerator;
+    private WechatPayPaymentOrderRepository wechatPayPaymentOrderRepository;
+    private AlipayPaymentOrderIdGenerator alipayPaymentOrderIdGenerator;
+    private AlipayPaymentOrderRepository alipayPaymentOrderRepository;
 
     @Autowired
     public PaymentOrderService(
-            WechatPayPaymentOrderIdGenerator wechatPayPaymentOrderIdGenerator) {
+            WechatPayPaymentOrderIdGenerator wechatPayPaymentOrderIdGenerator,
+            WechatPayPaymentOrderRepository wechatPayPaymentOrderRepository,
+            AlipayPaymentOrderIdGenerator alipayPaymentOrderIdGenerator,
+            AlipayPaymentOrderRepository alipayPaymentOrderRepository) {
         this.wechatPayPaymentOrderIdGenerator = wechatPayPaymentOrderIdGenerator;
+        this.wechatPayPaymentOrderRepository = wechatPayPaymentOrderRepository;
+        this.alipayPaymentOrderIdGenerator = alipayPaymentOrderIdGenerator;
+        this.alipayPaymentOrderRepository = alipayPaymentOrderRepository;
     }
 
-    public WechatPayPaymentOrder createPaymentOrder(
+    public WechatPayPaymentOrder createWechatPayPaymentOrder(
             DealerServicePurchaseOrder dealerServicePurchaseOrder,
             PaymentMethodType method,
             @Nullable String payerOpenId) {

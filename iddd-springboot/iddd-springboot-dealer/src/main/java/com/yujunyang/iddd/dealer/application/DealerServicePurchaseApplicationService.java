@@ -115,7 +115,7 @@ public class DealerServicePurchaseApplicationService {
 
         DealerServicePurchaseOrder order = existingOrder(command.getDealerServicePurchaseOrderId());
 
-        WechatPayPaymentOrder paymentOrder = paymentOrderService.createPaymentOrder(
+        WechatPayPaymentOrder paymentOrder = paymentOrderService.createWechatPayPaymentOrder(
                 order,
                 command.getPaymentMethod(),
                 command.getWechatOpenId()
