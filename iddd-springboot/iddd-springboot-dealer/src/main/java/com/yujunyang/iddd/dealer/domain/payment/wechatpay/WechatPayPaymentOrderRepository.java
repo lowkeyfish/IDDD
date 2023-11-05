@@ -22,7 +22,7 @@
 package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
 public interface WechatPayPaymentOrderRepository {
-    WechatPayPaymentOrder findById();
+    WechatPayPaymentOrder findById(WechatPayPaymentOrderId paymentOrderId);
 
     void save(WechatPayPaymentOrder order);
 }

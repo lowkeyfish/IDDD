@@ -31,6 +31,7 @@ import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentClosed;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
@@ -143,12 +144,15 @@ public class WechatPayPaymentOrder {
 
         CheckUtils.isTrue(
                 canCreateTransaction,
-                new BusinessRuleException("微信支付订单已发起过支付", ImmutableMap.of(
-                        "wechatPayPaymentOrderId",
-                        id,
-                        "status",
-                        status
-                ))
+                new BusinessRuleException(
+                        "微信支付订单已发起过支付",
+                        ImmutableMap.of(
+                                "wechatPayPaymentOrderId",
+                                id,
+                                "status",
+                                status
+                        )
+                )
         );
 
         PaymentInitiationData paymentInitiationData = wechatPayService.initiatePayment(
@@ -167,6 +171,45 @@ public class WechatPayPaymentOrder {
                 id.getId()
         ));
         return paymentInitiationData;
+    }
+
+    public void close(WechatPayService wechatPayService) {
+        CheckUtils.isTrue(
+                PaymentStatusType.INITIATED.equals(status),
+                new BusinessRuleException(
+                        "微信支付订单当前状态非已发起支付",
+                        ImmutableMap.of(
+                                "wechatPayPaymentOrderId",
+                                id,
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        WechatPayPaymentOrderDetails paymentOrderDetails = wechatPayService.queryPaymentOrder(outTradeNo);
+        CheckUtils.isTrue(
+                paymentOrderDetails.isUnpaid(),
+                new BusinessRuleException(
+                        "微信支付订单实时查询结果非未支付",
+                        ImmutableMap.of(
+                                "wechatPayPaymentOrderId",
+                                id,
+                                "tradeState",
+                                paymentOrderDetails.tradeState()
+                        )
+                )
+        );
+
+        wechatPayService.closePaymentOrder(outTradeNo, mchId);
+
+        status = PaymentStatusType.CLOSED;
+
+        DomainEventPublisher.instance().publish(new PaymentClosed(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                PaymentChannelType.WECHAT_PAY,
+                id.getId()
+        ));
     }
 
 }

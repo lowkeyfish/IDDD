@@ -22,6 +22,8 @@
 package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
@@ -34,7 +36,6 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentStrategy;
 
 public class DealerServicePurchaseOrder {
@@ -97,11 +98,18 @@ public class DealerServicePurchaseOrder {
 
     }
 
-    public String initiatePayment(PaymentStrategy paymentStrategy) {
+    public void initiatePayment(
+            PaymentChannelType paymentChannelType,
+            AbstractLongId paymentOrderId) {
+        List<DealerServicePurchaseOrderStatusType> allowStatusList = Arrays.asList(
+                DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED,
+                DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED
+        );
+
         CheckUtils.isTrue(
-                DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED.equals(status),
+                allowStatusList.contains(status),
                 new BusinessRuleException(
-                        "当前订单已发起过支付",
+                        "当前订单状态不允许发起支付",
                         ImmutableMap.of(
                                 "id",
                                 id,
@@ -111,26 +119,29 @@ public class DealerServicePurchaseOrder {
                 )
         );
 
-        InitiatePaymentResult initiatePaymentResult = paymentStrategy.initiatePayment(
-                PaymentScenarioType.DEALER_SERVICE_PURCHASE,
-                id,
-                amount,
-                "服务购买"
-        );
-
         status = DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED;
-        paymentChannelType = initiatePaymentResult.getPaymentChannelType();
-        paymentOrderId = initiatePaymentResult.getPaymentOrderId();
+        this.paymentChannelType = paymentChannelType;
+        this.paymentOrderId = paymentOrderId;
+    }
 
-        return initiatePaymentResult.getPaymentInitiationData().getData();
+    public boolean isPaymentNotInitiated() {
+        return DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED.equals(status);
     }
 
     public DealerServicePurchaseOrderId id() {
         return id;
     }
 
-    public int getAmount() {
+    public int amount() {
         return amount;
+    }
+
+    public AbstractLongId paymentOrderId() {
+        return paymentOrderId;
+    }
+
+    public PaymentChannelType paymentChannelType() {
+        return paymentChannelType;
     }
 
     public DealerServicePurchaseOrderSnapshot snapshot() {

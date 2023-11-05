@@ -21,56 +21,62 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
-import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
+import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentStrategy;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderIdGenerator;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayService;
+import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DealerServicePurchaseOrderPaymentService {
-    private DealerRepository dealerRepository;
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
-    private DealerServicePurchaseOrderService dealerServicePurchaseOrderService;
-    private DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator;
-    private WechatPayPaymentOrderIdGenerator wechatPayPaymentOrderIdGenerator;
-    private WechatPayService wechatPayService;
+    private WechatPayPaymentOrderService wechatPayPaymentOrderService;
 
 
     @Autowired
     public DealerServicePurchaseOrderPaymentService(
-            DealerRepository dealerRepository,
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
-            DealerServicePurchaseOrderService dealerServicePurchaseOrderService,
-            DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator,
-            WechatPayPaymentOrderIdGenerator wechatPayPaymentOrderIdGenerator,
-            WechatPayService wechatPayService) {
-        this.dealerRepository = dealerRepository;
+            WechatPayPaymentOrderService wechatPayPaymentOrderService) {
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
-        this.dealerServicePurchaseOrderService = dealerServicePurchaseOrderService;
-        this.dealerServicePurchaseOrderIdGenerator = dealerServicePurchaseOrderIdGenerator;
-        this.wechatPayPaymentOrderIdGenerator = wechatPayPaymentOrderIdGenerator;
-        this.wechatPayService = wechatPayService;
+        this.wechatPayPaymentOrderService = wechatPayPaymentOrderService;
     }
 
-    public void payPurchaseServiceOrder(
+    public InitiatePaymentResult initiatePayment(
             DealerServicePurchaseOrder order,
-            PaymentChannelType paymentChannel,
-            PaymentMethodType paymentMethod) {
+            PaymentStrategy paymentStrategy) {
+        CheckUtils.notNull(order, "order 必须不为 null");
 
+        if (order.isPaymentNotInitiated()) {
+            return initiatePaymentForPaymentNotInitiated(order, paymentStrategy);
+        }
 
+        PaymentChannelType paymentChannelType = order.paymentChannelType();
+        if (PaymentChannelType.WECHAT_PAY.equals(paymentChannelType)) {
+            wechatPayPaymentOrderService.close((WechatPayPaymentOrderId) order.paymentOrderId());
+        }
+
+        return initiatePaymentForPaymentNotInitiated(order, paymentStrategy);
     }
 
-    public void refundPurchaseServiceOrder(
-            DealerServicePurchaseOrderId orderId) {
+    private InitiatePaymentResult initiatePaymentForPaymentNotInitiated(
+            DealerServicePurchaseOrder order,
+            PaymentStrategy paymentStrategy) {
+        InitiatePaymentResult initiatePaymentResult = paymentStrategy.initiatePayment(
+                PaymentScenarioType.DEALER_SERVICE_PURCHASE,
+                order.id(),
+                order.amount(),
+                "服务购买"
+        );
+        order.initiatePayment(
+                initiatePaymentResult.getPaymentChannelType(),
+                initiatePaymentResult.getPaymentOrderId()
+        );
+        dealerServicePurchaseOrderRepository.save(order);
 
+        return initiatePaymentResult;
     }
 }

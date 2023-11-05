@@ -82,7 +82,7 @@ public class PaymentOrderService {
                 paymentOrderId.toString(),
                 null,
                 null,
-                dealerServicePurchaseOrder.getAmount(),
+                dealerServicePurchaseOrder.amount(),
                 payerOpenId,
                 null,
                 null,

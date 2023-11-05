@@ -36,7 +36,10 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderFactory;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaymentService;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderService;
+import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.WechatPayPaymentStrategy;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderRepository;
@@ -55,6 +58,8 @@ public class DealerServicePurchaseApplicationService {
     private WechatPayPaymentOrderRepository wechatPayPaymentOrderRepository;
     private WechatPayService wechatPayService;
     private WechatPayPaymentOrderService wechatPayPaymentOrderService;
+    private DealerServicePurchaseOrderService dealerServicePurchaseOrderService;
+    private DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService;
 
     @Autowired
     public DealerServicePurchaseApplicationService(
@@ -64,7 +69,9 @@ public class DealerServicePurchaseApplicationService {
             PaymentOrderService paymentOrderService,
             WechatPayPaymentOrderRepository wechatPayPaymentOrderRepository,
             WechatPayService wechatPayService,
-            WechatPayPaymentOrderService wechatPayPaymentOrderService) {
+            WechatPayPaymentOrderService wechatPayPaymentOrderService,
+            DealerServicePurchaseOrderService dealerServicePurchaseOrderService,
+            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderFactory = dealerServicePurchaseOrderFactory;
@@ -72,6 +79,8 @@ public class DealerServicePurchaseApplicationService {
         this.wechatPayPaymentOrderRepository = wechatPayPaymentOrderRepository;
         this.wechatPayService = wechatPayService;
         this.wechatPayPaymentOrderService = wechatPayPaymentOrderService;
+        this.dealerServicePurchaseOrderService = dealerServicePurchaseOrderService;
+        this.dealerServicePurchaseOrderPaymentService = dealerServicePurchaseOrderPaymentService;
     }
 
     @Transactional
@@ -109,7 +118,8 @@ public class DealerServicePurchaseApplicationService {
 
         DealerServicePurchaseOrder order = existingOrder(command.getDealerServicePurchaseOrderId());
 
-        String paymentInitiationData = order.initiatePayment(
+        InitiatePaymentResult initiatePaymentResult = dealerServicePurchaseOrderPaymentService.initiatePayment(
+                order,
                 new WechatPayPaymentStrategy(
                         command.getPaymentMethod(),
                         command.getWechatOpenId(),
@@ -117,9 +127,7 @@ public class DealerServicePurchaseApplicationService {
                 )
         );
 
-        dealerServicePurchaseOrderRepository.save(order);
-
-        commandResult.resultingPaymentInitiationData(paymentInitiationData);
+        commandResult.resultingPaymentInitiationData(initiatePaymentResult.getPaymentInitiationData().getData());
     }
 
     @Transactional

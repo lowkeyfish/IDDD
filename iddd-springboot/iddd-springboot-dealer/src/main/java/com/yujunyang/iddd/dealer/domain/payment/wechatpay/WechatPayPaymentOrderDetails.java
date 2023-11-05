@@ -22,4 +22,12 @@
 package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
 public class WechatPayPaymentOrderDetails {
+
+    public String tradeState() {
+        return null;
+    }
+
+    public boolean isUnpaid() {
+        return false;
+    }
 }

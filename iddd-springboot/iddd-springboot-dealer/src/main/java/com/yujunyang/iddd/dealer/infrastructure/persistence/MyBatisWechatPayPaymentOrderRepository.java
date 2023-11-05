@@ -37,7 +37,7 @@ public class MyBatisWechatPayPaymentOrderRepository
     }
 
     @Override
-    public WechatPayPaymentOrder findById() {
+    public WechatPayPaymentOrder findById(WechatPayPaymentOrderId paymentOrderId) {
         return null;
     }
 
