@@ -26,12 +26,12 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import org.apache.commons.lang3.StringUtils;
 
-public class PurchaseServiceOrderInitiatePaymentCommand {
+public class DealerPurchaseServiceOrderInitiateWechatPayPaymentCommand {
     private DealerServicePurchaseOrderId dealerServicePurchaseOrderId;
     private PaymentMethodType paymentMethod;
     private String wechatOpenId;
 
-    public PurchaseServiceOrderInitiatePaymentCommand(
+    public DealerPurchaseServiceOrderInitiateWechatPayPaymentCommand(
             DealerServicePurchaseOrderId dealerServicePurchaseOrderId,
             PaymentMethodType paymentMethod,
             String wechatOpenId) {

@@ -17,29 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
+package com.yujunyang.iddd.dealer.domain.payment;
 
-import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 
-public interface WechatPayService {
-    PaymentInitiationData initiatePayment(
-            PaymentMethodType paymentMethodType,
-            String outTradeNo,
-            String description,
+public interface PaymentStrategy {
+    InitiatePaymentResult initiatePayment(
+            PaymentScenarioType paymentScenarioType,
+            AbstractLongId scenarioRelationId,
             int amount,
-            String timeExpire
+            String description
     );
-
-    WechatPayPaymentOrderDetails queryPaymentOrder(String outTradeNo);
-
-    void closePaymentOrder(String outTradeNo, String mchId);
-
-    WechatPayRefundInitiationData initiateRefund(WechatPayRefundOrder refundOrder);
-
-    WechatPayRefundOrderDetails queryRefundOrder(String outRefundNo);
-
-
 }

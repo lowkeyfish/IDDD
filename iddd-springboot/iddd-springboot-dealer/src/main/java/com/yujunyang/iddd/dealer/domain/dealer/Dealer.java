@@ -212,9 +212,7 @@ public class Dealer {
         ));
     }
 
-    public DealerServicePurchaseOrder purchaseService(
-            DealerServicePurchaseAmountService amountService,
-            DealerServicePurchaseOrderIdGenerator dealerServicePurchaseOrderIdGenerator) {
+    public TimeRange nextServicePeriod() {
         LocalDateTime servicePeriodBegin;
         if (DealerServiceStatusType.IN_SERVICE.equals(serviceStatus)) {
             servicePeriodBegin = serviceExpiryTime;
@@ -223,13 +221,8 @@ public class Dealer {
         }
         LocalDateTime servicePeriodEnd = servicePeriodBegin.plusYears(1);
 
-        TimeRange servicePeriod = new TimeRange(servicePeriodBegin, servicePeriodEnd);
-        return new DealerServicePurchaseOrder(
-                dealerServicePurchaseOrderIdGenerator.nextId(),
-                this.id,
-                servicePeriod,
-                amountService.calculateAmount(this, servicePeriod)
-        );
+        TimeRange nextServicePeriod = new TimeRange(servicePeriodBegin, servicePeriodEnd);
+        return nextServicePeriod;
     }
 
     public void extendServiceExpiryTime(TimeRange servicePeriod) {

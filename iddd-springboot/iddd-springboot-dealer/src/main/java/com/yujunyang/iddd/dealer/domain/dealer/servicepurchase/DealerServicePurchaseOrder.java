@@ -23,11 +23,19 @@ package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
 import java.time.LocalDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentStrategy;
 
 public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderId id;
@@ -36,6 +44,8 @@ public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderStatusType status;
     private LocalDateTime createTime;
     private int amount;
+    private PaymentChannelType paymentChannelType;
+    private AbstractLongId paymentOrderId;
 
 
     public DealerServicePurchaseOrder(
@@ -85,6 +95,34 @@ public class DealerServicePurchaseOrder {
 
     public void cancel() {
 
+    }
+
+    public String initiatePayment(PaymentStrategy paymentStrategy) {
+        CheckUtils.isTrue(
+                DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED.equals(status),
+                new BusinessRuleException(
+                        "当前订单已发起过支付",
+                        ImmutableMap.of(
+                                "id",
+                                id,
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        InitiatePaymentResult initiatePaymentResult = paymentStrategy.initiatePayment(
+                PaymentScenarioType.DEALER_SERVICE_PURCHASE,
+                id,
+                amount,
+                "服务购买"
+        );
+
+        status = DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED;
+        paymentChannelType = initiatePaymentResult.getPaymentChannelType();
+        paymentOrderId = initiatePaymentResult.getPaymentOrderId();
+
+        return initiatePaymentResult.getPaymentInitiationData().getData();
     }
 
     public DealerServicePurchaseOrderId id() {

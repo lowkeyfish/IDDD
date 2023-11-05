@@ -71,6 +71,43 @@ public class WechatPayPaymentOrder {
             String timeExpire,
             String notifyUrl,
             int amount,
+            String payerOpenId) {
+        this(
+                id,
+                scenario,
+                scenarioRelationId,
+                paymentMethod,
+                createTime,
+                appId,
+                mchId,
+                description,
+                outTradeNo,
+                timeExpire,
+                notifyUrl,
+                amount,
+                payerOpenId,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PaymentStatusType.NOT_INITIATED
+        );
+    }
+
+    public WechatPayPaymentOrder(
+            WechatPayPaymentOrderId id,
+            PaymentScenarioType scenario,
+            AbstractLongId scenarioRelationId,
+            PaymentMethodType paymentMethod,
+            LocalDateTime createTime,
+            String appId,
+            String mchId,
+            String description,
+            String outTradeNo,
+            String timeExpire,
+            String notifyUrl,
+            int amount,
             String payerOpenId,
             String tradeType,
             String transactionId,
@@ -101,13 +138,12 @@ public class WechatPayPaymentOrder {
 
     public PaymentInitiationData initiatePayment(WechatPayService wechatPayService) {
         boolean canCreateTransaction = Arrays.asList(
-                PaymentStatusType.NOT_INITIATED,
-                PaymentStatusType.INITIATED
+                PaymentStatusType.NOT_INITIATED
         ).contains(status);
 
         CheckUtils.isTrue(
                 canCreateTransaction,
-                new BusinessRuleException("当前微信支付订单状态不允许再发起支付", ImmutableMap.of(
+                new BusinessRuleException("微信支付订单已发起过支付", ImmutableMap.of(
                         "wechatPayPaymentOrderId",
                         id,
                         "status",
@@ -115,7 +151,13 @@ public class WechatPayPaymentOrder {
                 ))
         );
 
-        PaymentInitiationData paymentInitiationData = wechatPayService.initiatePayment(this);
+        PaymentInitiationData paymentInitiationData = wechatPayService.initiatePayment(
+                paymentMethod,
+                outTradeNo,
+                description,
+                amount,
+                timeExpire
+        );
 
         status = PaymentStatusType.INITIATED;
 
@@ -127,79 +169,4 @@ public class WechatPayPaymentOrder {
         return paymentInitiationData;
     }
 
-    public WechatPayPaymentOrderId getId() {
-        return id;
-    }
-
-    public PaymentScenarioType getScenario() {
-        return scenario;
-    }
-
-    public AbstractLongId getScenarioRelationId() {
-        return scenarioRelationId;
-    }
-
-    public PaymentMethodType getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public String getAppId() {
-        return appId;
-    }
-
-    public String getMchId() {
-        return mchId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getOutTradeNo() {
-        return outTradeNo;
-    }
-
-    public String getTimeExpire() {
-        return timeExpire;
-    }
-
-    public String getNotifyUrl() {
-        return notifyUrl;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public String getPayerOpenId() {
-        return payerOpenId;
-    }
-
-    public String getTradeType() {
-        return tradeType;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public String getTradeState() {
-        return tradeState;
-    }
-
-    public String getTradeStateDesc() {
-        return tradeStateDesc;
-    }
-
-    public LocalDateTime getNotifyTime() {
-        return notifyTime;
-    }
-
-    public PaymentStatusType getStatus() {
-        return status;
-    }
 }

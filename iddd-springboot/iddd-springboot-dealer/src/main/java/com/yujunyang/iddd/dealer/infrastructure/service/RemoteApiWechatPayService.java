@@ -21,15 +21,8 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.service;
 
-import java.util.Arrays;
-
-import com.google.common.collect.ImmutableMap;
-import com.yujunyang.iddd.common.exception.BusinessRuleException;
-import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderDetails;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayRefundInitiationData;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayRefundOrder;
@@ -39,21 +32,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RemoteApiWechatPayService implements WechatPayService {
-
     @Override
-    public PaymentInitiationData initiatePayment(WechatPayPaymentOrder paymentOrder) {
-        CheckUtils.isTrue(
-                Arrays.asList(
-                        PaymentMethodType.WECHAT_PAY_JSAPI
-                ).contains(paymentOrder.getPaymentMethod()),
-                new BusinessRuleException("支付类型暂不支持", ImmutableMap.of(
-                        "paymentChannel",
-                        PaymentChannelType.WECHAT_PAY,
-                        "paymentMethod",
-                        paymentOrder.getPaymentMethod()
-                ))
-        );
-
+    public PaymentInitiationData initiatePayment(
+            PaymentMethodType paymentMethodType,
+            String outTradeNo,
+            String description,
+            int amount,
+            String timeExpire) {
         return null;
     }
 

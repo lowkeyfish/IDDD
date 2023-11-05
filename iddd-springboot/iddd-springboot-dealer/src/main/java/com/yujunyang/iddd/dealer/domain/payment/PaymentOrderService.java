@@ -66,6 +66,8 @@ public class PaymentOrderService {
                 "payerOpenId 必须不为空"
         );
 
+
+
         WechatPayPaymentOrderId paymentOrderId = wechatPayPaymentOrderIdGenerator.nextId();
 
         WechatPayPaymentOrder paymentOrder = new WechatPayPaymentOrder(
