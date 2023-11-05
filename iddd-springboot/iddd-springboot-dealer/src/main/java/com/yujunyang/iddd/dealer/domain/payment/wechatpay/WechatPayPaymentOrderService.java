@@ -86,5 +86,6 @@ public class WechatPayPaymentOrderService {
     public void close(WechatPayPaymentOrderId paymentOrderId) {
         WechatPayPaymentOrder paymentOrder = wechatPayPaymentOrderRepository.findById(paymentOrderId);
         paymentOrder.close(wechatPayService);
+        wechatPayPaymentOrderRepository.save(paymentOrder);
     }
 }

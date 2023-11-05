@@ -33,10 +33,7 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
-import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentStrategy;
 
 public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderId id;
@@ -90,8 +87,23 @@ public class DealerServicePurchaseOrder {
     }
 
 
-    public void completePayment() {
+    public void handleSuccessfulPayment() {
+        CheckUtils.isTrue(
+                DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED.equals(status),
+                new BusinessRuleException(
+                        "当前状态不能变更为支付成功",
+                        ImmutableMap.of(
+                                "id",
+                                id,
+                                "status",
+                                status
+                        )
+                )
+        );
 
+        status = DealerServicePurchaseOrderStatusType.PAYMENT_SUCCESS;
+        
+        DomainEventPublisher.instance().publish(new );
     }
 
     public void cancel() {
@@ -124,8 +136,8 @@ public class DealerServicePurchaseOrder {
         this.paymentOrderId = paymentOrderId;
     }
 
-    public boolean isPaymentNotInitiated() {
-        return DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED.equals(status);
+    public boolean isPaymentInitiated() {
+        return DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED.equals(status);
     }
 
     public DealerServicePurchaseOrderId id() {

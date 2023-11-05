@@ -32,7 +32,7 @@ import com.yujunyang.iddd.dealer.application.DealerServicePurchaseApplicationSer
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
-import com.yujunyang.iddd.dealer.application.command.DealerPurchaseServiceOrderInitiateWechatPayPaymentCommand;
+import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderInitiateWechatPayPaymentCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerViewModel;
 import com.yujunyang.iddd.dealer.controller.input.DealerRequestBody;
 import com.yujunyang.iddd.dealer.controller.input.InitiatePaymentRequestBody;
@@ -133,7 +133,7 @@ public class DealerController {
         RestResponse<String> response = new RestResponse<>();
         if (PaymentChannelType.WECHAT_PAY.equals(requestBody.getPaymentChannel())) {
             dealerServicePurchaseApplicationService.initiateWechatPayPayment(
-                    new DealerPurchaseServiceOrderInitiateWechatPayPaymentCommand(
+                    new DealerServicePurchaseOrderInitiateWechatPayPaymentCommand(
                             new DealerServicePurchaseOrderId(orderId),
                             requestBody.getPaymentMethod(),
                             requestBody.getWechatOpenId()

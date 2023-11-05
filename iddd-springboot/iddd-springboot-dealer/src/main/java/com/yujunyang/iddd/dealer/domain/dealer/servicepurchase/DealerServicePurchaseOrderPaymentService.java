@@ -36,7 +36,6 @@ public class DealerServicePurchaseOrderPaymentService {
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
     private WechatPayPaymentOrderService wechatPayPaymentOrderService;
 
-
     @Autowired
     public DealerServicePurchaseOrderPaymentService(
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
@@ -50,21 +49,13 @@ public class DealerServicePurchaseOrderPaymentService {
             PaymentStrategy paymentStrategy) {
         CheckUtils.notNull(order, "order 必须不为 null");
 
-        if (order.isPaymentNotInitiated()) {
-            return initiatePaymentForPaymentNotInitiated(order, paymentStrategy);
+        if (order.isPaymentInitiated()) {
+            PaymentChannelType paymentChannelType = order.paymentChannelType();
+            if (PaymentChannelType.WECHAT_PAY.equals(paymentChannelType)) {
+                wechatPayPaymentOrderService.close((WechatPayPaymentOrderId) order.paymentOrderId());
+            }
         }
 
-        PaymentChannelType paymentChannelType = order.paymentChannelType();
-        if (PaymentChannelType.WECHAT_PAY.equals(paymentChannelType)) {
-            wechatPayPaymentOrderService.close((WechatPayPaymentOrderId) order.paymentOrderId());
-        }
-
-        return initiatePaymentForPaymentNotInitiated(order, paymentStrategy);
-    }
-
-    private InitiatePaymentResult initiatePaymentForPaymentNotInitiated(
-            DealerServicePurchaseOrder order,
-            PaymentStrategy paymentStrategy) {
         InitiatePaymentResult initiatePaymentResult = paymentStrategy.initiatePayment(
                 PaymentScenarioType.DEALER_SERVICE_PURCHASE,
                 order.id(),

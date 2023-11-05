@@ -17,45 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.dealer.application.command;
 
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
-import org.apache.commons.lang3.StringUtils;
 
-public class DealerPurchaseServiceOrderInitiateWechatPayPaymentCommand {
+public class DealerServicePurchaseOrderHandlePaymentSuccessCommand {
     private DealerServicePurchaseOrderId dealerServicePurchaseOrderId;
-    private PaymentMethodType paymentMethod;
-    private String wechatOpenId;
 
-    public DealerPurchaseServiceOrderInitiateWechatPayPaymentCommand(
-            DealerServicePurchaseOrderId dealerServicePurchaseOrderId,
-            PaymentMethodType paymentMethod,
-            String wechatOpenId) {
+    public DealerServicePurchaseOrderHandlePaymentSuccessCommand(
+            DealerServicePurchaseOrderId dealerServicePurchaseOrderId) {
         CheckUtils.notNull(dealerServicePurchaseOrderId, "dealerServicePurchaseOrderId 必须不为 null");
-        CheckUtils.notNull(paymentMethod, "paymentMethod 必须不为 null");
-        CheckUtils.isTrue(
-                !PaymentMethodType.WECHAT_PAY_JSAPI.equals(paymentMethod)
-                        || StringUtils.isNotBlank(wechatOpenId),
-                "wechatOpenId 必须不为空"
-        );
         this.dealerServicePurchaseOrderId = dealerServicePurchaseOrderId;
-        this.paymentMethod = paymentMethod;
-        this.wechatOpenId = wechatOpenId;
     }
 
     public DealerServicePurchaseOrderId getDealerServicePurchaseOrderId() {
         return dealerServicePurchaseOrderId;
-    }
-
-    public PaymentMethodType getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public String getWechatOpenId() {
-        return wechatOpenId;
     }
 }
