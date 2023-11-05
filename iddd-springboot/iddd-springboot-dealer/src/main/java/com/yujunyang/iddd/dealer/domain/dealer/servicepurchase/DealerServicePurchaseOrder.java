@@ -102,8 +102,11 @@ public class DealerServicePurchaseOrder {
         );
 
         status = DealerServicePurchaseOrderStatusType.PAYMENT_SUCCESS;
-        
-        DomainEventPublisher.instance().publish(new );
+
+        DomainEventPublisher.instance().publish(new DealerServicePurchaseOrderPaymentSucceeded(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
     }
 
     public void cancel() {
@@ -134,6 +137,23 @@ public class DealerServicePurchaseOrder {
         status = DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED;
         this.paymentChannelType = paymentChannelType;
         this.paymentOrderId = paymentOrderId;
+    }
+
+    public void initiateRefund() {
+        CheckUtils.isTrue(
+                DealerServicePurchaseOrderStatusType.PAYMENT_SUCCESS.equals(status),
+                new BusinessRuleException(
+                        "订单状态非支付成功不能申请退款",
+                        ImmutableMap.of(
+                                "id",
+                                id,
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        status = DealerServicePurchaseOrderStatusType.REFUND_INITIATED;
     }
 
     public boolean isPaymentInitiated() {

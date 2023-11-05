@@ -88,4 +88,7 @@ public class WechatPayPaymentOrderService {
         paymentOrder.close(wechatPayService);
         wechatPayPaymentOrderRepository.save(paymentOrder);
     }
+
+    public void initiateRefund(WechatPayPaymentOrderId paymentOrderId) {
+    }
 }

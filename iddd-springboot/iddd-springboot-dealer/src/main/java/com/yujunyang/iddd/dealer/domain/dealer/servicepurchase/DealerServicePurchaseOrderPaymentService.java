@@ -70,4 +70,20 @@ public class DealerServicePurchaseOrderPaymentService {
 
         return initiatePaymentResult;
     }
+
+    public void initiateRefund(
+            DealerServicePurchaseOrder order) {
+        CheckUtils.notNull(order, "order 必须不为 null");
+
+        PaymentChannelType paymentChannelType = order.paymentChannelType();
+        if (PaymentChannelType.WECHAT_PAY.equals(paymentChannelType)) {
+            wechatPayPaymentOrderService.initiateRefund((WechatPayPaymentOrderId) order.paymentOrderId());
+        }
+
+        order.initiateRefund();
+
+        dealerServicePurchaseOrderRepository.save(order);
+    }
+
+
 }

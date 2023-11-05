@@ -33,10 +33,9 @@ public enum DealerServicePurchaseOrderStatusType implements ValueDescriptionEnum
     PAYMENT_FAILURE(4, "支付失败"),
     MANUALLY_CANCELLED(11, "手动取消"),
     TIMEOUT_CANCELLED(12, "超时取消"),
-    REFUND_NOT_INITIATED(21, "未发起退款"),
-    REFUND_INITIATED(22, "已发起退款"),
-    REFUND_SUCCESS(23, "退款成功"),
-    REFUND_FAILURE(24, "退款失败");
+    REFUND_INITIATED(21, "已发起退款"),
+    REFUND_SUCCESS(22, "退款成功"),
+    REFUND_FAILURE(23, "退款失败");
 
 
     @JsonValue
