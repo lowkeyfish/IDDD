@@ -49,23 +49,13 @@ public class DealerServicePurchaseOrderPaymentService {
             PaymentStrategy paymentStrategy) {
         CheckUtils.notNull(order, "order 必须不为 null");
 
-        if (order.isPaymentInitiated()) {
-            PaymentChannelType paymentChannelType = order.paymentChannelType();
-            if (PaymentChannelType.WECHAT_PAY.equals(paymentChannelType)) {
-                wechatPayPaymentOrderService.close((WechatPayPaymentOrderId) order.paymentOrderId());
-            }
-        }
-
         InitiatePaymentResult initiatePaymentResult = paymentStrategy.initiatePayment(
                 PaymentScenarioType.DEALER_SERVICE_PURCHASE,
                 order.id(),
                 order.amount(),
                 "服务购买"
         );
-        order.initiatePayment(
-                initiatePaymentResult.getPaymentChannelType(),
-                initiatePaymentResult.getPaymentOrderId()
-        );
+        order.initiatePayment();
         dealerServicePurchaseOrderRepository.save(order);
 
         return initiatePaymentResult;

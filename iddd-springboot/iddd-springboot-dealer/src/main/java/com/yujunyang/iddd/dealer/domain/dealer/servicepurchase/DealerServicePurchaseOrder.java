@@ -113,9 +113,7 @@ public class DealerServicePurchaseOrder {
 
     }
 
-    public void initiatePayment(
-            PaymentChannelType paymentChannelType,
-            AbstractLongId paymentOrderId) {
+    public void initiatePayment() {
         List<DealerServicePurchaseOrderStatusType> allowStatusList = Arrays.asList(
                 DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED,
                 DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED
@@ -135,8 +133,6 @@ public class DealerServicePurchaseOrder {
         );
 
         status = DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED;
-        this.paymentChannelType = paymentChannelType;
-        this.paymentOrderId = paymentOrderId;
     }
 
     public void initiateRefund() {
