@@ -21,28 +21,25 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder2;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderIdGenerator;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderRepository;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MyBatisWechatPayPaymentOrderRepository
-        implements WechatPayPaymentOrderIdGenerator,
-        WechatPayPaymentOrderRepository {
+public class MyBatisPaymentOrderRepository implements PaymentOrderRepository {
     @Override
-    public WechatPayPaymentOrderId nextId() {
+    public PaymentOrderId nextId() {
         return null;
     }
 
     @Override
-    public WechatPayPaymentOrder2 findById(WechatPayPaymentOrderId paymentOrderId) {
-        return null;
+    public void save(PaymentOrder paymentOrder) {
+
     }
 
     @Override
-    public void save(WechatPayPaymentOrder2 order) {
-
+    public PaymentOrder findById(PaymentOrderId id) {
+        return null;
     }
 }

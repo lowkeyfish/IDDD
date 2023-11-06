@@ -34,6 +34,8 @@ import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 
 public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderId id;
@@ -134,6 +136,7 @@ public class DealerServicePurchaseOrder {
 
         status = DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED;
     }
+
 
     public void initiateRefund() {
         CheckUtils.isTrue(

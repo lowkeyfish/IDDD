@@ -21,29 +21,31 @@
 
 package com.yujunyang.iddd.dealer.domain.payment;
 
-public class PaymentInitiationData {
-    private PaymentChannelType paymentChannel;
-    private PaymentMethodType paymentMethod;
-    private String data;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 
-    public PaymentInitiationData(
-            PaymentChannelType paymentChannel,
-            PaymentMethodType paymentMethod,
-            String data) {
-        this.paymentChannel = paymentChannel;
-        this.paymentMethod = paymentMethod;
-        this.data = data;
+public class PaymentOrderId extends AbstractLongId {
+    @JsonCreator
+    public PaymentOrderId(@JsonProperty("id") Long id) {
+        super(id);
     }
 
-    public PaymentChannelType getPaymentChannel() {
-        return paymentChannel;
+    @Override
+    protected int initialNonZeroOddNumber() {
+        return 5;
     }
 
-    public PaymentMethodType getPaymentMethod() {
-        return paymentMethod;
+    @Override
+    protected int multiplierNonZeroOddNumber() {
+        return 761;
     }
 
-    public String getData() {
-        return data;
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static PaymentOrderId parse(Long id) {
+        if (id == null || id <= 0) {
+            return null;
+        }
+        return new PaymentOrderId(id);
     }
 }

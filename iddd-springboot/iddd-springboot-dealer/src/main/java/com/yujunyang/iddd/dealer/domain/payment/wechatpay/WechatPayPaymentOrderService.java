@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,7 @@ public class WechatPayPaymentOrderService {
             String description,
             String payerOpenId) {
         WechatPayPaymentOrderId paymentOrderId = wechatPayPaymentOrderIdGenerator.nextId();
-        WechatPayPaymentOrder paymentOrder = new WechatPayPaymentOrder(
+        WechatPayPaymentOrder2 paymentOrder = new WechatPayPaymentOrder2(
                 paymentOrderId,
                 paymentScenarioType,
                 scenarioRelationId,
@@ -73,18 +73,18 @@ public class WechatPayPaymentOrderService {
                 payerOpenId
         );
 
-        PaymentInitiationData paymentInitiationData = paymentOrder.initiatePayment(wechatPayService);
+        PaymentInitiationResult paymentInitiationResult = paymentOrder.initiatePayment(wechatPayService);
         wechatPayPaymentOrderRepository.save(paymentOrder);
 
         return new InitiatePaymentResult(
-                PaymentChannelType.WECHAT_PAY,
+                PaymentChannelType.WECHAT,
                 paymentOrderId,
-                paymentInitiationData
+                paymentInitiationResult
         );
     }
 
     public void close(WechatPayPaymentOrderId paymentOrderId) {
-        WechatPayPaymentOrder paymentOrder = wechatPayPaymentOrderRepository.findById(paymentOrderId);
+        WechatPayPaymentOrder2 paymentOrder = wechatPayPaymentOrderRepository.findById(paymentOrderId);
         paymentOrder.close(wechatPayService);
         wechatPayPaymentOrderRepository.save(paymentOrder);
     }

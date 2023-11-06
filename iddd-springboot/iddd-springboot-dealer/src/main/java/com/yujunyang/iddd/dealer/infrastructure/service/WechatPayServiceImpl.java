@@ -21,8 +21,9 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.service;
 
-import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderDetails;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayRefundInitiationData;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayRefundOrder;
@@ -31,14 +32,19 @@ import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RemoteApiWechatPayService implements WechatPayService {
+public class WechatPayServiceImpl implements WechatPayService {
     @Override
-    public PaymentInitiationData initiatePayment(
+    public PaymentInitiationResult initiatePayment(
             PaymentMethodType paymentMethodType,
             String outTradeNo,
             String description,
             int amount,
             String timeExpire) {
+        return null;
+    }
+
+    @Override
+    public PaymentInitiationResult initiatePayment(PaymentOrder paymentOrder) {
         return null;
     }
 

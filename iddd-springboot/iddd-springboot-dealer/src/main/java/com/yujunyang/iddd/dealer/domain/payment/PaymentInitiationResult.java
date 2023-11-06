@@ -19,10 +19,31 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
+package com.yujunyang.iddd.dealer.domain.payment;
 
-public interface WechatPayPaymentOrderRepository {
-    WechatPayPaymentOrder2 findById(WechatPayPaymentOrderId paymentOrderId);
+public class PaymentInitiationResult {
+    private PaymentChannelType paymentChannel;
+    private PaymentMethodType paymentMethod;
+    private String data;
 
-    void save(WechatPayPaymentOrder2 order);
+    public PaymentInitiationResult(
+            PaymentChannelType paymentChannel,
+            PaymentMethodType paymentMethod,
+            String data) {
+        this.paymentChannel = paymentChannel;
+        this.paymentMethod = paymentMethod;
+        this.data = data;
+    }
+
+    public PaymentChannelType getPaymentChannel() {
+        return paymentChannel;
+    }
+
+    public PaymentMethodType getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public String getData() {
+        return data;
+    }
 }

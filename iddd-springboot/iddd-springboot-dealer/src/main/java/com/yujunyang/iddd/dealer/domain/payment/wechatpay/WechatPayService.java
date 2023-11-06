@@ -21,17 +21,20 @@
 
 package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
 
-import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 
 public interface WechatPayService {
-    PaymentInitiationData initiatePayment(
+    PaymentInitiationResult initiatePayment(
             PaymentMethodType paymentMethodType,
             String outTradeNo,
             String description,
             int amount,
             String timeExpire
     );
+
+    PaymentInitiationResult initiatePayment(PaymentOrder paymentOrder);
 
     WechatPayPaymentOrderDetails queryPaymentOrder(String outTradeNo);
 

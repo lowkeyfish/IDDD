@@ -27,7 +27,7 @@ import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
 public enum PaymentChannelType implements ValueDescriptionEnum<Integer> {
-    WECHAT_PAY(1, "微信支付"),
+    WECHAT(1, "微信支付"),
     ALIPAY(2, "支付宝");
 
     @JsonValue

@@ -19,10 +19,11 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
+package com.yujunyang.iddd.dealer.infrastructure.service;
 
-public interface WechatPayPaymentOrderRepository {
-    WechatPayPaymentOrder2 findById(WechatPayPaymentOrderId paymentOrderId);
+import com.yujunyang.iddd.dealer.domain.payment.alipay.AlipayService;
+import org.springframework.stereotype.Service;
 
-    void save(WechatPayPaymentOrder2 order);
+@Service
+public class AlipayServiceImpl implements AlipayService {
 }

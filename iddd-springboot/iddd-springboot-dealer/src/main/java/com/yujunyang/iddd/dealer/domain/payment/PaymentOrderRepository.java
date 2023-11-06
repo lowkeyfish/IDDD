@@ -19,10 +19,12 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
+package com.yujunyang.iddd.dealer.domain.payment;
 
-public interface WechatPayPaymentOrderRepository {
-    WechatPayPaymentOrder2 findById(WechatPayPaymentOrderId paymentOrderId);
+public interface PaymentOrderRepository {
+    PaymentOrderId nextId();
 
-    void save(WechatPayPaymentOrder2 order);
+    void save(PaymentOrder paymentOrder);
+
+    PaymentOrder findById(PaymentOrderId id);
 }

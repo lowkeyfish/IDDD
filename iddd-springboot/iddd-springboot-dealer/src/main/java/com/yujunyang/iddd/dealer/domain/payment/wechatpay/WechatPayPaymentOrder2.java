@@ -32,13 +32,13 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentClosed;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationData;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiationResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiated;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
 
-public class WechatPayPaymentOrder {
+public class WechatPayPaymentOrder2 {
     private WechatPayPaymentOrderId id;
     private PaymentScenarioType scenario;
     private AbstractLongId scenarioRelationId;
@@ -59,7 +59,7 @@ public class WechatPayPaymentOrder {
     private LocalDateTime notifyTime;
     private PaymentStatusType status;
 
-    public WechatPayPaymentOrder(
+    public WechatPayPaymentOrder2(
             WechatPayPaymentOrderId id,
             PaymentScenarioType scenario,
             AbstractLongId scenarioRelationId,
@@ -96,7 +96,7 @@ public class WechatPayPaymentOrder {
         );
     }
 
-    public WechatPayPaymentOrder(
+    public WechatPayPaymentOrder2(
             WechatPayPaymentOrderId id,
             PaymentScenarioType scenario,
             AbstractLongId scenarioRelationId,
@@ -137,7 +137,7 @@ public class WechatPayPaymentOrder {
         this.status = status;
     }
 
-    public PaymentInitiationData initiatePayment(WechatPayService wechatPayService) {
+    public PaymentInitiationResult initiatePayment(WechatPayService wechatPayService) {
         boolean canCreateTransaction = Arrays.asList(
                 PaymentStatusType.NOT_INITIATED
         ).contains(status);
@@ -155,7 +155,7 @@ public class WechatPayPaymentOrder {
                 )
         );
 
-        PaymentInitiationData paymentInitiationData = wechatPayService.initiatePayment(
+        PaymentInitiationResult paymentInitiationResult = wechatPayService.initiatePayment(
                 paymentMethod,
                 outTradeNo,
                 description,
@@ -167,10 +167,10 @@ public class WechatPayPaymentOrder {
 
         DomainEventPublisher.instance().publish(new PaymentInitiated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
-                PaymentChannelType.WECHAT_PAY,
+                PaymentChannelType.WECHAT,
                 id.getId()
         ));
-        return paymentInitiationData;
+        return paymentInitiationResult;
     }
 
     public void close(WechatPayService wechatPayService) {
@@ -207,7 +207,7 @@ public class WechatPayPaymentOrder {
 
         DomainEventPublisher.instance().publish(new PaymentClosed(
                 DateTimeUtilsEnhance.epochMilliSecond(),
-                PaymentChannelType.WECHAT_PAY,
+                PaymentChannelType.WECHAT,
                 id.getId()
         ));
     }

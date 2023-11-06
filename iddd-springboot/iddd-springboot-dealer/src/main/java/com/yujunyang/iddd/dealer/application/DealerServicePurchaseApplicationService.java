@@ -28,8 +28,9 @@ import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderInitiateWechatPayPaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderHandlePaymentSuccessCommand;
+import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
-import com.yujunyang.iddd.dealer.application.data.InitiatePaymentCommand;
+import com.yujunyang.iddd.dealer.application.data.InitiatePaymentCommandResult;
 import com.yujunyang.iddd.dealer.application.data.PurchaseServiceCommandResult;
 import com.yujunyang.iddd.dealer.domain.dealer.Dealer;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
@@ -40,6 +41,9 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaymentService;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 import com.yujunyang.iddd.dealer.domain.payment.WechatPayPaymentStrategy;
 import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +57,7 @@ public class DealerServicePurchaseApplicationService {
     private DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory;
     private WechatPayPaymentOrderService wechatPayPaymentOrderService;
     private DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService;
+    private PaymentOrderRepository paymentOrderRepository;
 
     @Autowired
     public DealerServicePurchaseApplicationService(
@@ -60,12 +65,14 @@ public class DealerServicePurchaseApplicationService {
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory,
             WechatPayPaymentOrderService wechatPayPaymentOrderService,
-            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService) {
+            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService,
+            PaymentOrderRepository paymentOrderRepository) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderFactory = dealerServicePurchaseOrderFactory;
         this.wechatPayPaymentOrderService = wechatPayPaymentOrderService;
         this.dealerServicePurchaseOrderPaymentService = dealerServicePurchaseOrderPaymentService;
+        this.paymentOrderRepository = paymentOrderRepository;
     }
 
     @Transactional
@@ -96,23 +103,19 @@ public class DealerServicePurchaseApplicationService {
     }
 
     @Transactional
-    public void initiateWechatPayPayment(
-            DealerServicePurchaseOrderInitiateWechatPayPaymentCommand command,
-            InitiatePaymentCommand commandResult) {
-        CheckUtils.notNull(command, "command 必须不为 null");
-
-        DealerServicePurchaseOrder order = existingOrder(command.getDealerServicePurchaseOrderId());
+    public void initiatePayment(
+            InitiatePaymentCommand command,
+            InitiatePaymentCommandResult commandResult) {
+        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
 
         InitiatePaymentResult initiatePaymentResult = dealerServicePurchaseOrderPaymentService.initiatePayment(
                 order,
-                new WechatPayPaymentStrategy(
-                        command.getPaymentMethod(),
-                        command.getWechatOpenId(),
-                        wechatPayPaymentOrderService
-                )
+                command.getPaymentChannelType(),
+                command.getPaymentMethodType(),
+                command.getPaymentChannelParams()
         );
 
-        commandResult.resultingPaymentInitiationData(initiatePaymentResult.getPaymentInitiationData().getData());
+        commandResult.resultingPaymentInitiationData(initiatePaymentResult.getData());
     }
 
     @Transactional

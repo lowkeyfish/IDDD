@@ -19,8 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.application.data;
+package com.yujunyang.iddd.dealer.domain.payment;
 
-public interface InitiatePaymentCommand {
-    void resultingPaymentInitiationData(String paymentInitiationData);
+public class RefundResult {
 }

@@ -124,14 +124,14 @@ public class DealerController {
             @RequestBody InitiatePaymentRequestBody requestBody) {
         CheckUtils.isTrue(
                 Arrays.asList(
-                        PaymentChannelType.WECHAT_PAY
+                        PaymentChannelType.WECHAT
                 ).contains(requestBody.getPaymentChannel()),
                 "paymentChannel({0})暂不支持",
                 requestBody.getPaymentChannel()
         );
 
         RestResponse<String> response = new RestResponse<>();
-        if (PaymentChannelType.WECHAT_PAY.equals(requestBody.getPaymentChannel())) {
+        if (PaymentChannelType.WECHAT.equals(requestBody.getPaymentChannel())) {
             dealerServicePurchaseApplicationService.initiateWechatPayPayment(
                     new DealerServicePurchaseOrderInitiateWechatPayPaymentCommand(
                             new DealerServicePurchaseOrderId(orderId),

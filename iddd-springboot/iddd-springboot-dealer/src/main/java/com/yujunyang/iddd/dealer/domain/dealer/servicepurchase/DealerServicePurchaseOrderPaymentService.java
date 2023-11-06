@@ -21,59 +21,87 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
+import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentStrategy;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderService;
+import com.yujunyang.iddd.dealer.infrastructure.service.AlipayPaymentService;
+import com.yujunyang.iddd.dealer.infrastructure.service.WechatPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DealerServicePurchaseOrderPaymentService {
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
-    private WechatPayPaymentOrderService wechatPayPaymentOrderService;
+    private WechatPaymentService wechatPaymentService;
+    private AlipayPaymentService alipayPaymentService;
+    private PaymentOrderRepository paymentOrderRepository;
 
     @Autowired
     public DealerServicePurchaseOrderPaymentService(
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
-            WechatPayPaymentOrderService wechatPayPaymentOrderService) {
+            WechatPaymentService wechatPaymentService,
+            AlipayPaymentService alipayPaymentService,
+            PaymentOrderRepository paymentOrderRepository) {
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
-        this.wechatPayPaymentOrderService = wechatPayPaymentOrderService;
+        this.wechatPaymentService = wechatPaymentService;
+        this.alipayPaymentService = alipayPaymentService;
+        this.paymentOrderRepository = paymentOrderRepository;
     }
 
     public InitiatePaymentResult initiatePayment(
             DealerServicePurchaseOrder order,
-            PaymentStrategy paymentStrategy) {
+            PaymentChannelType paymentChannelType,
+            PaymentMethodType paymentMethodType,
+            Map<String, Object> paymentChannelParams) {
         CheckUtils.notNull(order, "order 必须不为 null");
+        CheckUtils.notNull(paymentChannelType, "paymentChannelType 必须不为 null");
+        CheckUtils.notNull(paymentMethodType, "paymentMethodType 必须不为 null");
 
-        InitiatePaymentResult initiatePaymentResult = paymentStrategy.initiatePayment(
+        PaymentOrder paymentOrder = new PaymentOrder(
+                paymentOrderRepository.nextId(),
                 PaymentScenarioType.DEALER_SERVICE_PURCHASE,
                 order.id(),
+                paymentChannelType,
+                paymentMethodType,
+                "服务购买",
                 order.amount(),
-                "服务购买"
+                paymentChannelParams
         );
+        PaymentService paymentService = null;
+        if (PaymentChannelType.WECHAT.equals(paymentChannelType)) {
+            paymentService = wechatPaymentService;
+        } else if (PaymentChannelType.ALIPAY.equals(paymentChannelType)) {
+            paymentService = alipayPaymentService;
+        }
+        CheckUtils.notNull(
+                paymentService,
+                new BusinessRuleException(
+                        "支付渠道暂不支持",
+                        ImmutableMap.of(
+                                "id",
+                                order.id(),
+                                "paymentChannelType",
+                                paymentChannelType
+                        )
+                )
+        );
+        InitiatePaymentResult initiatePaymentResult = paymentOrder.initiatePayment(paymentService);
+        paymentOrderRepository.save(paymentOrder);
+
         order.initiatePayment();
         dealerServicePurchaseOrderRepository.save(order);
 
         return initiatePaymentResult;
     }
-
-    public void initiateRefund(
-            DealerServicePurchaseOrder order) {
-        CheckUtils.notNull(order, "order 必须不为 null");
-
-        PaymentChannelType paymentChannelType = order.paymentChannelType();
-        if (PaymentChannelType.WECHAT_PAY.equals(paymentChannelType)) {
-            wechatPayPaymentOrderService.initiateRefund((WechatPayPaymentOrderId) order.paymentOrderId());
-        }
-
-        order.initiateRefund();
-
-        dealerServicePurchaseOrderRepository.save(order);
-    }
-
 
 }

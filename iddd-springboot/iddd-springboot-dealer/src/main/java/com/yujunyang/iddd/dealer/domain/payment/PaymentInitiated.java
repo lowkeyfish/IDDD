@@ -29,26 +29,19 @@ import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
 public class PaymentInitiated implements DomainEvent {
     private long timestamp;
-    private PaymentChannelType paymentChannel;
     private long paymentOrderId;
 
     @JsonCreator
     public PaymentInitiated(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentChannel") PaymentChannelType paymentChannel,
             @JsonProperty("paymentOrderId") long paymentOrderId) {
         this.timestamp = timestamp;
-        this.paymentChannel = paymentChannel;
         this.paymentOrderId = paymentOrderId;
     }
 
     @Override
     public long getTimestamp() {
         return timestamp;
-    }
-
-    public PaymentChannelType getPaymentChannel() {
-        return paymentChannel;
     }
 
     public long getPaymentOrderId() {
@@ -58,8 +51,7 @@ public class PaymentInitiated implements DomainEvent {
     @Override
     public String eventKey() {
         return MessageFormat.format(
-                "Payment_Channel({0,number,#})_PaymentOrderId({1,number,#})",
-                paymentChannel.getValue(),
+                "PaymentOrderId({1,number,#})",
                 paymentOrderId
         );
     }
