@@ -21,10 +21,6 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrder2;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderIdGenerator;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

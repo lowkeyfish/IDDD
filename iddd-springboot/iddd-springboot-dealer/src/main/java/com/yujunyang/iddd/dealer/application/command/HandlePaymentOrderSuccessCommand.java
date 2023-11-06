@@ -19,7 +19,17 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.wechatpay;
+package com.yujunyang.iddd.dealer.application.command;
 
-public class WechatPayRefundOrder {
+public class HandlePaymentOrderSuccessCommand {
+    private String outTradeNo;
+
+    public HandlePaymentOrderSuccessCommand(
+            String outTradeNo) {
+        this.outTradeNo = outTradeNo;
+    }
+
+    public String getOutTradeNo() {
+        return outTradeNo;
+    }
 }

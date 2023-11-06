@@ -26,7 +26,6 @@ import java.text.MessageFormat;
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderInitiateWechatPayPaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderHandlePaymentSuccessCommand;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
@@ -41,11 +40,6 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaymentService;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
-import com.yujunyang.iddd.dealer.domain.payment.WechatPayPaymentStrategy;
-import com.yujunyang.iddd.dealer.domain.payment.wechatpay.WechatPayPaymentOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,24 +49,18 @@ public class DealerServicePurchaseApplicationService {
     private DealerRepository dealerRepository;
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
     private DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory;
-    private WechatPayPaymentOrderService wechatPayPaymentOrderService;
     private DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService;
-    private PaymentOrderRepository paymentOrderRepository;
 
     @Autowired
     public DealerServicePurchaseApplicationService(
             DealerRepository dealerRepository,
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory,
-            WechatPayPaymentOrderService wechatPayPaymentOrderService,
-            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService,
-            PaymentOrderRepository paymentOrderRepository) {
+            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderFactory = dealerServicePurchaseOrderFactory;
-        this.wechatPayPaymentOrderService = wechatPayPaymentOrderService;
         this.dealerServicePurchaseOrderPaymentService = dealerServicePurchaseOrderPaymentService;
-        this.paymentOrderRepository = paymentOrderRepository;
     }
 
     @Transactional
@@ -124,7 +112,7 @@ public class DealerServicePurchaseApplicationService {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder(command.getDealerServicePurchaseOrderId());
-        order.handleSuccessfulPayment();
+        order.handlePaymentSuccess();
 
         dealerServicePurchaseOrderRepository.save(order);
     }

@@ -17,35 +17,45 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package com.yujunyang.iddd.dealer.domain.payment.alipay;
+package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
+
+import java.text.MessageFormat;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class AlipayPaymentOrderId extends AbstractLongId {
+public class DealerServicePurchaseOrderPaymentInitiated implements DomainEvent {
+    private long timestamp;
+    private long id;
+
     @JsonCreator
-    public AlipayPaymentOrderId(@JsonProperty("id") Long id) {
-        super(id);
+    public DealerServicePurchaseOrderPaymentInitiated(
+            @JsonProperty("timestamp") long timestamp,
+            @JsonProperty("orderId") long id) {
+        this.timestamp = timestamp;
+        this.id = id;
     }
 
     @Override
-    protected int initialNonZeroOddNumber() {
-        return 5;
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public long getId() {
+        return id;
     }
 
     @Override
-    protected int multiplierNonZeroOddNumber() {
-        return 761;
+    public String eventKey() {
+        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", id);
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static AlipayPaymentOrderId parse(Long id) {
-        if (id == null || id <= 0) {
-            return null;
-        }
-        return new AlipayPaymentOrderId(id);
+    @Override
+    public String notificationRoutingKey() {
+        return "Dealer.DealerServicePurchaseOrder." + notificationType();
     }
 }

@@ -23,8 +23,6 @@ package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
@@ -33,28 +31,24 @@ import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentStrategy;
-import com.yujunyang.iddd.dealer.infrastructure.service.AlipayPaymentService;
-import com.yujunyang.iddd.dealer.infrastructure.service.WechatPaymentService;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentServiceSelector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DealerServicePurchaseOrderPaymentService {
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
-    private WechatPaymentService wechatPaymentService;
-    private AlipayPaymentService alipayPaymentService;
+    private PaymentServiceSelector paymentServiceSelector;
     private PaymentOrderRepository paymentOrderRepository;
 
     @Autowired
     public DealerServicePurchaseOrderPaymentService(
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
-            WechatPaymentService wechatPaymentService,
-            AlipayPaymentService alipayPaymentService,
+            PaymentServiceSelector paymentServiceSelector,
             PaymentOrderRepository paymentOrderRepository) {
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
-        this.wechatPaymentService = wechatPaymentService;
-        this.alipayPaymentService = alipayPaymentService;
+        this.paymentServiceSelector = paymentServiceSelector;
         this.paymentOrderRepository = paymentOrderRepository;
     }
 
@@ -67,6 +61,9 @@ public class DealerServicePurchaseOrderPaymentService {
         CheckUtils.notNull(paymentChannelType, "paymentChannelType 必须不为 null");
         CheckUtils.notNull(paymentMethodType, "paymentMethodType 必须不为 null");
 
+        order.initiatePayment();
+        dealerServicePurchaseOrderRepository.save(order);
+
         PaymentOrder paymentOrder = new PaymentOrder(
                 paymentOrderRepository.nextId(),
                 PaymentScenarioType.DEALER_SERVICE_PURCHASE,
@@ -77,29 +74,9 @@ public class DealerServicePurchaseOrderPaymentService {
                 order.amount(),
                 paymentChannelParams
         );
-        PaymentService paymentService = null;
-        if (PaymentChannelType.WECHAT.equals(paymentChannelType)) {
-            paymentService = wechatPaymentService;
-        } else if (PaymentChannelType.ALIPAY.equals(paymentChannelType)) {
-            paymentService = alipayPaymentService;
-        }
-        CheckUtils.notNull(
-                paymentService,
-                new BusinessRuleException(
-                        "支付渠道暂不支持",
-                        ImmutableMap.of(
-                                "id",
-                                order.id(),
-                                "paymentChannelType",
-                                paymentChannelType
-                        )
-                )
-        );
+        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(paymentChannelType);
         InitiatePaymentResult initiatePaymentResult = paymentOrder.initiatePayment(paymentService);
         paymentOrderRepository.save(paymentOrder);
-
-        order.initiatePayment();
-        dealerServicePurchaseOrderRepository.save(order);
 
         return initiatePaymentResult;
     }

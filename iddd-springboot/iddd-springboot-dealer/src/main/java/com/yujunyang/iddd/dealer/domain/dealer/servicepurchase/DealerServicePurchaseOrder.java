@@ -36,6 +36,7 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 
 public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderId id;
@@ -89,14 +90,14 @@ public class DealerServicePurchaseOrder {
     }
 
 
-    public void handleSuccessfulPayment() {
+    public void handlePaymentSuccess() {
         CheckUtils.isTrue(
                 DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED.equals(status),
                 new BusinessRuleException(
                         "当前状态不能变更为支付成功",
                         ImmutableMap.of(
                                 "id",
-                                id,
+                                id.getId(),
                                 "status",
                                 status
                         )
@@ -111,10 +112,6 @@ public class DealerServicePurchaseOrder {
         ));
     }
 
-    public void cancel() {
-
-    }
-
     public void initiatePayment() {
         List<DealerServicePurchaseOrderStatusType> allowStatusList = Arrays.asList(
                 DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED,
@@ -127,7 +124,7 @@ public class DealerServicePurchaseOrder {
                         "当前订单状态不允许发起支付",
                         ImmutableMap.of(
                                 "id",
-                                id,
+                                id.getId(),
                                 "status",
                                 status
                         )
@@ -135,8 +132,12 @@ public class DealerServicePurchaseOrder {
         );
 
         status = DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED;
-    }
 
+        DomainEventPublisher.instance().publish(new DealerServicePurchaseOrderPaymentInitiated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId()
+        ));
+    }
 
     public void initiateRefund() {
         CheckUtils.isTrue(
@@ -145,7 +146,7 @@ public class DealerServicePurchaseOrder {
                         "订单状态非支付成功不能申请退款",
                         ImmutableMap.of(
                                 "id",
-                                id,
+                                id.getId(),
                                 "status",
                                 status
                         )

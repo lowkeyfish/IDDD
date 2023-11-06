@@ -23,6 +23,7 @@ package com.yujunyang.iddd.dealer.infrastructure.service;
 
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.InitiateRefundResult;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
@@ -32,6 +33,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AlipayPaymentService implements PaymentService {
+    @Override
+    public boolean isMatched(PaymentChannelType paymentChannelType) {
+        return PaymentChannelType.ALIPAY.equals(paymentChannelType);
+    }
+
     @Override
     public InitiatePaymentResult initiatePayment(PaymentOrder paymentOrder) {
         return null;

@@ -22,4 +22,8 @@
 package com.yujunyang.iddd.dealer.domain.payment;
 
 public class PaymentResult {
+
+    public boolean isPaymentSuccess() {
+        return false;
+    }
 }

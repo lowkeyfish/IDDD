@@ -22,7 +22,6 @@
 package com.yujunyang.iddd.dealer.domain.payment;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -102,7 +101,7 @@ public class PaymentOrder {
                         "支付订单状态不支持发起支付",
                         ImmutableMap.of(
                                 "id",
-                                id,
+                                id.getId(),
                                 "status",
                                 status
                         )
@@ -118,4 +117,37 @@ public class PaymentOrder {
 
         return initiatePaymentResult;
     }
+
+    public void handlePaymentSuccess() {
+        CheckUtils.isTrue(
+                PaymentStatusType.INITIATED.equals(status),
+                new BusinessRuleException(
+                        "支付订单状态不支持设置为支付成功",
+                        ImmutableMap.of(
+                                "id",
+                                id.getId(),
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        status = PaymentStatusType.SUCCESS;
+
+        DomainEventPublisher.instance().publish(new PaymentSucceeded(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                paymentChannelType,
+                id.getId()
+        ));
+    }
+
+    public PaymentChannelType paymentChannelType() {
+        return paymentChannelType;
+    }
+
+    public PaymentOrderId id() {
+        return id;
+    }
+
+
 }

@@ -27,4 +27,6 @@ public interface PaymentOrderRepository {
     void save(PaymentOrder paymentOrder);
 
     PaymentOrder findById(PaymentOrderId id);
+
+    PaymentOrder findByOutTradeNo(String outTradeNo);
 }

@@ -25,24 +25,24 @@ import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 
 public class InitiatePaymentRequestBody {
-    private PaymentChannelType paymentChannel;
-    private PaymentMethodType paymentMethod;
+    private PaymentChannelType paymentChannelType;
+    private PaymentMethodType paymentMethodType;
     private String wechatOpenId;
 
-    public PaymentChannelType getPaymentChannel() {
-        return paymentChannel;
+    public PaymentChannelType getPaymentChannelType() {
+        return paymentChannelType;
     }
 
-    public void setPaymentChannel(PaymentChannelType paymentChannel) {
-        this.paymentChannel = paymentChannel;
+    public void setPaymentChannelType(PaymentChannelType paymentChannelType) {
+        this.paymentChannelType = paymentChannelType;
     }
 
-    public PaymentMethodType getPaymentMethod() {
-        return paymentMethod;
+    public PaymentMethodType getPaymentMethodType() {
+        return paymentMethodType;
     }
 
-    public void setPaymentMethod(PaymentMethodType paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setPaymentMethodType(PaymentMethodType paymentMethodType) {
+        this.paymentMethodType = paymentMethodType;
     }
 
     public String getWechatOpenId() {

@@ -42,4 +42,9 @@ public class MyBatisPaymentOrderRepository implements PaymentOrderRepository {
     public PaymentOrder findById(PaymentOrderId id) {
         return null;
     }
+
+    @Override
+    public PaymentOrder findByOutTradeNo(String outTradeNo) {
+        return null;
+    }
 }

@@ -21,24 +21,21 @@
 
 package com.yujunyang.iddd.dealer.controller;
 
-import java.util.Arrays;
-
+import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.data.RestResponse;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
-import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.DealerQueryService;
 import com.yujunyang.iddd.dealer.application.DealerServicePurchaseApplicationService;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
+import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
-import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderInitiateWechatPayPaymentCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerViewModel;
 import com.yujunyang.iddd.dealer.controller.input.DealerRequestBody;
 import com.yujunyang.iddd.dealer.controller.input.InitiatePaymentRequestBody;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -122,25 +119,19 @@ public class DealerController {
     public RestResponse initiatePayment(
             @PathVariable("orderId") long orderId,
             @RequestBody InitiatePaymentRequestBody requestBody) {
-        CheckUtils.isTrue(
-                Arrays.asList(
-                        PaymentChannelType.WECHAT
-                ).contains(requestBody.getPaymentChannel()),
-                "paymentChannel({0})暂不支持",
-                requestBody.getPaymentChannel()
-        );
-
         RestResponse<String> response = new RestResponse<>();
-        if (PaymentChannelType.WECHAT.equals(requestBody.getPaymentChannel())) {
-            dealerServicePurchaseApplicationService.initiateWechatPayPayment(
-                    new DealerServicePurchaseOrderInitiateWechatPayPaymentCommand(
-                            new DealerServicePurchaseOrderId(orderId),
-                            requestBody.getPaymentMethod(),
-                            requestBody.getWechatOpenId()
-                    ),
-                    paymentInitiationData -> response.setData(paymentInitiationData)
-            );
-        }
+        dealerServicePurchaseApplicationService.initiatePayment(
+                new InitiatePaymentCommand(
+                        new DealerServicePurchaseOrderId(orderId),
+                        requestBody.getPaymentChannelType(),
+                        requestBody.getPaymentMethodType(),
+                        ImmutableMap.of(
+                                "wechatOpenId",
+                                requestBody.getWechatOpenId()
+                        )
+                ),
+                paymentInitiationData -> response.setData(paymentInitiationData)
+        );
 
         return response;
     }

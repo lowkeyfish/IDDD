@@ -22,6 +22,8 @@
 package com.yujunyang.iddd.dealer.domain.payment;
 
 public interface PaymentService {
+    boolean isMatched(PaymentChannelType paymentChannelType);
+
     InitiatePaymentResult initiatePayment(PaymentOrder paymentOrder);
 
     PaymentResult queryPaymentOrderStatus(PaymentOrder paymentOrder);
