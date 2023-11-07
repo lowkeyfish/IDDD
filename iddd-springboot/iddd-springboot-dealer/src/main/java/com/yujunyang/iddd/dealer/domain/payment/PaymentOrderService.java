@@ -21,7 +21,10 @@
 
 package com.yujunyang.iddd.dealer.domain.payment;
 
+import java.util.List;
+
 import com.google.common.collect.ImmutableMap;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +63,14 @@ public class PaymentOrderService {
 
         paymentOrder.handlePaymentSuccess();
         paymentOrderRepository.save(paymentOrder);
+    }
+
+    public boolean existsSuccessfulPaymentOrder(
+            PaymentScenarioType paymentScenarioType,
+            AbstractLongId scenarioRelationId) {
+        List<PaymentOrder> paymentOrderOfDealerServicePurchaseOrder = paymentOrderRepository
+                .findByScenario(paymentScenarioType, scenarioRelationId);
+
+        return !paymentOrderOfDealerServicePurchaseOrder.stream().anyMatch(n -> n.isPaymentSuccessful());
     }
 }

@@ -23,33 +23,38 @@ package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
+import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentServiceSelector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DealerServicePurchaseOrderPaymentService {
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
     private PaymentServiceSelector paymentServiceSelector;
     private PaymentOrderRepository paymentOrderRepository;
+    private PaymentOrderService paymentOrderService;
 
     @Autowired
     public DealerServicePurchaseOrderPaymentService(
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             PaymentServiceSelector paymentServiceSelector,
-            PaymentOrderRepository paymentOrderRepository) {
+            PaymentOrderRepository paymentOrderRepository,
+            PaymentOrderService paymentOrderService) {
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.paymentServiceSelector = paymentServiceSelector;
         this.paymentOrderRepository = paymentOrderRepository;
+        this.paymentOrderService = paymentOrderService;
     }
 
     public InitiatePaymentResult initiatePayment(
@@ -61,8 +66,19 @@ public class DealerServicePurchaseOrderPaymentService {
         CheckUtils.notNull(paymentChannelType, "paymentChannelType 必须不为 null");
         CheckUtils.notNull(paymentMethodType, "paymentMethodType 必须不为 null");
 
-        order.initiatePayment();
-        dealerServicePurchaseOrderRepository.save(order);
+        CheckUtils.isTrue(
+                paymentOrderService.existsSuccessfulPaymentOrder(
+                        PaymentScenarioType.DEALER_SERVICE_PURCHASE,
+                        order.id()
+                ),
+                new BusinessRuleException(
+                        "存在支付成功的支付订单,订单不能再发起支付",
+                        ImmutableMap.of(
+                                "id",
+                                order.id().getId()
+                        )
+                )
+        );
 
         PaymentOrder paymentOrder = new PaymentOrder(
                 paymentOrderRepository.nextId(),

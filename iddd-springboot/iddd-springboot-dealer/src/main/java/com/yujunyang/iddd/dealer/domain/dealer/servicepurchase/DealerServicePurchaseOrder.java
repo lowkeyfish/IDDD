@@ -34,9 +34,6 @@ import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 
 public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderId id;
@@ -156,8 +153,12 @@ public class DealerServicePurchaseOrder {
         status = DealerServicePurchaseOrderStatusType.REFUND_INITIATED;
     }
 
-    public boolean isPaymentInitiated() {
+    public boolean isPaymentInProgress() {
         return DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED.equals(status);
+    }
+
+    public boolean isPaymentSuccess() {
+        return DealerServicePurchaseOrderStatusType.PAYMENT_SUCCESS.equals(status);
     }
 
     public DealerServicePurchaseOrderId id() {
@@ -166,6 +167,14 @@ public class DealerServicePurchaseOrder {
 
     public int amount() {
         return amount;
+    }
+
+    public DealerId dealerId() {
+        return dealerId;
+    }
+
+    public LocalDateTime serviceExpiryTime() {
+        return servicePeriod.getEnd();
     }
 
     public AbstractLongId paymentOrderId() {

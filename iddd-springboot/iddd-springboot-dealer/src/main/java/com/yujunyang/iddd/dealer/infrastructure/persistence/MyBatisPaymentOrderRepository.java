@@ -21,9 +21,14 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -46,5 +51,12 @@ public class MyBatisPaymentOrderRepository implements PaymentOrderRepository {
     @Override
     public PaymentOrder findByOutTradeNo(String outTradeNo) {
         return null;
+    }
+
+    @Override
+    public List<PaymentOrder> findByScenario(
+            PaymentScenarioType paymentScenarioType,
+            AbstractLongId scenarioRelationId) {
+        return new ArrayList<>();
     }
 }

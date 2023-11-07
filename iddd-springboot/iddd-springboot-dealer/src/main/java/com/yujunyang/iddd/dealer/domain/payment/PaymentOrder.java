@@ -149,5 +149,11 @@ public class PaymentOrder {
         return id;
     }
 
+    public boolean isPaymentInProgress() {
+        return PaymentStatusType.INITIATED.equals(status);
+    }
 
+    public boolean isPaymentSuccessful() {
+        return PaymentStatusType.SUCCESS.equals(status);
+    }
 }

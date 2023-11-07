@@ -24,7 +24,8 @@ package com.yujunyang.iddd.dealer.application;
 
 import java.text.MessageFormat;
 
-import com.yujunyang.iddd.common.exception.InvalidStatusException;
+import com.google.common.collect.ImmutableMap;
+import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.ChangeDealerVisibilityCommand;
@@ -32,6 +33,7 @@ import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeTelephoneCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
+import com.yujunyang.iddd.dealer.application.command.UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.City;
@@ -46,6 +48,8 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerIdGenerator;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +62,7 @@ public class DealerApplicationService {
     private BrandService brandService;
     private CityService cityService;
     private CityBrandSupportedService cityBrandSupportedService;
+    private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
 
     @Autowired
     public DealerApplicationService(
@@ -66,13 +71,15 @@ public class DealerApplicationService {
             DealerIdGenerator dealerIdGenerator,
             BrandService brandService,
             CityService cityService,
-            CityBrandSupportedService cityBrandSupportedService) {
+            CityBrandSupportedService cityBrandSupportedService,
+            DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository) {
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
         this.dealerRepository = dealerRepository;
         this.dealerIdGenerator = dealerIdGenerator;
         this.brandService = brandService;
         this.cityService = cityService;
         this.cityBrandSupportedService = cityBrandSupportedService;
+        this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
     }
 
     @Transactional
@@ -141,8 +148,7 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void makeDealerHidden(ChangeDealerVisibilityCommand command)
-            throws InvalidStatusException {
+    public void makeDealerHidden(ChangeDealerVisibilityCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
@@ -152,12 +158,45 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void makeDealerVisible(ChangeDealerVisibilityCommand command)
-            throws InvalidStatusException {
+    public void makeDealerVisible(ChangeDealerVisibilityCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         Dealer dealer = existingDealer(command.getDealerId());
         dealer.makeDealerVisible();
+
+        dealerRepository.save(dealer);
+    }
+
+    @Transactional
+    public void updateServiceTimeOnServicePurchaseOrderPaymentSuccess(
+            UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        DealerServicePurchaseOrder order = dealerServicePurchaseOrderRepository
+                .findById(command.getDealerServicePurchaseOrderId());
+        CheckUtils.notNull(
+                order,
+                new BusinessRuleException(
+                        "服务购买订单不存在",
+                        ImmutableMap.of(
+                                "dealerServicePurchaseOrderId",
+                                command.getDealerServicePurchaseOrderId().getId()
+                        )
+                )
+        );
+        CheckUtils.isTrue(
+                order.isPaymentSuccess(),
+                new BusinessRuleException(
+                        "服务购买订单未支付成功",
+                        ImmutableMap.of(
+                                "dealerServicePurchaseOrderId",
+                                command.getDealerServicePurchaseOrderId().getId()
+                        )
+                )
+        );
+
+        Dealer dealer = existingDealer(order.dealerId());
+        dealer.updateServiceTime(order.serviceExpiryTime());
 
         dealerRepository.save(dealer);
     }

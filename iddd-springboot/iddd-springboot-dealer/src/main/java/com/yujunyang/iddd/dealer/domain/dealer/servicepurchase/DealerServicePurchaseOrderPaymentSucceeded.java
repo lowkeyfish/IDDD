@@ -30,14 +30,14 @@ import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
 public class DealerServicePurchaseOrderPaymentSucceeded implements DomainEvent {
     private long timestamp;
-    private long id;
+    private long dealerServicePurchaseOrderId;
 
     @JsonCreator
     public DealerServicePurchaseOrderPaymentSucceeded(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("orderId") long id) {
+            @JsonProperty("dealerServicePurchaseOrderId") long dealerServicePurchaseOrderId) {
         this.timestamp = timestamp;
-        this.id = id;
+        this.dealerServicePurchaseOrderId = dealerServicePurchaseOrderId;
     }
 
     @Override
@@ -45,13 +45,13 @@ public class DealerServicePurchaseOrderPaymentSucceeded implements DomainEvent {
         return timestamp;
     }
 
-    public long getId() {
-        return id;
+    public long getDealerServicePurchaseOrderId() {
+        return dealerServicePurchaseOrderId;
     }
 
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", id);
+        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", dealerServicePurchaseOrderId);
     }
 
     @Override

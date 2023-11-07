@@ -27,14 +27,18 @@ import java.util.Arrays;
 import com.rabbitmq.client.Channel;
 import com.yujunyang.iddd.common.rabbitmq.AbstractRabbitMQListener;
 import com.yujunyang.iddd.common.utils.JacksonUtils;
+import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.DealerQueryService;
 import com.yujunyang.iddd.dealer.application.DealerServicePurchaseApplicationService;
+import com.yujunyang.iddd.dealer.application.command.UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand;
 import com.yujunyang.iddd.dealer.config.rabbitmq.RabbitMQConfig;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerCreated;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerServiceChanged;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerUpdated;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerVisibilityChanged;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaymentSucceeded;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.core.Message;
@@ -49,12 +53,14 @@ public class DealerQueueListener extends AbstractRabbitMQListener {
 
     private DealerQueryService dealerQueryService;
     private DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService;
+    private DealerApplicationService dealerApplicationService;
 
     @Autowired
     public DealerQueueListener(
             RabbitMQConfig rabbitMQConfig,
             DealerQueryService dealerQueryService,
-            DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService) {
+            DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService,
+            DealerApplicationService dealerApplicationService) {
         super(
                 rabbitMQConfig.internalDealerQueueName,
                 Arrays.asList("*"),
@@ -62,6 +68,7 @@ public class DealerQueueListener extends AbstractRabbitMQListener {
         );
         this.dealerQueryService = dealerQueryService;
         this.dealerServicePurchaseApplicationService = dealerServicePurchaseApplicationService;
+        this.dealerApplicationService = dealerApplicationService;
     }
 
     @RabbitListener(
@@ -88,6 +95,14 @@ public class DealerQueueListener extends AbstractRabbitMQListener {
         } else if (DealerServiceChanged.class.getSimpleName().equals(type)) {
             DealerServiceChanged domainEvent = JacksonUtils.deSerialize(body, DealerServiceChanged.class);
             dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
+        } else if (DealerServicePurchaseOrderPaymentSucceeded.class.getSimpleName().equals(type)) {
+            DealerServicePurchaseOrderPaymentSucceeded domainEvent =
+                    JacksonUtils.deSerialize(body, DealerServicePurchaseOrderPaymentSucceeded.class);
+            dealerApplicationService.updateServiceTimeOnServicePurchaseOrderPaymentSuccess(
+                    new UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand(
+                            new DealerServicePurchaseOrderId(domainEvent.getDealerServicePurchaseOrderId())
+                    )
+            );
         } else {
             LOGGER.warn("{0}不支持处理{1}", DealerQueueListener.class.getSimpleName(), type);
         }

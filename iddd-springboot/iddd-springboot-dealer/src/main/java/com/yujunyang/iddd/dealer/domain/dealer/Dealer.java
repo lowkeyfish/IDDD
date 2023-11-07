@@ -225,8 +225,20 @@ public class Dealer {
         return nextServicePeriod;
     }
 
-    public void extendServiceExpiryTime(TimeRange servicePeriod) {
+    public void updateServiceTime(LocalDateTime nextServiceExpiryTime) {
+        CheckUtils.notNull(nextServiceExpiryTime, "serviceExpiryTime 必须不为 null");
 
+        if (serviceExpiryTime == null || nextServiceExpiryTime.isAfter(serviceExpiryTime)) {
+            serviceExpiryTime = nextServiceExpiryTime;
+        }
+
+        if (DealerServiceStatusType.EXPIRED.equals(serviceStatus) && LocalDateTime.now().isBefore(serviceExpiryTime)) {
+            serviceStatus = DealerServiceStatusType.IN_SERVICE;
+            DomainEventPublisher.instance().publish(new DealerServiceChanged(
+                    DateTimeUtilsEnhance.epochMilliSecond(),
+                    id.getId()
+            ));
+        }
     }
 
     public void terminateServiceUponExpiration() {
