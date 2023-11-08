@@ -21,51 +21,25 @@
 
 package com.yujunyang.iddd.dealer.domain.payment;
 
-import java.text.MessageFormat;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class PaymentFailed implements DomainEvent {
-    private long timestamp;
-    private PaymentChannelType paymentChannel;
-    private long paymentOrderId;
-
+public class PaymentFailed extends AbstractPaymentDomainEvent {
     @JsonCreator
     public PaymentFailed(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentChannel") PaymentChannelType paymentChannel,
-            @JsonProperty("paymentOrderId") long paymentOrderId) {
-        this.timestamp = timestamp;
-        this.paymentChannel = paymentChannel;
-        this.paymentOrderId = paymentOrderId;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public PaymentChannelType getPaymentChannel() {
-        return paymentChannel;
-    }
-
-    public long getPaymentOrderId() {
-        return paymentOrderId;
-    }
-
-    @Override
-    public String eventKey() {
-        return MessageFormat.format(
-                "Payment_Channel({0,number,#})_PaymentOrderId({1,number,#})",
-                paymentChannel.getValue(),
-                paymentOrderId
+            @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
+            @JsonProperty("paymentMethodType") PaymentMethodType paymentMethodType,
+            @JsonProperty("paymentOrderId") long paymentOrderId,
+            @JsonProperty("paymentScenarioType") PaymentScenarioType paymentScenarioType,
+            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
+        super(
+                timestamp,
+                paymentChannelType,
+                paymentMethodType,
+                paymentOrderId,
+                paymentScenarioType,
+                scenarioRelationId
         );
-    }
-
-    @Override
-    public String notificationRoutingKey() {
-        return "Payment." + notificationType();
     }
 }

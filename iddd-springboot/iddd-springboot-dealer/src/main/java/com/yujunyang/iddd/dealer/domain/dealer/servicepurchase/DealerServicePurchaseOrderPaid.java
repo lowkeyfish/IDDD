@@ -28,12 +28,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerServicePurchaseOrderPaymentSucceeded implements DomainEvent {
+public class DealerServicePurchaseOrderPaid implements DomainEvent {
     private long timestamp;
     private long dealerServicePurchaseOrderId;
 
     @JsonCreator
-    public DealerServicePurchaseOrderPaymentSucceeded(
+    public DealerServicePurchaseOrderPaid(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("dealerServicePurchaseOrderId") long dealerServicePurchaseOrderId) {
         this.timestamp = timestamp;

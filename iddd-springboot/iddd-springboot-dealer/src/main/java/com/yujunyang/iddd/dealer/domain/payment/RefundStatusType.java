@@ -29,8 +29,8 @@ import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 public enum RefundStatusType implements ValueDescriptionEnum<Integer> {
     NOT_INITIATED(0, "未发起退款"),
     INITIATED(1, "已发起退款"),
-    SUCCESS(2, "退款成功"),
-    FAILURE(3, "退款失败");
+    REFUNDED(2, "已退款"),
+    FAILED(3, "退款失败");
 
     @JsonValue
     private int value;

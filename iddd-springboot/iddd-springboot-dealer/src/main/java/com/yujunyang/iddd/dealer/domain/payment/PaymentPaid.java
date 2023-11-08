@@ -17,45 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
-
-import java.text.MessageFormat;
+package com.yujunyang.iddd.dealer.domain.payment;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerServicePurchaseOrderPaymentInitiated implements DomainEvent {
-    private long timestamp;
-    private long id;
-
+public class PaymentPaid extends AbstractPaymentDomainEvent {
     @JsonCreator
-    public DealerServicePurchaseOrderPaymentInitiated(
+    public PaymentPaid(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("orderId") long id) {
-        this.timestamp = timestamp;
-        this.id = id;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public String eventKey() {
-        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", id);
-    }
-
-    @Override
-    public String notificationRoutingKey() {
-        return "Dealer.DealerServicePurchaseOrder." + notificationType();
+            @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
+            @JsonProperty("paymentMethodType") PaymentMethodType paymentMethodType,
+            @JsonProperty("paymentOrderId") long paymentOrderId,
+            @JsonProperty("paymentScenarioType") PaymentScenarioType paymentScenarioType,
+            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
+        super(
+                timestamp,
+                paymentChannelType,
+                paymentMethodType,
+                paymentOrderId,
+                paymentScenarioType,
+                scenarioRelationId
+        );
     }
 }

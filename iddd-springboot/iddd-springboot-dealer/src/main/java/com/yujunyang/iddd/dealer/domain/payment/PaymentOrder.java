@@ -100,7 +100,7 @@ public class PaymentOrder {
                 new BusinessRuleException(
                         "支付订单状态不支持发起支付",
                         ImmutableMap.of(
-                                "id",
+                                "paymentOrderId",
                                 id.getId(),
                                 "status",
                                 status
@@ -112,13 +112,17 @@ public class PaymentOrder {
 
         DomainEventPublisher.instance().publish(new PaymentInitiated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
-                id.getId()
+                paymentChannelType,
+                paymentMethodType,
+                id.getId(),
+                paymentScenarioType,
+                scenarioRelationId.getId()
         ));
 
         return initiatePaymentResult;
     }
 
-    public void handlePaymentSuccess() {
+    public void markAsPaymentSuccess() {
         CheckUtils.isTrue(
                 PaymentStatusType.INITIATED.equals(status),
                 new BusinessRuleException(
@@ -132,12 +136,15 @@ public class PaymentOrder {
                 )
         );
 
-        status = PaymentStatusType.SUCCESS;
+        status = PaymentStatusType.PAID;
 
-        DomainEventPublisher.instance().publish(new PaymentSucceeded(
+        DomainEventPublisher.instance().publish(new PaymentPaid(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 paymentChannelType,
-                id.getId()
+                paymentMethodType,
+                id.getId(),
+                paymentScenarioType,
+                scenarioRelationId.getId()
         ));
     }
 
@@ -149,11 +156,7 @@ public class PaymentOrder {
         return id;
     }
 
-    public boolean isPaymentInProgress() {
-        return PaymentStatusType.INITIATED.equals(status);
-    }
-
-    public boolean isPaymentSuccessful() {
-        return PaymentStatusType.SUCCESS.equals(status);
+    public PaymentStatusType status() {
+        return status;
     }
 }

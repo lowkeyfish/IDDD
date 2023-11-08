@@ -46,7 +46,7 @@ public class PaymentNotificationApplicationService {
     }
 
     @Transactional
-    public void handleWechatNotifyPaymentOrderSuccess(
+    public void handleWechatPaymentNotification(
             HandleWechatNotifyPaymentOrderSuccessCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
@@ -65,6 +65,6 @@ public class PaymentNotificationApplicationService {
                 )
         );
 
-        paymentOrderService.handlePaymentSuccess(paymentOrder);
+        paymentOrderService.handlePaymentNotification(paymentOrder);
     }
 }

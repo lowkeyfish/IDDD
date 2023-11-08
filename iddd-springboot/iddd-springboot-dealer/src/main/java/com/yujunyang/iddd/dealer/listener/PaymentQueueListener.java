@@ -30,15 +30,14 @@ import com.yujunyang.iddd.common.utils.JacksonUtils;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.DealerQueryService;
 import com.yujunyang.iddd.dealer.application.DealerServicePurchaseApplicationService;
-import com.yujunyang.iddd.dealer.application.command.UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand;
+import com.yujunyang.iddd.dealer.application.command.MarkAsPaymentInitiatedCommand;
+import com.yujunyang.iddd.dealer.application.command.OrderStatusChangeCommand;
 import com.yujunyang.iddd.dealer.config.rabbitmq.RabbitMQConfig;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerCreated;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerServiceChanged;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerUpdated;
-import com.yujunyang.iddd.dealer.domain.dealer.DealerVisibilityChanged;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
-import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaid;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiated;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentPaid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.core.Message;
@@ -48,21 +47,22 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class DealerQueueListener extends AbstractRabbitMQListener {
+public class PaymentQueueListener extends AbstractRabbitMQListener {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private DealerQueryService dealerQueryService;
     private DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService;
     private DealerApplicationService dealerApplicationService;
 
+
     @Autowired
-    public DealerQueueListener(
+    public PaymentQueueListener(
             RabbitMQConfig rabbitMQConfig,
             DealerQueryService dealerQueryService,
             DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService,
             DealerApplicationService dealerApplicationService) {
         super(
-                rabbitMQConfig.internalDealerQueueName,
+                rabbitMQConfig.internalPaymentQueueName,
                 Arrays.asList("*"),
                 LOGGER
         );
@@ -72,7 +72,7 @@ public class DealerQueueListener extends AbstractRabbitMQListener {
     }
 
     @RabbitListener(
-            queues = "#{rabbitMQConfig.internalDealerQueueName}",
+            queues = "#{rabbitMQConfig.internalPaymentQueueName}",
             concurrency = "1-5"
     )
     @Transactional
@@ -83,28 +83,18 @@ public class DealerQueueListener extends AbstractRabbitMQListener {
 
     @Override
     protected void messageHandler(String id, String type, String body) {
-        if (DealerCreated.class.getSimpleName().equals(type)) {
-            DealerCreated domainEvent = JacksonUtils.deSerialize(body, DealerCreated.class);
-            dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
-        } else if (DealerUpdated.class.getSimpleName().equals(type)) {
-            DealerUpdated domainEvent = JacksonUtils.deSerialize(body, DealerUpdated.class);
-            dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
-        } else if (DealerVisibilityChanged.class.getSimpleName().equals(type)) {
-            DealerVisibilityChanged domainEvent = JacksonUtils.deSerialize(body, DealerVisibilityChanged.class);
-            dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
-        } else if (DealerServiceChanged.class.getSimpleName().equals(type)) {
-            DealerServiceChanged domainEvent = JacksonUtils.deSerialize(body, DealerServiceChanged.class);
-            dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
-        } else if (DealerServicePurchaseOrderPaid.class.getSimpleName().equals(type)) {
-            DealerServicePurchaseOrderPaid domainEvent =
-                    JacksonUtils.deSerialize(body, DealerServicePurchaseOrderPaid.class);
-            dealerApplicationService.updateServiceTimeOnServicePurchaseOrderPaymentSuccess(
-                    new UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand(
-                            new DealerServicePurchaseOrderId(domainEvent.getDealerServicePurchaseOrderId())
-                    )
-            );
+        if (PaymentPaid.class.getSimpleName().equals(type)) {
+            PaymentPaid domainEvent = JacksonUtils.deSerialize(body, PaymentPaid.class);
+            if (PaymentScenarioType.DEALER_SERVICE_PURCHASE.equals(domainEvent.getPaymentScenarioType())) {
+                dealerServicePurchaseApplicationService.markAsPaid(
+                        new OrderStatusChangeCommand(
+                                new PaymentOrderId(domainEvent.getPaymentOrderId()),
+                                new DealerServicePurchaseOrderId(domainEvent.getScenarioRelationId())
+                        )
+                );
+            }
         } else {
-            LOGGER.warn("{0}不支持处理{1}", DealerQueueListener.class.getSimpleName(), type);
+            LOGGER.warn("{0}不支持处理{1}", PaymentQueueListener.class.getSimpleName(), type);
         }
     }
 }

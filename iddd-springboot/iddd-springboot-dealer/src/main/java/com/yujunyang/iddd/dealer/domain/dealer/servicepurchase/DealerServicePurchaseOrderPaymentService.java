@@ -21,6 +21,7 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -35,6 +36,7 @@ import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentServiceSelector;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,7 @@ public class DealerServicePurchaseOrderPaymentService {
     private PaymentServiceSelector paymentServiceSelector;
     private PaymentOrderRepository paymentOrderRepository;
     private PaymentOrderService paymentOrderService;
+
 
     @Autowired
     public DealerServicePurchaseOrderPaymentService(
@@ -67,15 +70,32 @@ public class DealerServicePurchaseOrderPaymentService {
         CheckUtils.notNull(paymentMethodType, "paymentMethodType 必须不为 null");
 
         CheckUtils.isTrue(
-                paymentOrderService.existsSuccessfulPaymentOrder(
-                        PaymentScenarioType.DEALER_SERVICE_PURCHASE,
-                        order.id()
-                ),
+                DealerServicePurchaseOrderStatusType.UNPAID.equals(order.status()),
+                new BusinessRuleException(
+                        "订单当前状态不能再发起支付",
+                        ImmutableMap.of(
+                                "dealerServicePurchaseOrderId",
+                                order.id().getId()
+                        )
+                )
+        );
+
+        List<PaymentOrder> initiatedPaymentOrders = paymentOrderRepository.findByScenario(
+                PaymentScenarioType.DEALER_SERVICE_PURCHASE,
+                order.id()
+        );
+
+        PaymentOrder paidPaymentOrder = initiatedPaymentOrders.stream()
+                .filter(n -> PaymentStatusType.PAID.equals(n.status())).findFirst().orElse(null);
+        CheckUtils.isTrue(
+                paidPaymentOrder == null,
                 new BusinessRuleException(
                         "存在支付成功的支付订单,订单不能再发起支付",
                         ImmutableMap.of(
-                                "id",
-                                order.id().getId()
+                                "dealerServicePurchaseOrderId",
+                                order.id().getId(),
+                                "paymentOrderId",
+                                paidPaymentOrder.id().getId()
                         )
                 )
         );

@@ -29,8 +29,8 @@ import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 public enum PaymentStatusType implements ValueDescriptionEnum<Integer> {
     NOT_INITIATED(0, "未发起支付"),
     INITIATED(1, "已发起支付"),
-    SUCCESS(2, "支付成功"),
-    FAILURE(3, "支付失败"),
+    PAID(2, "已支付"),
+    FAILED(3, "支付失败"),
     CLOSED(4, "已关闭");
 
     @JsonValue

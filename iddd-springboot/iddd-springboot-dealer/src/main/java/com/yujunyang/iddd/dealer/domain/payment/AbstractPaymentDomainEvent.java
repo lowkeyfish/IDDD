@@ -23,23 +23,29 @@ package com.yujunyang.iddd.dealer.domain.payment;
 
 import java.text.MessageFormat;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class PaymentSucceeded implements DomainEvent {
+public class AbstractPaymentDomainEvent implements DomainEvent {
     private long timestamp;
-    private PaymentChannelType paymentChannel;
+    private PaymentChannelType paymentChannelType;
+    private PaymentMethodType paymentMethodType;
     private long paymentOrderId;
+    private PaymentScenarioType paymentScenarioType;
+    private long scenarioRelationId;
 
-    @JsonCreator
-    public PaymentSucceeded(
-            @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentChannel") PaymentChannelType paymentChannel,
-            @JsonProperty("paymentOrderId") long paymentOrderId) {
+    protected AbstractPaymentDomainEvent(
+            long timestamp,
+            PaymentChannelType paymentChannelType,
+            PaymentMethodType paymentMethodType,
+            long paymentOrderId,
+            PaymentScenarioType paymentScenarioType,
+            long scenarioRelationId) {
         this.timestamp = timestamp;
-        this.paymentChannel = paymentChannel;
+        this.paymentChannelType = paymentChannelType;
+        this.paymentMethodType = paymentMethodType;
         this.paymentOrderId = paymentOrderId;
+        this.paymentScenarioType = paymentScenarioType;
+        this.scenarioRelationId = scenarioRelationId;
     }
 
     @Override
@@ -47,19 +53,30 @@ public class PaymentSucceeded implements DomainEvent {
         return timestamp;
     }
 
-    public PaymentChannelType getPaymentChannel() {
-        return paymentChannel;
-    }
-
     public long getPaymentOrderId() {
         return paymentOrderId;
+    }
+
+    public PaymentScenarioType getPaymentScenarioType() {
+        return paymentScenarioType;
+    }
+
+    public long getScenarioRelationId() {
+        return scenarioRelationId;
+    }
+
+    public PaymentChannelType getPaymentChannelType() {
+        return paymentChannelType;
+    }
+
+    public PaymentMethodType getPaymentMethodType() {
+        return paymentMethodType;
     }
 
     @Override
     public String eventKey() {
         return MessageFormat.format(
-                "Payment_Channel({0,number,#})_PaymentOrderId({1,number,#})",
-                paymentChannel.getValue(),
+                "PaymentOrderId({0,number,#})",
                 paymentOrderId
         );
     }

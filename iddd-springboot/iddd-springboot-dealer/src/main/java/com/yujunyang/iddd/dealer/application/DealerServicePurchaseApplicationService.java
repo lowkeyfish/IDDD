@@ -28,6 +28,7 @@ import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderHandlePaymentSuccessCommand;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
+import com.yujunyang.iddd.dealer.application.command.OrderStatusChangeCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
 import com.yujunyang.iddd.dealer.application.data.InitiatePaymentCommandResult;
 import com.yujunyang.iddd.dealer.application.data.PurchaseServiceCommandResult;
@@ -94,6 +95,8 @@ public class DealerServicePurchaseApplicationService {
     public void initiatePayment(
             InitiatePaymentCommand command,
             InitiatePaymentCommandResult commandResult) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
 
         InitiatePaymentResult initiatePaymentResult = dealerServicePurchaseOrderPaymentService.initiatePayment(
@@ -107,12 +110,11 @@ public class DealerServicePurchaseApplicationService {
     }
 
     @Transactional
-    public void handlePaymentSuccess(
-            DealerServicePurchaseOrderHandlePaymentSuccessCommand command) {
+    public void markAsPaid(OrderStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder(command.getDealerServicePurchaseOrderId());
-        order.handlePaymentSuccess();
+        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+        order.markAsPaid(command.getPaymentOrderId());
 
         dealerServicePurchaseOrderRepository.save(order);
     }
@@ -148,4 +150,6 @@ public class DealerServicePurchaseApplicationService {
         }
         return dealer;
     }
+
+
 }

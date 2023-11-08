@@ -22,18 +22,14 @@
 package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 
 public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderId id;
@@ -42,8 +38,7 @@ public class DealerServicePurchaseOrder {
     private DealerServicePurchaseOrderStatusType status;
     private LocalDateTime createTime;
     private int amount;
-    private PaymentChannelType paymentChannelType;
-    private AbstractLongId paymentOrderId;
+    private PaymentOrderId paymentOrderId;
 
 
     public DealerServicePurchaseOrder(
@@ -55,7 +50,7 @@ public class DealerServicePurchaseOrder {
                 id,
                 dealerId,
                 servicePeriod,
-                DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED,
+                DealerServicePurchaseOrderStatusType.UNPAID,
                 LocalDateTime.now(),
                 amount
         );
@@ -86,79 +81,24 @@ public class DealerServicePurchaseOrder {
         this.amount = amount;
     }
 
+    public void markAsPaid(PaymentOrderId paymentOrderId) {
+        if (DealerServicePurchaseOrderStatusType.UNPAID.equals(status)) {
+            this.paymentOrderId = paymentOrderId;
+            status = DealerServicePurchaseOrderStatusType.PAID;
 
-    public void handlePaymentSuccess() {
-        CheckUtils.isTrue(
-                DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED.equals(status),
-                new BusinessRuleException(
-                        "当前状态不能变更为支付成功",
-                        ImmutableMap.of(
-                                "id",
-                                id.getId(),
-                                "status",
-                                status
-                        )
-                )
-        );
+            DomainEventPublisher.instance().publish(new DealerServicePurchaseOrderPaid(
+                    DateTimeUtilsEnhance.epochMilliSecond(),
+                    id.getId()
+            ));
 
-        status = DealerServicePurchaseOrderStatusType.PAYMENT_SUCCESS;
+            return;
+        }
 
-        DomainEventPublisher.instance().publish(new DealerServicePurchaseOrderPaymentSucceeded(
-                DateTimeUtilsEnhance.epochMilliSecond(),
-                id.getId()
-        ));
+        DomainEventPublisher.instance().publish();
     }
 
-    public void initiatePayment() {
-        List<DealerServicePurchaseOrderStatusType> allowStatusList = Arrays.asList(
-                DealerServicePurchaseOrderStatusType.PAYMENT_NOT_INITIATED,
-                DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED
-        );
-
-        CheckUtils.isTrue(
-                allowStatusList.contains(status),
-                new BusinessRuleException(
-                        "当前订单状态不允许发起支付",
-                        ImmutableMap.of(
-                                "id",
-                                id.getId(),
-                                "status",
-                                status
-                        )
-                )
-        );
-
-        status = DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED;
-
-        DomainEventPublisher.instance().publish(new DealerServicePurchaseOrderPaymentInitiated(
-                DateTimeUtilsEnhance.epochMilliSecond(),
-                id.getId()
-        ));
-    }
-
-    public void initiateRefund() {
-        CheckUtils.isTrue(
-                DealerServicePurchaseOrderStatusType.PAYMENT_SUCCESS.equals(status),
-                new BusinessRuleException(
-                        "订单状态非支付成功不能申请退款",
-                        ImmutableMap.of(
-                                "id",
-                                id.getId(),
-                                "status",
-                                status
-                        )
-                )
-        );
-
-        status = DealerServicePurchaseOrderStatusType.REFUND_INITIATED;
-    }
-
-    public boolean isPaymentInProgress() {
-        return DealerServicePurchaseOrderStatusType.PAYMENT_INITIATED.equals(status);
-    }
-
-    public boolean isPaymentSuccess() {
-        return DealerServicePurchaseOrderStatusType.PAYMENT_SUCCESS.equals(status);
+    public DealerServicePurchaseOrderStatusType status() {
+        return status;
     }
 
     public DealerServicePurchaseOrderId id() {
@@ -177,12 +117,8 @@ public class DealerServicePurchaseOrder {
         return servicePeriod.getEnd();
     }
 
-    public AbstractLongId paymentOrderId() {
+    public PaymentOrderId paymentOrderId() {
         return paymentOrderId;
-    }
-
-    public PaymentChannelType paymentChannelType() {
-        return paymentChannelType;
     }
 
     public DealerServicePurchaseOrderSnapshot snapshot() {

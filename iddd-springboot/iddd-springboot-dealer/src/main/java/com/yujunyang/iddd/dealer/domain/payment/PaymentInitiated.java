@@ -21,43 +21,25 @@
 
 package com.yujunyang.iddd.dealer.domain.payment;
 
-import java.text.MessageFormat;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class PaymentInitiated implements DomainEvent {
-    private long timestamp;
-    private long paymentOrderId;
-
+public class PaymentInitiated extends AbstractPaymentDomainEvent {
     @JsonCreator
     public PaymentInitiated(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentOrderId") long paymentOrderId) {
-        this.timestamp = timestamp;
-        this.paymentOrderId = paymentOrderId;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getPaymentOrderId() {
-        return paymentOrderId;
-    }
-
-    @Override
-    public String eventKey() {
-        return MessageFormat.format(
-                "PaymentOrderId({1,number,#})",
-                paymentOrderId
+            @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
+            @JsonProperty("paymentMethodType") PaymentMethodType paymentMethodType,
+            @JsonProperty("paymentOrderId") long paymentOrderId,
+            @JsonProperty("paymentScenarioType") PaymentScenarioType paymentScenarioType,
+            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
+        super(
+                timestamp,
+                paymentChannelType,
+                paymentMethodType,
+                paymentOrderId,
+                paymentScenarioType,
+                scenarioRelationId
         );
-    }
-
-    @Override
-    public String notificationRoutingKey() {
-        return "Payment." + notificationType();
     }
 }

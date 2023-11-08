@@ -27,15 +27,14 @@ import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
 public enum DealerServicePurchaseOrderStatusType implements ValueDescriptionEnum<Integer> {
-    PAYMENT_NOT_INITIATED(1, "未发起支付"),
-    PAYMENT_INITIATED(2, "已发起支付"),
-    PAYMENT_SUCCESS(3, "支付成功"),
-    PAYMENT_FAILURE(4, "支付失败"),
+    UNPAID(1, "未支付"),
+    PAID(2, "已支付"),
+    PAYMENT_FAILED(3, "支付失败"),
     MANUALLY_CANCELLED(11, "手动取消"),
     TIMEOUT_CANCELLED(12, "超时取消"),
-    REFUND_INITIATED(21, "已发起退款"),
-    REFUND_SUCCESS(22, "退款成功"),
-    REFUND_FAILURE(23, "退款失败");
+    REFUNDING(21, "退款中"),
+    REFUNDED(22, "已退款"),
+    REFUND_FAILED(23, "退款失败");
 
 
     @JsonValue
