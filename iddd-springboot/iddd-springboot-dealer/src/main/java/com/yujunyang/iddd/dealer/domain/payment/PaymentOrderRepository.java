@@ -24,6 +24,7 @@ package com.yujunyang.iddd.dealer.domain.payment;
 import java.util.List;
 
 import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
 public interface PaymentOrderRepository {
     PaymentOrderId nextId();
@@ -35,7 +36,7 @@ public interface PaymentOrderRepository {
     PaymentOrder findByOutTradeNo(String outTradeNo);
 
     List<PaymentOrder> findByScenario(
-            PaymentScenarioType paymentScenarioType,
+            OrderType paymentScenarioType,
             AbstractLongId scenarioRelationId
     );
 }

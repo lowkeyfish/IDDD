@@ -19,7 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
+package com.yujunyang.iddd.dealer.domain.order;
 
 import java.text.MessageFormat;
 
@@ -27,16 +27,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerServicePurchaseOrderClosed implements DomainEvent {
+public class AbstractOrderDomainEvent implements DomainEvent {
     private long timestamp;
-    private long id;
+    private long orderId;
+    private OrderType orderType;
 
-    @JsonCreator
-    public DealerServicePurchaseOrderClosed(
-            @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("orderId") long id) {
+    public AbstractOrderDomainEvent(
+            long timestamp,
+            long orderId,
+            OrderType orderType) {
         this.timestamp = timestamp;
-        this.id = id;
+        this.orderId = orderId;
+        this.orderType = orderType;
     }
 
     @Override
@@ -44,17 +46,25 @@ public class DealerServicePurchaseOrderClosed implements DomainEvent {
         return timestamp;
     }
 
-    public long getId() {
-        return id;
+    public long getOrderId() {
+        return orderId;
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
     }
 
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", id);
+        return MessageFormat.format(
+                "OrderId({0,number,#})_OrderType({1,number,#})",
+                orderId,
+                orderType.getValue()
+        );
     }
 
     @Override
     public String notificationRoutingKey() {
-        return "Dealer.DealerServicePurchaseOrder." + notificationType();
+        return "Order." + notificationType();
     }
 }

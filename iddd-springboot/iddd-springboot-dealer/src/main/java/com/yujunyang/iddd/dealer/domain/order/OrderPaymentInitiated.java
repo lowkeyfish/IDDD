@@ -19,42 +19,17 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
-
-import java.text.MessageFormat;
+package com.yujunyang.iddd.dealer.domain.order;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerServicePurchaseOrderCreated implements DomainEvent {
-    private long timestamp;
-    private long id;
-
+public class OrderPaymentInitiated extends AbstractOrderDomainEvent {
     @JsonCreator
-    public DealerServicePurchaseOrderCreated(
+    public OrderPaymentInitiated(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("orderId") long id) {
-        this.timestamp = timestamp;
-        this.id = id;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public String eventKey() {
-        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", id);
-    }
-
-    @Override
-    public String notificationRoutingKey() {
-        return "Dealer.DealerServicePurchaseOrder." + notificationType();
+            @JsonProperty("orderId") long orderId,
+            @JsonProperty("orderType") OrderType orderType) {
+        super(timestamp, orderId, orderType);
     }
 }

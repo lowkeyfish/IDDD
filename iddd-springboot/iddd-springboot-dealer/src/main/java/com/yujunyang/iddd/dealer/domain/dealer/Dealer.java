@@ -27,16 +27,11 @@ import java.time.LocalDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
-import com.yujunyang.iddd.common.exception.InvalidStatusException;
-import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.car.BrandId;
-import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseAmountService;
-import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
-import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderIdGenerator;
 
 public class Dealer {
     private DealerId id;
@@ -132,7 +127,7 @@ public class Dealer {
 
         this.name = name;
 
-        DomainEventPublisher.instance().publish(new DealerUpdated(
+        DomainEventPublisher.instance().publish(new DealerInfoUpdated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));
@@ -156,7 +151,7 @@ public class Dealer {
 
         this.address = address;
 
-        DomainEventPublisher.instance().publish(new DealerUpdated(
+        DomainEventPublisher.instance().publish(new DealerInfoUpdated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));
@@ -180,7 +175,7 @@ public class Dealer {
 
         this.telephone = telephone;
 
-        DomainEventPublisher.instance().publish(new DealerUpdated(
+        DomainEventPublisher.instance().publish(new DealerInfoUpdated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId()
         ));

@@ -44,7 +44,7 @@ public class WechatPaymentService implements PaymentService {
     }
 
     @Override
-    public PaymentResult queryPaymentOrderStatus(PaymentOrder paymentOrder) {
+    public PaymentResult queryPaymentStatus(PaymentOrder paymentOrder) {
         return null;
     }
 
@@ -59,7 +59,7 @@ public class WechatPaymentService implements PaymentService {
     }
 
     @Override
-    public RefundResult queryRefundOrderStatus(RefundOrder refundOrder) {
+    public RefundResult queryRefundStatus(RefundOrder refundOrder) {
         return null;
     }
 }

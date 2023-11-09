@@ -26,11 +26,11 @@ public interface PaymentService {
 
     InitiatePaymentResult initiatePayment(PaymentOrder paymentOrder);
 
-    PaymentResult queryPaymentOrderStatus(PaymentOrder paymentOrder);
+    PaymentResult queryPaymentStatus(PaymentOrder paymentOrder);
 
     void closePaymentOrder(PaymentOrder paymentOrder);
 
     InitiateRefundResult initiateRefund(RefundOrder refundOrder);
 
-    RefundResult queryRefundOrderStatus(RefundOrder refundOrder);
+    RefundResult queryRefundStatus(RefundOrder refundOrder);
 }

@@ -23,31 +23,29 @@ package com.yujunyang.iddd.dealer.domain.payment;
 
 import java.text.MessageFormat;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public class AbstractPaymentDomainEvent implements DomainEvent {
+public class RefundRequested implements DomainEvent {
     private long timestamp;
-    private PaymentChannelType paymentChannelType;
-    private PaymentMethodType paymentMethodType;
     private long paymentOrderId;
-    private OrderType orderType;
-    private long orderId;
+    private OrderType paymentScenarioType;
+    private long scenarioRelationId;
 
-    protected AbstractPaymentDomainEvent(
-            long timestamp,
-            PaymentChannelType paymentChannelType,
-            PaymentMethodType paymentMethodType,
-            long paymentOrderId,
-            OrderType orderType,
-            long orderId) {
+    @JsonCreator
+    public RefundRequested(
+            @JsonProperty("timestamp") long timestamp,
+            @JsonProperty("paymentOrderId") long paymentOrderId,
+            @JsonProperty("paymentScenarioType") OrderType paymentScenarioType,
+            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
         this.timestamp = timestamp;
-        this.paymentChannelType = paymentChannelType;
-        this.paymentMethodType = paymentMethodType;
         this.paymentOrderId = paymentOrderId;
-        this.orderType = orderType;
-        this.orderId = orderId;
+        this.paymentScenarioType = paymentScenarioType;
+        this.scenarioRelationId = scenarioRelationId;
     }
+
 
     @Override
     public long getTimestamp() {
@@ -58,20 +56,12 @@ public class AbstractPaymentDomainEvent implements DomainEvent {
         return paymentOrderId;
     }
 
-    public OrderType getOrderType() {
-        return orderType;
+    public OrderType getPaymentScenarioType() {
+        return paymentScenarioType;
     }
 
-    public long getOrderId() {
-        return orderId;
-    }
-
-    public PaymentChannelType getPaymentChannelType() {
-        return paymentChannelType;
-    }
-
-    public PaymentMethodType getPaymentMethodType() {
-        return paymentMethodType;
+    public long getScenarioRelationId() {
+        return scenarioRelationId;
     }
 
     @Override

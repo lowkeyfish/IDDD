@@ -26,7 +26,6 @@ import java.text.MessageFormat;
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.application.command.DealerServicePurchaseOrderHandlePaymentSuccessCommand;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.OrderStatusChangeCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
@@ -41,27 +40,32 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaymentService;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class DealerServicePurchaseApplicationService {
+public class DealerServicePurchaseOrderApplicationService {
     private DealerRepository dealerRepository;
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
     private DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory;
     private DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService;
+    private PaymentOrderService paymentOrderService;
+
 
     @Autowired
-    public DealerServicePurchaseApplicationService(
+    public DealerServicePurchaseOrderApplicationService(
             DealerRepository dealerRepository,
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory,
-            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService) {
+            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService,
+            PaymentOrderService paymentOrderService) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderFactory = dealerServicePurchaseOrderFactory;
         this.dealerServicePurchaseOrderPaymentService = dealerServicePurchaseOrderPaymentService;
+        this.paymentOrderService = paymentOrderService;
     }
 
     @Transactional
@@ -99,7 +103,7 @@ public class DealerServicePurchaseApplicationService {
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
 
-        InitiatePaymentResult initiatePaymentResult = dealerServicePurchaseOrderPaymentService.initiatePayment(
+        InitiatePaymentResult initiatePaymentResult = paymentOrderService.initiatePayment(
                 order,
                 command.getPaymentChannelType(),
                 command.getPaymentMethodType(),
@@ -107,6 +111,15 @@ public class DealerServicePurchaseApplicationService {
         );
 
         commandResult.resultingPaymentInitiationData(initiatePaymentResult.getData());
+    }
+
+    @Transactional
+    public void markAsPaymentInitiated(OrderStatusChangeCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+        order.markAsPaymentInitiated();
+        dealerServicePurchaseOrderRepository.save(order);
     }
 
     @Transactional

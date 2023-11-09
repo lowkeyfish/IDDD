@@ -25,12 +25,13 @@ import java.time.LocalDateTime;
 
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
+import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
 
 public class DealerServicePurchaseOrderSnapshot {
     private DealerServicePurchaseOrderId id;
     private DealerId dealerId;
     private TimeRange servicePeriod;
-    private DealerServicePurchaseOrderStatusType status;
+    private OrderStatusType status;
     private LocalDateTime createTime;
     private int amount;
 
@@ -38,7 +39,7 @@ public class DealerServicePurchaseOrderSnapshot {
             DealerServicePurchaseOrderId id,
             DealerId dealerId,
             TimeRange servicePeriod,
-            DealerServicePurchaseOrderStatusType status,
+            OrderStatusType status,
             LocalDateTime createTime, int amount) {
         this.id = id;
         this.dealerId = dealerId;
@@ -60,7 +61,7 @@ public class DealerServicePurchaseOrderSnapshot {
         return servicePeriod;
     }
 
-    public DealerServicePurchaseOrderStatusType getStatus() {
+    public OrderStatusType getStatus() {
         return status;
     }
 

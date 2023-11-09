@@ -30,11 +30,12 @@ import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
 public class PaymentOrder {
     private PaymentOrderId id;
-    private PaymentScenarioType paymentScenarioType;
-    private AbstractLongId scenarioRelationId;
+    private OrderType orderType;
+    private AbstractLongId orderId;
     private PaymentChannelType paymentChannelType;
     private PaymentMethodType paymentMethodType;
     private LocalDateTime createTime;
@@ -46,8 +47,8 @@ public class PaymentOrder {
 
     public PaymentOrder(
             PaymentOrderId id,
-            PaymentScenarioType paymentScenarioType,
-            AbstractLongId scenarioRelationId,
+            OrderType orderType,
+            AbstractLongId orderId,
             PaymentChannelType paymentChannelType,
             PaymentMethodType paymentMethodType,
             LocalDateTime createTime,
@@ -57,8 +58,8 @@ public class PaymentOrder {
             String outTradeNo,
             Map<String, Object> paymentChannelParams) {
         this.id = id;
-        this.paymentScenarioType = paymentScenarioType;
-        this.scenarioRelationId = scenarioRelationId;
+        this.orderType = orderType;
+        this.orderId = orderId;
         this.paymentChannelType = paymentChannelType;
         this.paymentMethodType = paymentMethodType;
         this.createTime = createTime;
@@ -71,8 +72,8 @@ public class PaymentOrder {
 
     public PaymentOrder(
             PaymentOrderId id,
-            PaymentScenarioType paymentScenarioType,
-            AbstractLongId scenarioRelationId,
+            OrderType orderType,
+            AbstractLongId orderId,
             PaymentChannelType paymentChannelType,
             PaymentMethodType paymentMethodType,
             String description,
@@ -80,8 +81,8 @@ public class PaymentOrder {
             Map<String, Object> paymentChannelParams) {
         this(
                 id,
-                paymentScenarioType,
-                scenarioRelationId,
+                orderType,
+                orderId,
                 paymentChannelType,
                 paymentMethodType,
                 LocalDateTime.now(),
@@ -110,13 +111,15 @@ public class PaymentOrder {
 
         InitiatePaymentResult initiatePaymentResult = paymentService.initiatePayment(this);
 
+        status = PaymentStatusType.INITIATED;
+
         DomainEventPublisher.instance().publish(new PaymentInitiated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 paymentChannelType,
                 paymentMethodType,
                 id.getId(),
-                paymentScenarioType,
-                scenarioRelationId.getId()
+                orderType,
+                orderId.getId()
         ));
 
         return initiatePaymentResult;
@@ -143,13 +146,17 @@ public class PaymentOrder {
                 paymentChannelType,
                 paymentMethodType,
                 id.getId(),
-                paymentScenarioType,
-                scenarioRelationId.getId()
+                orderType,
+                orderId.getId()
         ));
     }
 
     public PaymentChannelType paymentChannelType() {
         return paymentChannelType;
+    }
+
+    public PaymentMethodType paymentMethodType() {
+        return paymentMethodType;
     }
 
     public PaymentOrderId id() {

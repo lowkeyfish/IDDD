@@ -17,45 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer;
-
-import java.text.MessageFormat;
+package com.yujunyang.iddd.dealer.domain.payment;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.common.domain.event.DomainEvent;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public class DealerUpdated implements DomainEvent {
-    private long timestamp;
-    private long dealerId;
-
+public class RefundRequestedDueToRepeatedPayment extends RefundRequested {
     @JsonCreator
-    public DealerUpdated(
+    public RefundRequestedDueToRepeatedPayment(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerId") long dealerId) {
-        this.timestamp = timestamp;
-        this.dealerId = dealerId;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public long getDealerId() {
-        return dealerId;
-    }
-
-    @Override
-    public String eventKey() {
-        return MessageFormat.format("DealerId({0,number,#})", dealerId);
-    }
-
-    @Override
-    public String notificationRoutingKey() {
-        return "Dealer." + notificationType();
+            @JsonProperty("paymentOrderId") long paymentOrderId,
+            @JsonProperty("paymentScenarioType") OrderType orderType,
+            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
+        super(timestamp, paymentOrderId, orderType, scenarioRelationId);
     }
 }

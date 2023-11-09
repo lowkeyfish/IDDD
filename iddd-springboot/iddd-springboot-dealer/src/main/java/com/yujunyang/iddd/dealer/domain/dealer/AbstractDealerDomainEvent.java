@@ -20,7 +20,7 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
+package com.yujunyang.iddd.dealer.domain.dealer;
 
 import java.text.MessageFormat;
 
@@ -28,16 +28,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 
-public class DealerServicePurchaseOrderPaid implements DomainEvent {
+public abstract class AbstractDealerDomainEvent implements DomainEvent {
     private long timestamp;
-    private long dealerServicePurchaseOrderId;
+    private long dealerId;
 
-    @JsonCreator
-    public DealerServicePurchaseOrderPaid(
-            @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("dealerServicePurchaseOrderId") long dealerServicePurchaseOrderId) {
+    protected AbstractDealerDomainEvent(
+            long timestamp,
+            long dealerId) {
         this.timestamp = timestamp;
-        this.dealerServicePurchaseOrderId = dealerServicePurchaseOrderId;
+        this.dealerId = dealerId;
     }
 
     @Override
@@ -45,17 +44,17 @@ public class DealerServicePurchaseOrderPaid implements DomainEvent {
         return timestamp;
     }
 
-    public long getDealerServicePurchaseOrderId() {
-        return dealerServicePurchaseOrderId;
+    public long getDealerId() {
+        return dealerId;
     }
 
     @Override
     public String eventKey() {
-        return MessageFormat.format("DealerServicePurchaseOrderId({0,number,#})", dealerServicePurchaseOrderId);
+        return MessageFormat.format("DealerId({0,number,#})", dealerId);
     }
 
     @Override
     public String notificationRoutingKey() {
-        return "Dealer.DealerServicePurchaseOrder." + notificationType();
+        return "Dealer." + notificationType();
     }
 }

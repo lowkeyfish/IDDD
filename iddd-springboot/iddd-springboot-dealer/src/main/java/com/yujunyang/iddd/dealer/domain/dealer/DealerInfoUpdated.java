@@ -17,30 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.dealer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public class PaymentFailed extends AbstractPaymentDomainEvent {
+public class DealerInfoUpdated extends AbstractDealerDomainEvent {
     @JsonCreator
-    public PaymentFailed(
+    public DealerInfoUpdated(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
-            @JsonProperty("paymentMethodType") PaymentMethodType paymentMethodType,
-            @JsonProperty("paymentOrderId") long paymentOrderId,
-            @JsonProperty("paymentScenarioType") OrderType paymentScenarioType,
-            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
-        super(
-                timestamp,
-                paymentChannelType,
-                paymentMethodType,
-                paymentOrderId,
-                paymentScenarioType,
-                scenarioRelationId
-        );
+            @JsonProperty("dealerId") long dealerId) {
+        super(timestamp, dealerId);
     }
 }

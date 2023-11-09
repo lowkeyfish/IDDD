@@ -28,7 +28,7 @@ import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -55,7 +55,7 @@ public class MyBatisPaymentOrderRepository implements PaymentOrderRepository {
 
     @Override
     public List<PaymentOrder> findByScenario(
-            PaymentScenarioType paymentScenarioType,
+            OrderType paymentScenarioType,
             AbstractLongId scenarioRelationId) {
         return new ArrayList<>();
     }

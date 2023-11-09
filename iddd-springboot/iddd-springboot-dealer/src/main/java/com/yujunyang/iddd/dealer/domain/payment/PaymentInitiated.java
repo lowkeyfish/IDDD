@@ -23,6 +23,7 @@ package com.yujunyang.iddd.dealer.domain.payment;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
 public class PaymentInitiated extends AbstractPaymentDomainEvent {
     @JsonCreator
@@ -31,14 +32,14 @@ public class PaymentInitiated extends AbstractPaymentDomainEvent {
             @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
             @JsonProperty("paymentMethodType") PaymentMethodType paymentMethodType,
             @JsonProperty("paymentOrderId") long paymentOrderId,
-            @JsonProperty("paymentScenarioType") PaymentScenarioType paymentScenarioType,
+            @JsonProperty("paymentScenarioType") OrderType orderType,
             @JsonProperty("scenarioRelationId") long scenarioRelationId) {
         super(
                 timestamp,
                 paymentChannelType,
                 paymentMethodType,
                 paymentOrderId,
-                paymentScenarioType,
+                orderType,
                 scenarioRelationId
         );
     }

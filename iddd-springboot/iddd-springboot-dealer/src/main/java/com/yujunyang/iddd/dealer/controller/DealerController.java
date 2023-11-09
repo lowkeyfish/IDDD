@@ -26,7 +26,7 @@ import com.yujunyang.iddd.common.data.RestResponse;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.DealerQueryService;
-import com.yujunyang.iddd.dealer.application.DealerServicePurchaseApplicationService;
+import com.yujunyang.iddd.dealer.application.DealerServicePurchaseOrderApplicationService;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
@@ -50,16 +50,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class DealerController {
     private DealerApplicationService dealerApplicationService;
     private DealerQueryService dealerQueryService;
-    private DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService;
+    private DealerServicePurchaseOrderApplicationService dealerServicePurchaseOrderApplicationService;
 
     @Autowired
     public DealerController(
             DealerApplicationService dealerApplicationService,
             DealerQueryService dealerQueryService,
-            DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService) {
+            DealerServicePurchaseOrderApplicationService dealerServicePurchaseOrderApplicationService) {
         this.dealerApplicationService = dealerApplicationService;
         this.dealerQueryService = dealerQueryService;
-        this.dealerServicePurchaseApplicationService = dealerServicePurchaseApplicationService;
+        this.dealerServicePurchaseOrderApplicationService = dealerServicePurchaseOrderApplicationService;
     }
 
     @PostMapping("/dealers")
@@ -107,7 +107,7 @@ public class DealerController {
     public RestResponse<Long> purchaseService(
             @PathVariable("dealerId") long dealerId) {
         RestResponse<Long> response = new RestResponse<>();
-        dealerServicePurchaseApplicationService.purchaseService(
+        dealerServicePurchaseOrderApplicationService.purchaseService(
                 new PurchaseServiceCommand(
                         new DealerId(dealerId)
                 ), id -> response.setData(id)
@@ -120,7 +120,7 @@ public class DealerController {
             @PathVariable("orderId") long orderId,
             @RequestBody InitiatePaymentRequestBody requestBody) {
         RestResponse<String> response = new RestResponse<>();
-        dealerServicePurchaseApplicationService.initiatePayment(
+        dealerServicePurchaseOrderApplicationService.initiatePayment(
                 new InitiatePaymentCommand(
                         new DealerServicePurchaseOrderId(orderId),
                         requestBody.getPaymentChannelType(),

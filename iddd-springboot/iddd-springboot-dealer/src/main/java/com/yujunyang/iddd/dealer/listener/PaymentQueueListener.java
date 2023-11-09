@@ -29,14 +29,12 @@ import com.yujunyang.iddd.common.rabbitmq.AbstractRabbitMQListener;
 import com.yujunyang.iddd.common.utils.JacksonUtils;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.DealerQueryService;
-import com.yujunyang.iddd.dealer.application.DealerServicePurchaseApplicationService;
-import com.yujunyang.iddd.dealer.application.command.MarkAsPaymentInitiatedCommand;
+import com.yujunyang.iddd.dealer.application.DealerServicePurchaseOrderApplicationService;
 import com.yujunyang.iddd.dealer.application.command.OrderStatusChangeCommand;
 import com.yujunyang.iddd.dealer.config.rabbitmq.RabbitMQConfig;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiated;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentPaid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +49,7 @@ public class PaymentQueueListener extends AbstractRabbitMQListener {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private DealerQueryService dealerQueryService;
-    private DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService;
+    private DealerServicePurchaseOrderApplicationService dealerServicePurchaseApplicationService;
     private DealerApplicationService dealerApplicationService;
 
 
@@ -59,7 +57,7 @@ public class PaymentQueueListener extends AbstractRabbitMQListener {
     public PaymentQueueListener(
             RabbitMQConfig rabbitMQConfig,
             DealerQueryService dealerQueryService,
-            DealerServicePurchaseApplicationService dealerServicePurchaseApplicationService,
+            DealerServicePurchaseOrderApplicationService dealerServicePurchaseApplicationService,
             DealerApplicationService dealerApplicationService) {
         super(
                 rabbitMQConfig.internalPaymentQueueName,
@@ -85,11 +83,11 @@ public class PaymentQueueListener extends AbstractRabbitMQListener {
     protected void messageHandler(String id, String type, String body) {
         if (PaymentPaid.class.getSimpleName().equals(type)) {
             PaymentPaid domainEvent = JacksonUtils.deSerialize(body, PaymentPaid.class);
-            if (PaymentScenarioType.DEALER_SERVICE_PURCHASE.equals(domainEvent.getPaymentScenarioType())) {
+            if (OrderType.DEALER_SERVICE_PURCHASE_ORDER.equals(domainEvent.getOrderType())) {
                 dealerServicePurchaseApplicationService.markAsPaid(
                         new OrderStatusChangeCommand(
                                 new PaymentOrderId(domainEvent.getPaymentOrderId()),
-                                new DealerServicePurchaseOrderId(domainEvent.getScenarioRelationId())
+                                new DealerServicePurchaseOrderId(domainEvent.getOrderId())
                         )
                 );
             }

@@ -24,21 +24,18 @@ package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 import java.time.LocalDateTime;
 
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
-import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.common.TimeRange;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
+import com.yujunyang.iddd.dealer.domain.order.AbstractOrder;
+import com.yujunyang.iddd.dealer.domain.order.OrderCreated;
+import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public class DealerServicePurchaseOrder {
-    private DealerServicePurchaseOrderId id;
+public class DealerServicePurchaseOrder extends AbstractOrder {
     private DealerId dealerId;
     private TimeRange servicePeriod;
-    private DealerServicePurchaseOrderStatusType status;
-    private LocalDateTime createTime;
-    private int amount;
-    private PaymentOrderId paymentOrderId;
 
 
     public DealerServicePurchaseOrder(
@@ -50,7 +47,7 @@ public class DealerServicePurchaseOrder {
                 id,
                 dealerId,
                 servicePeriod,
-                DealerServicePurchaseOrderStatusType.UNPAID,
+                OrderStatusType.PAYMENT_NOT_INITIATED,
                 LocalDateTime.now(),
                 amount
         );
@@ -60,9 +57,10 @@ public class DealerServicePurchaseOrder {
         CheckUtils.notNull(servicePeriod, "servicePeriod 必须不为 null");
         CheckUtils.isTrue(amount >= 0, "amount 必须不小于 0");
 
-        DomainEventPublisher.instance().publish(new DealerServicePurchaseOrderCreated(
+        DomainEventPublisher.instance().publish(new OrderCreated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
-                id.getId()
+                id.getId(),
+                orderType()
         ));
     }
 
@@ -70,43 +68,13 @@ public class DealerServicePurchaseOrder {
             DealerServicePurchaseOrderId id,
             DealerId dealerId,
             TimeRange servicePeriod,
-            DealerServicePurchaseOrderStatusType status,
+            OrderStatusType status,
             LocalDateTime createTime,
             int amount) {
-        this.id = id;
+        super(id, status, createTime, amount);
+
         this.dealerId = dealerId;
         this.servicePeriod = servicePeriod;
-        this.status = status;
-        this.createTime = createTime;
-        this.amount = amount;
-    }
-
-    public void markAsPaid(PaymentOrderId paymentOrderId) {
-        if (DealerServicePurchaseOrderStatusType.UNPAID.equals(status)) {
-            this.paymentOrderId = paymentOrderId;
-            status = DealerServicePurchaseOrderStatusType.PAID;
-
-            DomainEventPublisher.instance().publish(new DealerServicePurchaseOrderPaid(
-                    DateTimeUtilsEnhance.epochMilliSecond(),
-                    id.getId()
-            ));
-
-            return;
-        }
-
-        DomainEventPublisher.instance().publish();
-    }
-
-    public DealerServicePurchaseOrderStatusType status() {
-        return status;
-    }
-
-    public DealerServicePurchaseOrderId id() {
-        return id;
-    }
-
-    public int amount() {
-        return amount;
     }
 
     public DealerId dealerId() {
@@ -117,13 +85,14 @@ public class DealerServicePurchaseOrder {
         return servicePeriod.getEnd();
     }
 
-    public PaymentOrderId paymentOrderId() {
-        return paymentOrderId;
+    @Override
+    public OrderType orderType() {
+        return OrderType.DEALER_SERVICE_PURCHASE_ORDER;
     }
 
     public DealerServicePurchaseOrderSnapshot snapshot() {
         return new DealerServicePurchaseOrderSnapshot(
-                id,
+                (DealerServicePurchaseOrderId) id,
                 dealerId,
                 servicePeriod,
                 status,

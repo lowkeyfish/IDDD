@@ -40,7 +40,6 @@ public class InitiatePaymentCommand {
             PaymentChannelType paymentChannelType,
             PaymentMethodType paymentMethodType,
             Map<String, Object> paymentChannelParams) {
-
         CheckUtils.notNull(orderId, "orderId 必须不为 null");
         CheckUtils.notNull(paymentChannelType, "paymentChannelType 必须不为 null");
         CheckUtils.notNull(paymentMethodType, "paymentMethodType 必须不为 null");

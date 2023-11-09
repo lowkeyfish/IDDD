@@ -21,19 +21,23 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentScenarioType;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentResult;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentServiceSelector;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
@@ -60,61 +64,5 @@ public class DealerServicePurchaseOrderPaymentService {
         this.paymentOrderService = paymentOrderService;
     }
 
-    public InitiatePaymentResult initiatePayment(
-            DealerServicePurchaseOrder order,
-            PaymentChannelType paymentChannelType,
-            PaymentMethodType paymentMethodType,
-            Map<String, Object> paymentChannelParams) {
-        CheckUtils.notNull(order, "order 必须不为 null");
-        CheckUtils.notNull(paymentChannelType, "paymentChannelType 必须不为 null");
-        CheckUtils.notNull(paymentMethodType, "paymentMethodType 必须不为 null");
-
-        CheckUtils.isTrue(
-                DealerServicePurchaseOrderStatusType.UNPAID.equals(order.status()),
-                new BusinessRuleException(
-                        "订单当前状态不能再发起支付",
-                        ImmutableMap.of(
-                                "dealerServicePurchaseOrderId",
-                                order.id().getId()
-                        )
-                )
-        );
-
-        List<PaymentOrder> initiatedPaymentOrders = paymentOrderRepository.findByScenario(
-                PaymentScenarioType.DEALER_SERVICE_PURCHASE,
-                order.id()
-        );
-
-        PaymentOrder paidPaymentOrder = initiatedPaymentOrders.stream()
-                .filter(n -> PaymentStatusType.PAID.equals(n.status())).findFirst().orElse(null);
-        CheckUtils.isTrue(
-                paidPaymentOrder == null,
-                new BusinessRuleException(
-                        "存在支付成功的支付订单,订单不能再发起支付",
-                        ImmutableMap.of(
-                                "dealerServicePurchaseOrderId",
-                                order.id().getId(),
-                                "paymentOrderId",
-                                paidPaymentOrder.id().getId()
-                        )
-                )
-        );
-
-        PaymentOrder paymentOrder = new PaymentOrder(
-                paymentOrderRepository.nextId(),
-                PaymentScenarioType.DEALER_SERVICE_PURCHASE,
-                order.id(),
-                paymentChannelType,
-                paymentMethodType,
-                "服务购买",
-                order.amount(),
-                paymentChannelParams
-        );
-        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(paymentChannelType);
-        InitiatePaymentResult initiatePaymentResult = paymentOrder.initiatePayment(paymentService);
-        paymentOrderRepository.save(paymentOrder);
-
-        return initiatePaymentResult;
-    }
 
 }

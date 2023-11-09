@@ -50,6 +50,7 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
+import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -185,7 +186,7 @@ public class DealerApplicationService {
                 )
         );
         CheckUtils.isTrue(
-                order.isPaymentSuccess(),
+                OrderStatusType.PAID.equals(order.status()),
                 new BusinessRuleException(
                         "服务购买订单未支付成功",
                         ImmutableMap.of(

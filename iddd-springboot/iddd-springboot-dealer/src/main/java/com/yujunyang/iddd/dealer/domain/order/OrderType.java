@@ -19,21 +19,21 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.order;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
-public enum PaymentScenarioType implements ValueDescriptionEnum<Integer> {
-    DEALER_SERVICE_PURCHASE(1, "Dealer 服务购买");
+public enum OrderType implements ValueDescriptionEnum<Integer> {
+    DEALER_SERVICE_PURCHASE_ORDER(1, "Dealer 服务购买订单");
 
     @JsonValue
     private int value;
     private String description;
 
-    PaymentScenarioType(int value, String description) {
+    OrderType(int value, String description) {
         this.value = value;
         this.description = description;
     }
@@ -49,7 +49,7 @@ public enum PaymentScenarioType implements ValueDescriptionEnum<Integer> {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static PaymentScenarioType parse(Object value) {
-        return EnumUtilsEnhance.getByIntValueOrStringName(value, PaymentScenarioType.class);
+    public static OrderType parse(Object value) {
+        return EnumUtilsEnhance.getByIntValueOrStringName(value, OrderType.class);
     }
 }

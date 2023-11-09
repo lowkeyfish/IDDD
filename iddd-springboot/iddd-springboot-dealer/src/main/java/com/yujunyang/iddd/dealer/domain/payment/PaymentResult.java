@@ -26,4 +26,8 @@ public class PaymentResult {
     public boolean isPaymentSuccess() {
         return false;
     }
+
+    public boolean isUnpaid() {
+        return true;
+    }
 }
