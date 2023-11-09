@@ -156,25 +156,16 @@ public class PaymentOrderService {
         return initiatePaymentResult;
     }
 
-    public void handlePaymentNotification(PaymentOrder paymentOrder) {
+    public void syncPaymentStatus(PaymentOrder paymentOrder) {
         CheckUtils.notNull(paymentOrder, "paymentOrder 必须不为 null");
 
         PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
                 paymentOrder.paymentChannelType());
 
         PaymentResult paymentResult = paymentService.queryPaymentStatus(paymentOrder);
-        CheckUtils.isTrue(
-                paymentResult.isPaymentSuccess(),
-                new BusinessRuleException(
-                        "支付订单状态实时查询非支付成功",
-                        ImmutableMap.of(
-                                "paymentOrderId",
-                                paymentOrder.id().getId()
-                        )
-                )
-        );
 
-        paymentOrder.markAsPaymentSuccess();
+        paymentOrder.syncStatus(paymentResult);
+
         paymentOrderRepository.save(paymentOrder);
     }
 }

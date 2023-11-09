@@ -166,4 +166,7 @@ public class PaymentOrder {
     public PaymentStatusType status() {
         return status;
     }
+
+    public void syncStatus(PaymentResult paymentResult) {
+    }
 }

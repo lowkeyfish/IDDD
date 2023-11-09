@@ -84,6 +84,6 @@ public class AbstractPaymentDomainEvent implements DomainEvent {
 
     @Override
     public String notificationRoutingKey() {
-        return "Payment." + notificationType();
+        return "Payment." + orderType.name() + "." + notificationType();
     }
 }

@@ -21,7 +21,7 @@
 
 package com.yujunyang.iddd.dealer.application.command;
 
-public class HandleWechatNotifyPaymentOrderSuccessCommand {
+public class HandleWechatPaymentNotificationCommand {
     private String id;
     private String createTime;
     private String eventType;
@@ -33,7 +33,7 @@ public class HandleWechatNotifyPaymentOrderSuccessCommand {
     private String resourceOriginalType;
     private String resourceNonce;
 
-    public HandleWechatNotifyPaymentOrderSuccessCommand(
+    public HandleWechatPaymentNotificationCommand(
             String id,
             String createTime,
             String eventType,

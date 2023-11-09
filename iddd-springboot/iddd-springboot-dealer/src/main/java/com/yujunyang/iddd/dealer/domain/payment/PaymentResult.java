@@ -30,4 +30,8 @@ public class PaymentResult {
     public boolean isUnpaid() {
         return true;
     }
+
+    public PaymentStatusType paymentStatus() {
+        return null;
+    }
 }

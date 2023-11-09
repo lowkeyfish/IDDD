@@ -24,7 +24,7 @@ package com.yujunyang.iddd.dealer.application;
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.application.command.HandleWechatNotifyPaymentOrderSuccessCommand;
+import com.yujunyang.iddd.dealer.application.command.HandleWechatPaymentNotificationCommand;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
@@ -33,12 +33,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class PaymentNotificationApplicationService {
+public class PaymentOrderApplicationService {
     private PaymentOrderRepository paymentOrderRepository;
     private PaymentOrderService paymentOrderService;
 
     @Autowired
-    public PaymentNotificationApplicationService(
+    public PaymentOrderApplicationService(
             PaymentOrderRepository paymentOrderRepository,
             PaymentOrderService paymentOrderService) {
         this.paymentOrderRepository = paymentOrderRepository;
@@ -47,7 +47,7 @@ public class PaymentNotificationApplicationService {
 
     @Transactional
     public void handleWechatPaymentNotification(
-            HandleWechatNotifyPaymentOrderSuccessCommand command) {
+            HandleWechatPaymentNotificationCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         // 解密通知信息获取到 outTradeNo
@@ -57,7 +57,7 @@ public class PaymentNotificationApplicationService {
         CheckUtils.notNull(
                 paymentOrder,
                 new BusinessRuleException(
-                        "支付订单不存在",
+                        "支付单不存在",
                         ImmutableMap.of(
                                 "outTradeNo",
                                 outTradeNo
@@ -65,6 +65,8 @@ public class PaymentNotificationApplicationService {
                 )
         );
 
-        paymentOrderService.handlePaymentNotification(paymentOrder);
+        paymentOrderService.syncPaymentStatus(paymentOrder);
     }
+
+
 }

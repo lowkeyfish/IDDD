@@ -32,15 +32,15 @@ public class PaymentInitiated extends AbstractPaymentDomainEvent {
             @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
             @JsonProperty("paymentMethodType") PaymentMethodType paymentMethodType,
             @JsonProperty("paymentOrderId") long paymentOrderId,
-            @JsonProperty("paymentScenarioType") OrderType orderType,
-            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
+            @JsonProperty("orderType") OrderType orderType,
+            @JsonProperty("orderId") long orderId) {
         super(
                 timestamp,
                 paymentChannelType,
                 paymentMethodType,
                 paymentOrderId,
                 orderType,
-                scenarioRelationId
+                orderId
         );
     }
 }

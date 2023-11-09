@@ -65,6 +65,6 @@ public class AbstractOrderDomainEvent implements DomainEvent {
 
     @Override
     public String notificationRoutingKey() {
-        return "Order." + notificationType();
+        return "Order." + orderType.name() + "." + notificationType();
     }
 }
