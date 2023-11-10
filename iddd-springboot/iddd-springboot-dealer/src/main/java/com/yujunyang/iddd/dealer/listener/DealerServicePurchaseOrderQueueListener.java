@@ -31,7 +31,7 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.JacksonUtils;
 import com.yujunyang.iddd.dealer.application.DealerApplicationService;
 import com.yujunyang.iddd.dealer.application.DealerServicePurchaseOrderApplicationService;
-import com.yujunyang.iddd.dealer.application.command.OrderStatusChangeCommand;
+import com.yujunyang.iddd.dealer.application.command.OrderPaymentStatusChangeCommand;
 import com.yujunyang.iddd.dealer.application.command.UpdateServiceTimeOnServicePurchaseOrderPaidCommand;
 import com.yujunyang.iddd.dealer.config.rabbitmq.RabbitMQConfig;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
@@ -102,7 +102,7 @@ public class DealerServicePurchaseOrderQueueListener extends AbstractRabbitMQLis
                     body
             );
 
-            OrderStatusChangeCommand command = new OrderStatusChangeCommand(
+            OrderPaymentStatusChangeCommand command = new OrderPaymentStatusChangeCommand(
                     new PaymentOrderId(domainEvent.getPaymentOrderId()),
                     new DealerServicePurchaseOrderId(domainEvent.getOrderId())
             );

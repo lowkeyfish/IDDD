@@ -21,13 +21,11 @@
 
 package com.yujunyang.iddd.dealer.application;
 
-import java.text.MessageFormat;
-
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
-import com.yujunyang.iddd.dealer.application.command.OrderStatusChangeCommand;
+import com.yujunyang.iddd.dealer.application.command.OrderPaymentStatusChangeCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
 import com.yujunyang.iddd.dealer.application.data.InitiatePaymentCommandResult;
 import com.yujunyang.iddd.dealer.application.data.PurchaseServiceCommandResult;
@@ -120,7 +118,7 @@ public class DealerServicePurchaseOrderApplicationService {
     }
 
     @Transactional
-    public void markAsPaymentInitiated(OrderStatusChangeCommand command) {
+    public void markAsPaymentInitiated(OrderPaymentStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
@@ -131,7 +129,7 @@ public class DealerServicePurchaseOrderApplicationService {
     }
 
     @Transactional
-    public void markAsPaid(OrderStatusChangeCommand command) {
+    public void markAsPaid(OrderPaymentStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
@@ -142,7 +140,7 @@ public class DealerServicePurchaseOrderApplicationService {
     }
 
     @Transactional
-    public void markAsFailed(OrderStatusChangeCommand command) {
+    public void markAsFailed(OrderPaymentStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());

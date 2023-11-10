@@ -24,11 +24,11 @@ package com.yujunyang.iddd.dealer.application.command;
 import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 
-public class OrderStatusChangeCommand {
+public class OrderPaymentStatusChangeCommand {
     private PaymentOrderId paymentOrderId;
     private AbstractLongId orderId;
 
-    public OrderStatusChangeCommand(
+    public OrderPaymentStatusChangeCommand(
             PaymentOrderId paymentOrderId,
             AbstractLongId orderId) {
         this.paymentOrderId = paymentOrderId;
