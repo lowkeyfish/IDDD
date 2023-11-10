@@ -21,12 +21,28 @@
 
 package com.yujunyang.iddd.dealer.domain.order;
 
+import com.yujunyang.iddd.common.exception.BusinessRuleException;
+import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OrderPaymentService {
 
 
+    public void markAsPaymentInitiated(
+            AbstractOrder order,
+            PaymentOrder paymentOrder) {
+        CheckUtils.notNull(order, "order 必须不为 null");
+        CheckUtils.notNull(paymentOrder, "paymentOrder 必须不为 null");
 
+        CheckUtils.isTrue(
+                PaymentStatusType.INITIATED.equals(paymentOrder.status()),
+                new BusinessRuleException(
+                        "支付单当前状态"
+                )
+        );
+    }
 
 }

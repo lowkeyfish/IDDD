@@ -24,12 +24,13 @@ package com.yujunyang.iddd.dealer.domain.order;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OrderPaymentInitiated extends AbstractOrderDomainEvent {
+public class OrderPaymentInitiated extends AbstractOrderPaymentDomainEvent {
     @JsonCreator
     public OrderPaymentInitiated(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("orderId") long orderId,
-            @JsonProperty("orderType") OrderType orderType) {
-        super(timestamp, orderId, orderType);
+            @JsonProperty("orderType") OrderType orderType,
+            @JsonProperty("paymentOrderId") long paymentOrderId) {
+        super(timestamp, orderId, orderType, paymentOrderId);
     }
 }

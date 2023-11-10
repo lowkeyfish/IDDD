@@ -173,6 +173,14 @@ public class PaymentOrder {
         return status;
     }
 
+    public AbstractLongId orderId() {
+        return orderId;
+    }
+
+    public OrderType orderType() {
+        return orderType;
+    }
+
     public void syncPaymentResult(PaymentService paymentService) {
         CheckUtils.isTrue(
                 PaymentStatusType.INITIATED.equals(status),

@@ -33,7 +33,7 @@ import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeTelephoneCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerCreateCommand;
-import com.yujunyang.iddd.dealer.application.command.UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand;
+import com.yujunyang.iddd.dealer.application.command.UpdateServiceTimeOnServicePurchaseOrderPaidCommand;
 import com.yujunyang.iddd.dealer.application.data.DealerCreateCommandResult;
 import com.yujunyang.iddd.dealer.domain.address.Address;
 import com.yujunyang.iddd.dealer.domain.address.City;
@@ -49,6 +49,7 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerIdGenerator;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerNameUniquenessCheckService;
 import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
+import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,29 +170,20 @@ public class DealerApplicationService {
     }
 
     @Transactional
-    public void updateServiceTimeOnServicePurchaseOrderPaymentSuccess(
-            UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand command) {
+    public void updateServiceTimeOnServicePurchaseOrderPaid(
+            UpdateServiceTimeOnServicePurchaseOrderPaidCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = dealerServicePurchaseOrderRepository
-                .findById(command.getDealerServicePurchaseOrderId());
-        CheckUtils.notNull(
-                order,
-                new BusinessRuleException(
-                        "服务购买订单不存在",
-                        ImmutableMap.of(
-                                "dealerServicePurchaseOrderId",
-                                command.getDealerServicePurchaseOrderId().getId()
-                        )
-                )
-        );
+        DealerServicePurchaseOrder order = existingDealerServicePurchaseOrder(command.getDealerServicePurchaseOrderId());
         CheckUtils.isTrue(
                 OrderStatusType.PAID.equals(order.status()),
                 new BusinessRuleException(
-                        "服务购买订单未支付成功",
+                        "Dealer服务时间无法更新,因为服务购买订单状态非已支付",
                         ImmutableMap.of(
                                 "dealerServicePurchaseOrderId",
-                                command.getDealerServicePurchaseOrderId().getId()
+                                command.getDealerServicePurchaseOrderId().getId(),
+                                "status",
+                                order.status()
                         )
                 )
         );
@@ -229,5 +221,21 @@ public class DealerApplicationService {
                 "brandId({0}) 无效", brandId
         );
         return brand;
+    }
+
+    private DealerServicePurchaseOrder existingDealerServicePurchaseOrder(
+            DealerServicePurchaseOrderId orderId) {
+        DealerServicePurchaseOrder order = dealerServicePurchaseOrderRepository.findById(orderId);
+        CheckUtils.notNull(
+                order,
+                new BusinessRuleException(
+                        "服务购买订单不存在",
+                        ImmutableMap.of(
+                                "dealerServicePurchaseOrderId",
+                                orderId.getId()
+                        )
+                )
+        );
+        return order;
     }
 }

@@ -24,10 +24,10 @@ package com.yujunyang.iddd.dealer.application.command;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
 
-public class UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand {
+public class UpdateServiceTimeOnServicePurchaseOrderPaidCommand {
     private DealerServicePurchaseOrderId dealerServicePurchaseOrderId;
 
-    public UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand(
+    public UpdateServiceTimeOnServicePurchaseOrderPaidCommand(
             DealerServicePurchaseOrderId dealerServicePurchaseOrderId) {
         CheckUtils.notNull(dealerServicePurchaseOrderId, "dealerServicePurchaseOrderId 必须不为 null");
         this.dealerServicePurchaseOrderId = dealerServicePurchaseOrderId;

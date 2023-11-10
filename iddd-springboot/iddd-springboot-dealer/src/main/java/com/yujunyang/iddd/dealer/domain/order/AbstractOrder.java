@@ -30,7 +30,9 @@ import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
 import com.yujunyang.iddd.dealer.domain.payment.RefundRequested;
 import com.yujunyang.iddd.dealer.domain.payment.RefundRequestedDueToRepeatedPayment;
 
@@ -57,12 +59,15 @@ public abstract class AbstractOrder {
         this.amount = amount;
     }
 
-    public void markAsPaid(PaymentOrderId paymentOrderId) {
+    public void markAsPaid(PaymentOrder paymentOrder) {
+        checkPaymentOrderStatus(paymentOrder, PaymentStatusType.PAID, "订单状态不能设置为已支付,因为支付单当前状态非已支付");
+        checkOrderAndPaymentOrderRelation(paymentOrder, "订单状态不能设置为已支付,因为支付单关联订单和当前订单不匹配");
+
         if (OrderStatusType.PAID.equals(status)) {
-            if (!this.paymentOrderId.equals(paymentOrderId)) {
+            if (!paymentOrderId.equals(paymentOrder.id())) {
                 DomainEventPublisher.instance().publish(new RefundRequestedDueToRepeatedPayment(
                         DateTimeUtilsEnhance.epochMilliSecond(),
-                        paymentOrderId.getId(),
+                        paymentOrder.id().getId(),
                         orderType(),
                         id.getId()
                 ));
@@ -71,9 +76,13 @@ public abstract class AbstractOrder {
         }
 
         CheckUtils.isTrue(
-                OrderStatusType.PAYMENT_INITIATED.equals(status),
+                Arrays.asList(
+                        OrderStatusType.PAYMENT_INITIATED,
+                        // 可能支付单已支付早于订单设置已发起支付, 因此未发起支付允许变更为已支付
+                        OrderStatusType.PAYMENT_NOT_INITIATED
+                ).contains(status),
                 new BusinessRuleException(
-                        "订单当前状态不能变更为已支付",
+                        "订单状态不能设置为已支付,因为当前状态非未发起支付或已发起支付",
                         ImmutableMap.of(
                                 "orderId",
                                 id.getId(),
@@ -85,17 +94,21 @@ public abstract class AbstractOrder {
                 )
         );
 
-        this.paymentOrderId = paymentOrderId;
+        paymentOrderId = paymentOrder.id();
         status = OrderStatusType.PAID;
 
         DomainEventPublisher.instance().publish(new OrderPaid(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId(),
-                orderType()
+                orderType(),
+                paymentOrder.id().getId()
         ));
     }
 
-    public void markAsPaymentInitiated() {
+    public void markAsPaymentInitiated(PaymentOrder paymentOrder) {
+        checkPaymentOrderStatus(paymentOrder, PaymentStatusType.INITIATED, "订单状态不能设置为已发起支付,因为支付单状态非已发起支付");
+        checkOrderAndPaymentOrderRelation(paymentOrder, "订单状态不能设置为已发起支付,因为支付单关联订单和当前订单不匹配");
+
         CheckUtils.isTrue(
                 Arrays.asList(
                         OrderStatusType.PAYMENT_NOT_INITIATED,
@@ -103,7 +116,7 @@ public abstract class AbstractOrder {
                         OrderStatusType.PAYMENT_FAILED
                 ).contains(status),
                 new BusinessRuleException(
-                        "订单当前状态不能变更为已发起支付",
+                        "订单状态不能设置为已发起支付,因为订单当前状态非未发起支付、已发起支付或支付失败",
                         ImmutableMap.of(
                                 "orderId",
                                 id.getId(),
@@ -120,19 +133,26 @@ public abstract class AbstractOrder {
         DomainEventPublisher.instance().publish(new OrderPaymentInitiated(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId(),
-                orderType()
+                orderType(),
+                paymentOrder.id().getId()
         ));
     }
 
-    public void markAsFailed() {
+    public void markAsFailed(PaymentOrder paymentOrder) {
+        checkPaymentOrderStatus(paymentOrder, PaymentStatusType.FAILED, "订单状态不能设置为支付失败,因为支付单状态非支付失败");
+        checkOrderAndPaymentOrderRelation(paymentOrder, "订单状态不能设置为支付失败,因为支付单关联订单和当前订单不匹配");
+
         if (OrderStatusType.PAYMENT_FAILED.equals(status)) {
             return;
         }
 
         CheckUtils.isTrue(
-                OrderStatusType.PAYMENT_INITIATED.equals(status),
+                Arrays.asList(
+                        OrderStatusType.PAYMENT_NOT_INITIATED,
+                        OrderStatusType.PAYMENT_INITIATED
+                ).contains(status),
                 new BusinessRuleException(
-                        "订单当前状态不能变更为支付失败",
+                        "订单状态不能设置为支付失败,因为订单当前状态非未发起支付或已发起支付",
                         ImmutableMap.of(
                                 "orderId",
                                 id.getId(),
@@ -149,7 +169,8 @@ public abstract class AbstractOrder {
         DomainEventPublisher.instance().publish(new OrderPaymentFailed(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId(),
-                orderType()
+                orderType(),
+                paymentOrder.id().getId()
         ));
     }
 
@@ -171,5 +192,54 @@ public abstract class AbstractOrder {
 
     public abstract OrderType orderType();
 
+    private void checkPaymentOrderStatus(
+            PaymentOrder paymentOrder,
+            PaymentStatusType expectedPaymentStatusType,
+            String errorMessage) {
+        CheckUtils.notNull(paymentOrder, "paymentOrder 必须不为 null");
+        CheckUtils.notNull(expectedPaymentStatusType, "expectedPaymentStatusType 必须不为 null");
+        CheckUtils.notBlank(errorMessage, "errorMessage 必须不为空");
+
+        CheckUtils.isTrue(
+                expectedPaymentStatusType.equals(paymentOrder.status()),
+                new BusinessRuleException(
+                        errorMessage,
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "paymentOrderId",
+                                paymentOrder.id().getId(),
+                                "paymentOrderStatus",
+                                paymentOrder.status()
+                        )
+                )
+        );
+    }
+
+    private void checkOrderAndPaymentOrderRelation(PaymentOrder paymentOrder, String errorMessage) {
+        CheckUtils.notNull(paymentOrder, "paymentOrder 必须不为 null");
+
+        CheckUtils.isTrue(
+                paymentOrder.orderType().equals(orderType())
+                        && id.getId().equals(paymentOrder.orderId().getId()),
+                new BusinessRuleException(
+                        errorMessage,
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "paymentOrderId",
+                                paymentOrder.id().getId(),
+                                "paymentOrder.orderType",
+                                paymentOrder.orderType(),
+                                "paymentOrder.orderId",
+                                paymentOrder.orderId().getId()
+                        )
+                )
+        );
+    }
 
 }

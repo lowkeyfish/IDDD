@@ -21,16 +21,19 @@
 
 package com.yujunyang.iddd.dealer.domain.order;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class AbstractOrderPaymentDomainEvent extends AbstractOrderDomainEvent {
+    protected long paymentOrderId;
 
-public class OrderPaid extends AbstractOrderPaymentDomainEvent {
-    @JsonCreator
-    public OrderPaid(
-            @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("orderId") long orderId,
-            @JsonProperty("orderType") OrderType orderType,
-            @JsonProperty("paymentOrderId") long paymentOrderId) {
-        super(timestamp, orderId, orderType, paymentOrderId);
+    protected AbstractOrderPaymentDomainEvent(
+            long timestamp,
+            long orderId,
+            OrderType orderType,
+            long paymentOrderId) {
+        super(timestamp, orderId, orderType);
+        this.paymentOrderId = paymentOrderId;
+    }
+
+    public long getPaymentOrderId() {
+        return paymentOrderId;
     }
 }

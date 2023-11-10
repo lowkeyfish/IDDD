@@ -40,6 +40,9 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaymentService;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +55,7 @@ public class DealerServicePurchaseOrderApplicationService {
     private DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory;
     private DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService;
     private PaymentOrderService paymentOrderService;
+    private PaymentOrderRepository paymentOrderRepository;
 
 
     @Autowired
@@ -60,12 +64,14 @@ public class DealerServicePurchaseOrderApplicationService {
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory,
             DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService,
-            PaymentOrderService paymentOrderService) {
+            PaymentOrderService paymentOrderService,
+            PaymentOrderRepository paymentOrderRepository) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderFactory = dealerServicePurchaseOrderFactory;
         this.dealerServicePurchaseOrderPaymentService = dealerServicePurchaseOrderPaymentService;
         this.paymentOrderService = paymentOrderService;
+        this.paymentOrderRepository = paymentOrderRepository;
     }
 
     @Transactional
@@ -118,7 +124,9 @@ public class DealerServicePurchaseOrderApplicationService {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        order.markAsPaymentInitiated();
+        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+        order.markAsPaymentInitiated(paymentOrder);
+
         dealerServicePurchaseOrderRepository.save(order);
     }
 
@@ -127,7 +135,8 @@ public class DealerServicePurchaseOrderApplicationService {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        order.markAsPaid(command.getPaymentOrderId());
+        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+        order.markAsPaid(paymentOrder);
 
         dealerServicePurchaseOrderRepository.save(order);
     }
@@ -137,7 +146,8 @@ public class DealerServicePurchaseOrderApplicationService {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        order.markAsFailed();
+        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+        order.markAsFailed(paymentOrder);
 
         dealerServicePurchaseOrderRepository.save(order);
     }
@@ -166,14 +176,22 @@ public class DealerServicePurchaseOrderApplicationService {
 
     private Dealer existingDealer(DealerId dealerId) {
         Dealer dealer = dealerRepository.findById(dealerId);
-        if (dealer == null) {
-            throw new IllegalArgumentException(
-                    MessageFormat.format("Dealer({0}) 不存在", dealerId)
-            );
-        }
+        CheckUtils.notNull(
+                dealer,
+                "Dealer({0})不存在",
+                dealerId
+        );
         return dealer;
     }
 
-
+    private PaymentOrder existingPaymentOrder(PaymentOrderId paymentOrderId) {
+        PaymentOrder paymentOrder = paymentOrderRepository.findById(paymentOrderId);
+        CheckUtils.notNull(
+                paymentOrder,
+                "PaymentOrder({0})不存在",
+                paymentOrderId
+        );
+        return paymentOrder;
+    }
 
 }
