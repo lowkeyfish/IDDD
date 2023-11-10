@@ -31,19 +31,19 @@ import com.yujunyang.iddd.dealer.domain.order.OrderType;
 public class RefundRequested implements DomainEvent {
     private long timestamp;
     private long paymentOrderId;
-    private OrderType paymentScenarioType;
-    private long scenarioRelationId;
+    private OrderType orderType;
+    private long orderId;
 
     @JsonCreator
     public RefundRequested(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("paymentOrderId") long paymentOrderId,
-            @JsonProperty("paymentScenarioType") OrderType paymentScenarioType,
-            @JsonProperty("scenarioRelationId") long scenarioRelationId) {
+            @JsonProperty("orderType") OrderType orderType,
+            @JsonProperty("orderId") long orderId) {
         this.timestamp = timestamp;
         this.paymentOrderId = paymentOrderId;
-        this.paymentScenarioType = paymentScenarioType;
-        this.scenarioRelationId = scenarioRelationId;
+        this.orderType = orderType;
+        this.orderId = orderId;
     }
 
 
@@ -56,12 +56,12 @@ public class RefundRequested implements DomainEvent {
         return paymentOrderId;
     }
 
-    public OrderType getPaymentScenarioType() {
-        return paymentScenarioType;
+    public OrderType getOrderType() {
+        return orderType;
     }
 
-    public long getScenarioRelationId() {
-        return scenarioRelationId;
+    public long getOrderId() {
+        return orderId;
     }
 
     @Override

@@ -75,11 +75,11 @@ public final class JacksonUtils {
         }
     }
 
-    public static <T> T deSerialize(String jsonString, Class<T> classT) {
-        return deSerialize(jsonString, classT, DEFAULT_OBJECT_MAPPER);
+    public static <T> T deserialize(String jsonString, Class<T> classT) {
+        return deserialize(jsonString, classT, DEFAULT_OBJECT_MAPPER);
     }
 
-    public static <T> T deSerialize(String jsonString, Class<T> classT, ObjectMapper objectMapper) {
+    public static <T> T deserialize(String jsonString, Class<T> classT, ObjectMapper objectMapper) {
         if (jsonString != null && !jsonString.equalsIgnoreCase("")) {
             try {
                 return objectMapper.readValue(jsonString, classT);
@@ -91,11 +91,11 @@ public final class JacksonUtils {
         }
     }
 
-    public static <T> T deSerialize(String jsonString, TypeReference<T> typeReference) {
-        return deSerialize(jsonString, typeReference, DEFAULT_OBJECT_MAPPER);
+    public static <T> T deserialize(String jsonString, TypeReference<T> typeReference) {
+        return deserialize(jsonString, typeReference, DEFAULT_OBJECT_MAPPER);
     }
 
-    public static <T> T deSerialize(String jsonString, TypeReference<T> typeReference, ObjectMapper objectMapper) {
+    public static <T> T deserialize(String jsonString, TypeReference<T> typeReference, ObjectMapper objectMapper) {
         try {
             return objectMapper.readValue(jsonString, typeReference);
         } catch (IOException var4) {
@@ -103,11 +103,11 @@ public final class JacksonUtils {
         }
     }
 
-    public static <T> T deSerialize(String jsonString, JavaType javaType) {
-        return deSerialize(jsonString, javaType, DEFAULT_OBJECT_MAPPER);
+    public static <T> T deserialize(String jsonString, JavaType javaType) {
+        return deserialize(jsonString, javaType, DEFAULT_OBJECT_MAPPER);
     }
 
-    public static <T> T deSerialize(String jsonString, JavaType javaType, ObjectMapper objectMapper) {
+    public static <T> T deserialize(String jsonString, JavaType javaType, ObjectMapper objectMapper) {
         try {
             return objectMapper.readValue(jsonString, javaType);
         } catch (IOException var4) {
@@ -115,18 +115,18 @@ public final class JacksonUtils {
         }
     }
 
-    public static <T> T deSerialize(String string, Type type) {
+    public static <T> T deserialize(String string, Type type) {
         JavaType javaType = TypeFactory.defaultInstance().constructType(type);
-        return deSerialize(string, javaType);
+        return deserialize(string, javaType);
     }
 
-    public static <T> List<T> deSerializeList(String jsonString, Class<T> classT) {
-        return deSerializeList(jsonString, classT, DEFAULT_OBJECT_MAPPER);
+    public static <T> List<T> deserializeList(String jsonString, Class<T> classT) {
+        return deserializeList(jsonString, classT, DEFAULT_OBJECT_MAPPER);
     }
 
-    public static <T> List<T> deSerializeList(String jsonString, Class<T> classT, ObjectMapper objectMapper) {
+    public static <T> List<T> deserializeList(String jsonString, Class<T> classT, ObjectMapper objectMapper) {
         JavaType javaType = getCollectionType(objectMapper, ArrayList.class, classT);
-        return (List) deSerialize(jsonString, javaType, objectMapper);
+        return (List) deserialize(jsonString, javaType, objectMapper);
     }
 
     public static JavaType getCollectionType(ObjectMapper objectMapper, Class<?> collectionClass, Class<?>... elementClasses) {

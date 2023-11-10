@@ -67,7 +67,7 @@ public class StoredEvent {
                             + e.getMessage());
         }
 
-        T domainEvent = JacksonUtils.deSerialize(getEventBody(), domainEventClass);
+        T domainEvent = JacksonUtils.deserialize(getEventBody(), domainEventClass);
 
         return domainEvent;
     }

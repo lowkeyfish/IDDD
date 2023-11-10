@@ -48,7 +48,7 @@ public class DomainEventTest {
                 false
         );
 
-        DealerCreated domainEventFromJson = JacksonUtils.deSerialize(json, DealerCreated.class);
+        DealerCreated domainEventFromJson = JacksonUtils.deserialize(json, DealerCreated.class);
         assertEquals(1, domainEventFromJson.getDealerId());
     }
 

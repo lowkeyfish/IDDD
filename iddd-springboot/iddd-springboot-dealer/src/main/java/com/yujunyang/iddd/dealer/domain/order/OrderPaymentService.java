@@ -19,19 +19,14 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.order;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.dealer.domain.order.OrderType;
+import org.springframework.stereotype.Service;
 
-public class RefundRequestedDueToRepeatedPayment extends RefundRequested {
-    @JsonCreator
-    public RefundRequestedDueToRepeatedPayment(
-            @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentOrderId") long paymentOrderId,
-            @JsonProperty("paymentScenarioType") OrderType orderType,
-            @JsonProperty("orderId") long orderId) {
-        super(timestamp, paymentOrderId, orderType, orderId);
-    }
+@Service
+public class OrderPaymentService {
+
+
+
+
 }

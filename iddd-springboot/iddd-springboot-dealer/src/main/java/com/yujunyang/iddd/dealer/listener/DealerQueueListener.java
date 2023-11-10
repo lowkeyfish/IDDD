@@ -84,20 +84,20 @@ public class DealerQueueListener extends AbstractRabbitMQListener {
     @Override
     protected void messageHandler(String id, String type, String body) {
         if (DealerCreated.class.getSimpleName().equals(type)) {
-            DealerCreated domainEvent = JacksonUtils.deSerialize(body, DealerCreated.class);
+            DealerCreated domainEvent = JacksonUtils.deserialize(body, DealerCreated.class);
             dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
         } else if (DealerInfoUpdated.class.getSimpleName().equals(type)) {
-            DealerInfoUpdated domainEvent = JacksonUtils.deSerialize(body, DealerInfoUpdated.class);
+            DealerInfoUpdated domainEvent = JacksonUtils.deserialize(body, DealerInfoUpdated.class);
             dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
         } else if (DealerVisibilityChanged.class.getSimpleName().equals(type)) {
-            DealerVisibilityChanged domainEvent = JacksonUtils.deSerialize(body, DealerVisibilityChanged.class);
+            DealerVisibilityChanged domainEvent = JacksonUtils.deserialize(body, DealerVisibilityChanged.class);
             dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
         } else if (DealerServiceChanged.class.getSimpleName().equals(type)) {
-            DealerServiceChanged domainEvent = JacksonUtils.deSerialize(body, DealerServiceChanged.class);
+            DealerServiceChanged domainEvent = JacksonUtils.deserialize(body, DealerServiceChanged.class);
             dealerQueryService.refreshDealerCache(new DealerId(domainEvent.getDealerId()));
         } else if (OrderPaid.class.getSimpleName().equals(type)) {
             OrderPaid domainEvent =
-                    JacksonUtils.deSerialize(body, OrderPaid.class);
+                    JacksonUtils.deserialize(body, OrderPaid.class);
             dealerApplicationService.updateServiceTimeOnServicePurchaseOrderPaymentSuccess(
                     new UpdateServiceTimeOnServicePurchaseOrderPaymentSuccessCommand(
                             new DealerServicePurchaseOrderId(domainEvent.getDealerServicePurchaseOrderId())

@@ -32,6 +32,7 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.RefundRequested;
+import com.yujunyang.iddd.dealer.domain.payment.RefundRequestedDueToRepeatedPayment;
 
 public abstract class AbstractOrder {
     protected AbstractLongId id;
@@ -57,24 +58,40 @@ public abstract class AbstractOrder {
     }
 
     public void markAsPaid(PaymentOrderId paymentOrderId) {
-        if (OrderStatusType.PAYMENT_NOT_INITIATED.equals(status)) {
-            this.paymentOrderId = paymentOrderId;
-            status = OrderStatusType.PAID;
-
-            DomainEventPublisher.instance().publish(new OrderPaid(
-                    DateTimeUtilsEnhance.epochMilliSecond(),
-                    id.getId(),
-                    orderType()
-            ));
-
+        if (OrderStatusType.PAID.equals(status)) {
+            if (!this.paymentOrderId.equals(paymentOrderId)) {
+                DomainEventPublisher.instance().publish(new RefundRequestedDueToRepeatedPayment(
+                        DateTimeUtilsEnhance.epochMilliSecond(),
+                        paymentOrderId.getId(),
+                        orderType(),
+                        id.getId()
+                ));
+            }
             return;
         }
 
-        DomainEventPublisher.instance().publish(new RefundRequested(
+        CheckUtils.isTrue(
+                OrderStatusType.PAYMENT_INITIATED.equals(status),
+                new BusinessRuleException(
+                        "订单当前状态不能变更为已支付",
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        this.paymentOrderId = paymentOrderId;
+        status = OrderStatusType.PAID;
+
+        DomainEventPublisher.instance().publish(new OrderPaid(
                 DateTimeUtilsEnhance.epochMilliSecond(),
-                paymentOrderId.getId(),
-                OrderType.DEALER_SERVICE_PURCHASE_ORDER,
-                id.getId()
+                id.getId(),
+                orderType()
         ));
     }
 
@@ -82,14 +99,17 @@ public abstract class AbstractOrder {
         CheckUtils.isTrue(
                 Arrays.asList(
                         OrderStatusType.PAYMENT_NOT_INITIATED,
+                        OrderStatusType.PAYMENT_INITIATED,
                         OrderStatusType.PAYMENT_FAILED
                 ).contains(status),
                 new BusinessRuleException(
-                        "订单当前状态非未发起支付或支付失败,不能设置状态为已发起支付",
+                        "订单当前状态不能变更为已发起支付",
                         ImmutableMap.of(
                                 "orderId",
                                 id.getId(),
-                                "orderStatus",
+                                "orderType",
+                                orderType(),
+                                "status",
                                 status
                         )
                 )
@@ -98,6 +118,35 @@ public abstract class AbstractOrder {
         status = OrderStatusType.PAYMENT_INITIATED;
 
         DomainEventPublisher.instance().publish(new OrderPaymentInitiated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId(),
+                orderType()
+        ));
+    }
+
+    public void markAsFailed() {
+        if (OrderStatusType.PAYMENT_FAILED.equals(status)) {
+            return;
+        }
+
+        CheckUtils.isTrue(
+                OrderStatusType.PAYMENT_INITIATED.equals(status),
+                new BusinessRuleException(
+                        "订单当前状态不能变更为支付失败",
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        status = OrderStatusType.PAYMENT_FAILED;
+
+        DomainEventPublisher.instance().publish(new OrderPaymentFailed(
                 DateTimeUtilsEnhance.epochMilliSecond(),
                 id.getId(),
                 orderType()
@@ -121,5 +170,6 @@ public abstract class AbstractOrder {
     }
 
     public abstract OrderType orderType();
+
 
 }

@@ -19,19 +19,17 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.domain.payment;
+package com.yujunyang.iddd.dealer.domain.order;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public class RefundRequestedDueToRepeatedPayment extends RefundRequested {
+public class OrderPaymentFailed extends AbstractOrderDomainEvent {
     @JsonCreator
-    public RefundRequestedDueToRepeatedPayment(
+    public OrderPaymentFailed(
             @JsonProperty("timestamp") long timestamp,
-            @JsonProperty("paymentOrderId") long paymentOrderId,
-            @JsonProperty("paymentScenarioType") OrderType orderType,
-            @JsonProperty("orderId") long orderId) {
-        super(timestamp, paymentOrderId, orderType, orderId);
+            @JsonProperty("orderId") long orderId,
+            @JsonProperty("orderType") OrderType orderType) {
+        super(timestamp, orderId, orderType);
     }
 }

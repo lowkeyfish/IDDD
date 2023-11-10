@@ -26,6 +26,7 @@ import java.text.MessageFormat;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
+import com.yujunyang.iddd.common.utils.CheckUtils;
 
 public class AbstractOrderDomainEvent implements DomainEvent {
     private long timestamp;
@@ -65,6 +66,6 @@ public class AbstractOrderDomainEvent implements DomainEvent {
 
     @Override
     public String notificationRoutingKey() {
-        return "Order." + orderType.name() + "." + notificationType();
+        return "Order." + orderType.routingKeySegment() + "." + notificationType();
     }
 }

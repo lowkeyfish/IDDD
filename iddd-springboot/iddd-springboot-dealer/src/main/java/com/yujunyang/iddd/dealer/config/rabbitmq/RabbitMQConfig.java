@@ -1,6 +1,7 @@
 package com.yujunyang.iddd.dealer.config.rabbitmq;
 
 import com.yujunyang.iddd.common.utils.JacksonUtils;
+import com.yujunyang.iddd.dealer.domain.order.OrderType;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -26,11 +27,15 @@ public class RabbitMQConfig {
     public final String internalDealerQueueName = "iddd_internal_dealer";
     public final String internalDealerQueueRoutingKey = "Dealer.#";
 
-    public final String internalOrderQueueName = "iddd_internal_order";
-    public final String internalOrderQueueRoutingKey = "Order.#";
+    public final String internalDealerServicePurchaseOrderQueueName = "iddd_internal_dealer_service_purchase_order";
+    public final String internalDealerServicePurchaseOrderQueueOrderRoutingKey =
+            "Order." + OrderType.DEALER_SERVICE_PURCHASE_ORDER.routingKeySegment() + ".#";
+    public final String internalDealerServicePurchaseOrderQueuePaymentRoutingKey =
+            "Payment." + OrderType.DEALER_SERVICE_PURCHASE_ORDER.routingKeySegment() + ".#";
 
     public final String internalPaymentQueueName = "iddd_internal_payment";
     public final String internalPaymentQueueRoutingKey = "Payment.#";
+
 
     @Value("${rabbitmq.iddd.host}")
     private String host;
@@ -109,35 +114,27 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue internalPaymentQueue(RabbitAdmin rabbitAdmin) {
-        Queue queue = new Queue(internalPaymentQueueName, true);
+    public Queue internalDealerServicePurchaseOrderQueue(RabbitAdmin rabbitAdmin) {
+        Queue queue = new Queue(internalDealerServicePurchaseOrderQueueName, true);
         queue.setShouldDeclare(true);
         rabbitAdmin.declareQueue(queue);
         return queue;
     }
 
     @Bean
-    public Binding internalPaymentQueueBinding(RabbitAdmin rabbitAdmin) {
+    public Binding internalDealerServicePurchaseOrderQueueOrderBinding(RabbitAdmin rabbitAdmin) {
         Binding binding = BindingBuilder.
-                bind(internalPaymentQueue(rabbitAdmin)).
-                to(new TopicExchange(EXCHANGE_NAME)).with(internalPaymentQueueRoutingKey);
+                bind(internalDealerServicePurchaseOrderQueue(rabbitAdmin)).
+                to(new TopicExchange(EXCHANGE_NAME)).with(internalDealerServicePurchaseOrderQueueOrderRoutingKey);
         binding.setAdminsThatShouldDeclare(rabbitAdmin);
         return binding;
     }
 
     @Bean
-    public Queue internalOrderQueue(RabbitAdmin rabbitAdmin) {
-        Queue queue = new Queue(internalOrderQueueName, true);
-        queue.setShouldDeclare(true);
-        rabbitAdmin.declareQueue(queue);
-        return queue;
-    }
-
-    @Bean
-    public Binding internalOrderQueueBinding(RabbitAdmin rabbitAdmin) {
+    public Binding internalDealerServicePurchaseOrderQueuePaymentBinding(RabbitAdmin rabbitAdmin) {
         Binding binding = BindingBuilder.
-                bind(internalOrderQueue(rabbitAdmin)).
-                to(new TopicExchange(EXCHANGE_NAME)).with(internalOrderQueueRoutingKey);
+                bind(internalDealerServicePurchaseOrderQueue(rabbitAdmin)).
+                to(new TopicExchange(EXCHANGE_NAME)).with(internalDealerServicePurchaseOrderQueuePaymentRoutingKey);
         binding.setAdminsThatShouldDeclare(rabbitAdmin);
         return binding;
     }

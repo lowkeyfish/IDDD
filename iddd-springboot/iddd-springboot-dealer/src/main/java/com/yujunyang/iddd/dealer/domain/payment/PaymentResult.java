@@ -21,17 +21,24 @@
 
 package com.yujunyang.iddd.dealer.domain.payment;
 
+import java.util.Map;
+
 public class PaymentResult {
+    private Map<String, Object> paymentDetails;
+    private PaymentStatusType status;
 
-    public boolean isPaymentSuccess() {
-        return false;
+    public PaymentResult(
+            Map<String, Object> paymentDetails,
+            PaymentStatusType status) {
+        this.paymentDetails = paymentDetails;
+        this.status = status;
     }
 
-    public boolean isUnpaid() {
-        return true;
+    public Map<String, Object> details() {
+        return paymentDetails;
     }
 
-    public PaymentStatusType paymentStatus() {
-        return null;
+    public PaymentStatusType status() {
+        return status;
     }
 }

@@ -24,6 +24,7 @@ package com.yujunyang.iddd.dealer.domain.order;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.yujunyang.iddd.common.enums.ValueDescriptionEnum;
+import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.common.utils.EnumUtilsEnhance;
 
 public enum OrderType implements ValueDescriptionEnum<Integer> {
@@ -46,6 +47,22 @@ public enum OrderType implements ValueDescriptionEnum<Integer> {
     @Override
     public Integer getValue() {
         return value;
+    }
+
+    public String routingKeySegment() {
+
+        String segment;
+        switch (this) {
+            case DEALER_SERVICE_PURCHASE_ORDER:
+                segment = "DealerServicePurchaseOrder";
+                break;
+            default:
+                segment = null;
+        }
+
+        CheckUtils.notNull(segment, "orderType({0})未支持", this);
+
+        return segment;
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)

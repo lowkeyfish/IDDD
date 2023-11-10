@@ -133,6 +133,16 @@ public class DealerServicePurchaseOrderApplicationService {
     }
 
     @Transactional
+    public void markAsFailed(OrderStatusChangeCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+        order.markAsFailed();
+
+        dealerServicePurchaseOrderRepository.save(order);
+    }
+
+    @Transactional
     public void refundPurchaseServiceOrder() {
 
     }
@@ -163,6 +173,7 @@ public class DealerServicePurchaseOrderApplicationService {
         }
         return dealer;
     }
+
 
 
 }

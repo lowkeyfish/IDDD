@@ -22,6 +22,8 @@
 package com.yujunyang.iddd.dealer.domain.payment;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -43,7 +45,9 @@ public class PaymentOrder {
     private int amount;
     protected PaymentStatusType status;
     protected String outTradeNo;
-    private Map<String, Object> paymentChannelParams;
+    private Map<String, Object> paymentParams;
+    private Map<String, Object> paymentDetails;
+
 
     public PaymentOrder(
             PaymentOrderId id,
@@ -56,7 +60,8 @@ public class PaymentOrder {
             int amount,
             PaymentStatusType status,
             String outTradeNo,
-            Map<String, Object> paymentChannelParams) {
+            Map<String, Object> paymentParams,
+            Map<String, Object> paymentDetails) {
         this.id = id;
         this.orderType = orderType;
         this.orderId = orderId;
@@ -67,7 +72,8 @@ public class PaymentOrder {
         this.amount = amount;
         this.status = status;
         this.outTradeNo = outTradeNo;
-        this.paymentChannelParams = paymentChannelParams;
+        this.paymentParams = paymentParams;
+        this.paymentDetails = paymentDetails;
     }
 
     public PaymentOrder(
@@ -78,7 +84,7 @@ public class PaymentOrder {
             PaymentMethodType paymentMethodType,
             String description,
             int amount,
-            Map<String, Object> paymentChannelParams) {
+            Map<String, Object> paymentParams) {
         this(
                 id,
                 orderType,
@@ -90,8 +96,8 @@ public class PaymentOrder {
                 amount,
                 PaymentStatusType.NOT_INITIATED,
                 id.toString(),
-                paymentChannelParams
-        );
+                paymentParams,
+                null);
     }
 
     public InitiatePaymentResult initiatePayment(
@@ -131,7 +137,7 @@ public class PaymentOrder {
                 new BusinessRuleException(
                         "支付订单状态不支持设置为支付成功",
                         ImmutableMap.of(
-                                "id",
+                                "paymentOrderId",
                                 id.getId(),
                                 "status",
                                 status
@@ -167,6 +173,59 @@ public class PaymentOrder {
         return status;
     }
 
-    public void syncStatus(PaymentResult paymentResult) {
+    public void syncPaymentResult(PaymentService paymentService) {
+        CheckUtils.isTrue(
+                PaymentStatusType.INITIATED.equals(status),
+                new BusinessRuleException(
+                        "支付单非已发起支付状态,不支持同步支付结果",
+                        ImmutableMap.of(
+                                "paymentOrderId",
+                                id.getId(),
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        PaymentResult paymentResult = paymentService.queryPaymentStatus(this);
+        List<PaymentStatusType> needSyncPaymentStatusList = Arrays.asList(
+                PaymentStatusType.PAID,
+                PaymentStatusType.FAILED
+        );
+        CheckUtils.isTrue(
+                needSyncPaymentStatusList.contains(paymentResult.status()),
+                new BusinessRuleException(
+                        "支付单查询结果状态非已支付或支付失败,暂不同步结果",
+                        ImmutableMap.of(
+                                "paymentOrderId",
+                                id.getId(),
+                                "paymentResultStatus",
+                                paymentResult.status()
+                        )
+                )
+        );
+
+        status = paymentResult.status();
+        paymentDetails = paymentResult.details();
+
+        if (PaymentStatusType.PAID.equals(paymentResult.status())) {
+            DomainEventPublisher.instance().publish(new PaymentPaid(
+                    DateTimeUtilsEnhance.epochMilliSecond(),
+                    paymentChannelType,
+                    paymentMethodType,
+                    id.getId(),
+                    orderType,
+                    orderId.getId()
+            ));
+        } else if (PaymentStatusType.FAILED.equals(paymentResult.status())) {
+            DomainEventPublisher.instance().publish(new PaymentPaid(
+                    DateTimeUtilsEnhance.epochMilliSecond(),
+                    paymentChannelType,
+                    paymentMethodType,
+                    id.getId(),
+                    orderType,
+                    orderId.getId()
+            ));
+        }
     }
 }

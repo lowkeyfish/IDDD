@@ -28,6 +28,7 @@ import com.yujunyang.iddd.dealer.application.command.HandleWechatPaymentNotifica
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentOrderApplicationService {
     private PaymentOrderRepository paymentOrderRepository;
     private PaymentOrderService paymentOrderService;
+
 
     @Autowired
     public PaymentOrderApplicationService(
@@ -65,7 +67,10 @@ public class PaymentOrderApplicationService {
                 )
         );
 
-        paymentOrderService.syncPaymentStatus(paymentOrder);
+        PaymentService paymentService = paymentOrderService.paymentService(paymentOrder);
+        paymentOrder.syncPaymentResult(paymentService);
+
+        paymentOrderRepository.save(paymentOrder);
     }
 
 

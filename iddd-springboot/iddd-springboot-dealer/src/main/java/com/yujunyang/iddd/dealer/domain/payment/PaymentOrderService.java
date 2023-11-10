@@ -113,7 +113,7 @@ public class PaymentOrderService {
             PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(n.paymentChannelType());
             PaymentResult paymentResult = paymentService.queryPaymentStatus(n);
             CheckUtils.isTrue(
-                    paymentResult.isUnpaid(),
+                    PaymentStatusType.INITIATED.equals(paymentResult.status()),
                     new BusinessRuleException(
                             "订单支付单状态非未支付,不能再发起支付",
                             ImmutableMap.of(
@@ -156,16 +156,12 @@ public class PaymentOrderService {
         return initiatePaymentResult;
     }
 
-    public void syncPaymentStatus(PaymentOrder paymentOrder) {
+    public PaymentService paymentService(PaymentOrder paymentOrder) {
         CheckUtils.notNull(paymentOrder, "paymentOrder 必须不为 null");
 
         PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
                 paymentOrder.paymentChannelType());
 
-        PaymentResult paymentResult = paymentService.queryPaymentStatus(paymentOrder);
-
-        paymentOrder.syncStatus(paymentResult);
-
-        paymentOrderRepository.save(paymentOrder);
+        return paymentService;
     }
 }
