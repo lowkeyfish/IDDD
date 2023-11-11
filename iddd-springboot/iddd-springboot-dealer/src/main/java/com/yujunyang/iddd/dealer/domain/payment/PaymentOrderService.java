@@ -33,6 +33,7 @@ import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.domain.order.AbstractOrder;
 import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
 import com.yujunyang.iddd.dealer.domain.order.OrderType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,20 +59,25 @@ public class PaymentOrderService {
         CheckUtils.notNull(paymentChannelType, "paymentChannelType 必须不为 null");
         CheckUtils.notNull(paymentMethodType, "paymentMethodType 必须不为 null");
 
-        // 订单状态：未支付、支付失败，允许发起支付
+        // 订单状态：未发起支付、已发起支付，允许发起支付
+        // 订单状态为支付失败：
+        //     支付失败即使可以重新支付，也需要订单先处理失败重新发起支付，
+        //     即将订单状态重置为未发起支付，同时将支付失败的订单处理关闭订单，
+        //     然后再进入到订单发起支付流程时订单状态就符合未发起支付，
+        //     支付失败场景的处理是单独的流程
         CheckUtils.isTrue(
                 Arrays.asList(
                         OrderStatusType.PAYMENT_NOT_INITIATED,
-                        OrderStatusType.PAYMENT_FAILED
+                        OrderStatusType.PAYMENT_INITIATED
                 ).contains(order.status()),
                 new BusinessRuleException(
-                        "订单当前状态非未支付或支付失败,不能再发起支付",
+                        "订单不能发起支付,因为当前状态非未发起支付、已发起支付",
                         ImmutableMap.of(
                                 "orderId",
                                 order.id().getId(),
                                 "orderType",
                                 order.orderType(),
-                                "orderStatus",
+                                "status",
                                 order.status()
                         )
                 )
@@ -83,16 +89,22 @@ public class PaymentOrderService {
                 order.id()
         );
 
-        // 允许发起支付的支付单情况：不存在支付订单或支付订单状态是已发起支付、支付失败
-        boolean canInitiatePayment = allPaymentOrders.stream().allMatch(n -> Arrays.asList(
-                PaymentStatusType.INITIATED,
-                PaymentStatusType.FAILED
-        ).contains(n.status()));
+        // 允许发起支付的支付单情况：
+        //     1. 不存在支付订单
+        //     2. 存在的支付单都是未发起支付、已发起支付、已关闭
+        boolean canInitiatePayment = CollectionUtils.isEmpty(allPaymentOrders)
+                || allPaymentOrders.stream().allMatch(n ->
+                        Arrays.asList(
+                                PaymentStatusType.NOT_INITIATED,
+                                PaymentStatusType.INITIATED,
+                                PaymentStatusType.CLOSED
+                        ).contains(n.status())
+                );
 
         CheckUtils.isTrue(
                 canInitiatePayment,
                 new BusinessRuleException(
-                        "订单存在已支付的支付单,不能再发起支付",
+                        "订单不能发起支付,因为订单存在未发起支付、已发起支付、支付失败三种状态外的支付单",
                         ImmutableMap.of(
                                 "orderId",
                                 order.id().getId(),
@@ -102,20 +114,20 @@ public class PaymentOrderService {
                 )
         );
 
-        // 筛选和当前发起支付渠道、支付类型一致的支付订单
+        // 所有已发起支付的支付单
         List<PaymentOrder> initiatedPaymentOrders = allPaymentOrders.stream()
-                .filter(n -> n.paymentChannelType().equals(paymentChannelType)
-                        && n.paymentMethodType().equals(paymentMethodType)
-                        && n.status().equals(PaymentStatusType.INITIATED)
+                .filter(n -> Arrays.asList(
+                                PaymentStatusType.INITIATED
+                        ).equals(n.status)
                 ).collect(Collectors.toList());
 
         initiatedPaymentOrders.forEach(n -> {
-            PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(n.paymentChannelType());
+            PaymentService paymentService = paymentService(n);
             PaymentResult paymentResult = paymentService.queryPaymentStatus(n);
             CheckUtils.isTrue(
                     PaymentStatusType.INITIATED.equals(paymentResult.status()),
                     new BusinessRuleException(
-                            "订单支付单状态非未支付,不能再发起支付",
+                            "订单不能发起支付,因为支付单实时查询状态非已发起支付",
                             ImmutableMap.of(
                                     "orderId",
                                     order.id().getId(),
@@ -149,7 +161,7 @@ public class PaymentOrderService {
             );
         }
 
-        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(paymentChannelType);
+        PaymentService paymentService = paymentService(paymentOrder);
         InitiatePaymentResult initiatePaymentResult = paymentOrder.initiatePayment(paymentService);
         paymentOrderRepository.save(paymentOrder);
 

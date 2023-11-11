@@ -103,9 +103,12 @@ public class PaymentOrder {
     public InitiatePaymentResult initiatePayment(
             PaymentService paymentService) {
         CheckUtils.isTrue(
-                PaymentStatusType.NOT_INITIATED.equals(status),
+                Arrays.asList(
+                        PaymentStatusType.NOT_INITIATED,
+                        PaymentStatusType.INITIATED
+                ).contains(status),
                 new BusinessRuleException(
-                        "支付订单状态不支持发起支付",
+                        "支付单不能发起支付,因为当前状态非未发起支付或已发起支付",
                         ImmutableMap.of(
                                 "paymentOrderId",
                                 id.getId(),
@@ -117,44 +120,20 @@ public class PaymentOrder {
 
         InitiatePaymentResult initiatePaymentResult = paymentService.initiatePayment(this);
 
-        status = PaymentStatusType.INITIATED;
+        if (PaymentStatusType.NOT_INITIATED.equals(status)) {
+            status = PaymentStatusType.INITIATED;
 
-        DomainEventPublisher.instance().publish(new PaymentInitiated(
-                DateTimeUtilsEnhance.epochMilliSecond(),
-                paymentChannelType,
-                paymentMethodType,
-                id.getId(),
-                orderType,
-                orderId.getId()
-        ));
+            DomainEventPublisher.instance().publish(new PaymentInitiated(
+                    DateTimeUtilsEnhance.epochMilliSecond(),
+                    paymentChannelType,
+                    paymentMethodType,
+                    id.getId(),
+                    orderType,
+                    orderId.getId()
+            ));
+        }
 
         return initiatePaymentResult;
-    }
-
-    public void markAsPaymentSuccess() {
-        CheckUtils.isTrue(
-                PaymentStatusType.INITIATED.equals(status),
-                new BusinessRuleException(
-                        "支付订单状态不支持设置为支付成功",
-                        ImmutableMap.of(
-                                "paymentOrderId",
-                                id.getId(),
-                                "status",
-                                status
-                        )
-                )
-        );
-
-        status = PaymentStatusType.PAID;
-
-        DomainEventPublisher.instance().publish(new PaymentPaid(
-                DateTimeUtilsEnhance.epochMilliSecond(),
-                paymentChannelType,
-                paymentMethodType,
-                id.getId(),
-                orderType,
-                orderId.getId()
-        ));
     }
 
     public PaymentChannelType paymentChannelType() {
@@ -182,36 +161,23 @@ public class PaymentOrder {
     }
 
     public void syncPaymentResult(PaymentService paymentService) {
-        CheckUtils.isTrue(
-                PaymentStatusType.INITIATED.equals(status),
-                new BusinessRuleException(
-                        "支付单非已发起支付状态,不支持同步支付结果",
-                        ImmutableMap.of(
-                                "paymentOrderId",
-                                id.getId(),
-                                "status",
-                                status
-                        )
-                )
-        );
+        // 只有支付单状态为未发起支付、已发起支付才需要同步支付状态
+        if (!Arrays.asList(
+                PaymentStatusType.NOT_INITIATED,
+                PaymentStatusType.INITIATED
+        ).contains(status)) {
+            return;
+        }
 
         PaymentResult paymentResult = paymentService.queryPaymentStatus(this);
-        List<PaymentStatusType> needSyncPaymentStatusList = Arrays.asList(
+
+        // 只有支付单实时查询状态为已支付、支付失败才需要同步支付状态
+        if (!Arrays.asList(
                 PaymentStatusType.PAID,
                 PaymentStatusType.FAILED
-        );
-        CheckUtils.isTrue(
-                needSyncPaymentStatusList.contains(paymentResult.status()),
-                new BusinessRuleException(
-                        "支付单查询结果状态非已支付或支付失败,暂不同步结果",
-                        ImmutableMap.of(
-                                "paymentOrderId",
-                                id.getId(),
-                                "paymentResultStatus",
-                                paymentResult.status()
-                        )
-                )
-        );
+        ).contains(paymentResult.status())) {
+            return;
+        }
 
         status = paymentResult.status();
         paymentDetails = paymentResult.details();

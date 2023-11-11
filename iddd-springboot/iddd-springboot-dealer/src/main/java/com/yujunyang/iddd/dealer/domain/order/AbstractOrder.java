@@ -109,14 +109,16 @@ public abstract class AbstractOrder {
         checkPaymentOrderStatus(paymentOrder, PaymentStatusType.INITIATED, "订单状态不能设置为已发起支付,因为支付单状态非已发起支付");
         checkOrderAndPaymentOrderRelation(paymentOrder, "订单状态不能设置为已发起支付,因为支付单关联订单和当前订单不匹配");
 
+        if (OrderStatusType.PAYMENT_INITIATED.equals(status)) {
+            return;
+        }
+
         CheckUtils.isTrue(
                 Arrays.asList(
-                        OrderStatusType.PAYMENT_NOT_INITIATED,
-                        OrderStatusType.PAYMENT_INITIATED,
-                        OrderStatusType.PAYMENT_FAILED
+                        OrderStatusType.PAYMENT_NOT_INITIATED
                 ).contains(status),
                 new BusinessRuleException(
-                        "订单状态不能设置为已发起支付,因为订单当前状态非未发起支付、已发起支付或支付失败",
+                        "订单状态不能设置为已发起支付,因为订单当前状态非未发起支付",
                         ImmutableMap.of(
                                 "orderId",
                                 id.getId(),

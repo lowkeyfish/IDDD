@@ -223,12 +223,17 @@ public class Dealer {
     public void updateServiceTime(LocalDateTime nextServiceExpiryTime) {
         CheckUtils.notNull(nextServiceExpiryTime, "serviceExpiryTime 必须不为 null");
 
+        DealerServiceStatusType current = serviceStatus;
+
         if (serviceExpiryTime == null || nextServiceExpiryTime.isAfter(serviceExpiryTime)) {
             serviceExpiryTime = nextServiceExpiryTime;
         }
 
-        if (DealerServiceStatusType.EXPIRED.equals(serviceStatus) && LocalDateTime.now().isBefore(serviceExpiryTime)) {
+        if (LocalDateTime.now().isBefore(serviceExpiryTime)) {
             serviceStatus = DealerServiceStatusType.IN_SERVICE;
+        }
+
+        if (!current.equals(serviceStatus)) {
             DomainEventPublisher.instance().publish(new DealerServiceChanged(
                     DateTimeUtilsEnhance.epochMilliSecond(),
                     id.getId()
@@ -236,20 +241,8 @@ public class Dealer {
         }
     }
 
-    public void terminateServiceUponExpiration() {
-
-    }
-
     public DealerId id() {
         return id;
-    }
-
-    public boolean isInService() {
-        return serviceStatus.equals(DealerServiceStatusType.IN_SERVICE);
-    }
-
-    public boolean isVisible() {
-        return visibilityStatus.equals(DealerVisibilityStatusType.VISIBLE);
     }
 
     public DealerSnapshot snapshot() {
