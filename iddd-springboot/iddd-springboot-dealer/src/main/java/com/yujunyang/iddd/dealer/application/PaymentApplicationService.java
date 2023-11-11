@@ -34,13 +34,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class PaymentOrderApplicationService {
+public class PaymentApplicationService {
     private PaymentOrderRepository paymentOrderRepository;
     private PaymentOrderService paymentOrderService;
 
 
     @Autowired
-    public PaymentOrderApplicationService(
+    public PaymentApplicationService(
             PaymentOrderRepository paymentOrderRepository,
             PaymentOrderService paymentOrderService) {
         this.paymentOrderRepository = paymentOrderRepository;

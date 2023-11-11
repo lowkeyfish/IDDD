@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
+import com.yujunyang.iddd.dealer.application.command.InitiateRefundCommand;
 import com.yujunyang.iddd.dealer.application.command.OrderPaymentStatusChangeCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
 import com.yujunyang.iddd.dealer.application.data.InitiatePaymentCommandResult;
@@ -146,6 +147,16 @@ public class DealerServicePurchaseOrderApplicationService {
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
         PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
         order.markAsFailed(paymentOrder);
+
+        dealerServicePurchaseOrderRepository.save(order);
+    }
+
+    @Transactional
+    public void initiateRefund(InitiateRefundCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+        order.initiateRefund();
 
         dealerServicePurchaseOrderRepository.save(order);
     }

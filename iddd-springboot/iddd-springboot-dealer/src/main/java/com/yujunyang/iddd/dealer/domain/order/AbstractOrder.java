@@ -244,4 +244,20 @@ public abstract class AbstractOrder {
         );
     }
 
+    public void initiateRefund() {
+        CheckUtils.isTrue(
+                PaymentStatusType.PAID.equals(status),
+                new BusinessRuleException(
+                        "订单不能发起退款,因为当前状态非已支付",
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "status",
+                                status
+                        )
+                )
+        );
+    }
 }
