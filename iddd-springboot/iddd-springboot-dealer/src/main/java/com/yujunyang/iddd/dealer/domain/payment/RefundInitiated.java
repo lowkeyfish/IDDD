@@ -25,13 +25,22 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public class RefundRequestedDueToRepeatedPayment extends RefundRequested {
+public class RefundInitiated extends AbstractRefundDomainEvent {
     @JsonCreator
-    public RefundRequestedDueToRepeatedPayment(
+    public RefundInitiated(
             @JsonProperty("timestamp") long timestamp,
+            @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
             @JsonProperty("paymentOrderId") long paymentOrderId,
-            @JsonProperty("paymentScenarioType") OrderType orderType,
-            @JsonProperty("orderId") long orderId) {
-        super(timestamp, paymentOrderId, orderType, orderId);
+            @JsonProperty("orderType") OrderType orderType,
+            @JsonProperty("orderId") long orderId,
+            @JsonProperty("refundOrderId") long refundOrderId) {
+        super(
+                timestamp,
+                paymentChannelType,
+                paymentOrderId,
+                orderType,
+                orderId,
+                refundOrderId
+        );
     }
 }

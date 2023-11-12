@@ -17,30 +17,35 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.application.command;
+package com.yujunyang.iddd.dealer.domain.payment;
 
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.RefundReasonType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 
-public class InitiateRefundCommand {
-    private PaymentOrderId paymentOrderId;
-    private RefundReasonType refundReasonType;
-
-    public InitiateRefundCommand(
-            PaymentOrderId paymentOrderId,
-            RefundReasonType refundReasonType) {
-        this.paymentOrderId = paymentOrderId;
-        this.refundReasonType = refundReasonType;
+public class RefundOrderId extends AbstractLongId {
+    @JsonCreator
+    public RefundOrderId(@JsonProperty("id") Long id) {
+        super(id);
     }
 
-    public PaymentOrderId getPaymentOrderId() {
-        return paymentOrderId;
+    @Override
+    protected int initialNonZeroOddNumber() {
+        return 51;
     }
 
-    public RefundReasonType getRefundReasonType() {
-        return refundReasonType;
+    @Override
+    protected int multiplierNonZeroOddNumber() {
+        return 7601;
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static RefundOrderId parse(Long id) {
+        if (id == null || id <= 0) {
+            return null;
+        }
+        return new RefundOrderId(id);
     }
 }

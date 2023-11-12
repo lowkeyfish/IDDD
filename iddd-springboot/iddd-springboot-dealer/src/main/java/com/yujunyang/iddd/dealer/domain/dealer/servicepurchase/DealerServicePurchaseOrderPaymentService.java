@@ -21,26 +21,9 @@
 
 package com.yujunyang.iddd.dealer.domain.dealer.servicepurchase;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableMap;
-import com.yujunyang.iddd.common.exception.BusinessRuleException;
-import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
-import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentChannelType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentMethodType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentResult;
-import com.yujunyang.iddd.dealer.domain.order.OrderType;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
+import com.yujunyang.iddd.dealer.domain.payment.InitiateRefundService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentServiceSelector;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +32,7 @@ public class DealerServicePurchaseOrderPaymentService {
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
     private PaymentServiceSelector paymentServiceSelector;
     private PaymentOrderRepository paymentOrderRepository;
-    private PaymentOrderService paymentOrderService;
+    private InitiateRefundService initiateRefundService;
 
 
     @Autowired
@@ -57,11 +40,11 @@ public class DealerServicePurchaseOrderPaymentService {
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             PaymentServiceSelector paymentServiceSelector,
             PaymentOrderRepository paymentOrderRepository,
-            PaymentOrderService paymentOrderService) {
+            InitiateRefundService initiateRefundService) {
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.paymentServiceSelector = paymentServiceSelector;
         this.paymentOrderRepository = paymentOrderRepository;
-        this.paymentOrderService = paymentOrderService;
+        this.initiateRefundService = initiateRefundService;
     }
 
 

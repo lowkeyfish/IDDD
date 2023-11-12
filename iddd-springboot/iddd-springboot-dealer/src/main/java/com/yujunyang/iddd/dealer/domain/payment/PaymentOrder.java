@@ -136,28 +136,32 @@ public class PaymentOrder {
         return initiatePaymentResult;
     }
 
-    public PaymentChannelType paymentChannelType() {
-        return paymentChannelType;
-    }
+    public RefundOrder generateRefundOrder(
+            RefundOrderId refundOrderId,
+            RefundReasonType refundReasonType) {
+        CheckUtils.isTrue(
+                PaymentStatusType.PAID.equals(status),
+                new BusinessRuleException(
+                        "支付单不能生成退款单,因为支付单状态非已支付",
+                        ImmutableMap.of(
+                                "paymentOrderId",
+                                id.getId(),
+                                "paymentOrderStatus",
+                                status
+                        )
+                )
+        );
 
-    public PaymentMethodType paymentMethodType() {
-        return paymentMethodType;
-    }
-
-    public PaymentOrderId id() {
-        return id;
-    }
-
-    public PaymentStatusType status() {
-        return status;
-    }
-
-    public AbstractLongId orderId() {
-        return orderId;
-    }
-
-    public OrderType orderType() {
-        return orderType;
+        return new RefundOrder(
+                refundOrderId,
+                id,
+                orderType,
+                orderId,
+                paymentChannelType,
+                amount,
+                outTradeNo,
+                refundReasonType
+        );
     }
 
     public void syncPaymentResult(PaymentService paymentService) {
@@ -201,5 +205,37 @@ public class PaymentOrder {
                     orderId.getId()
             ));
         }
+    }
+
+    public PaymentChannelType paymentChannelType() {
+        return paymentChannelType;
+    }
+
+    public PaymentMethodType paymentMethodType() {
+        return paymentMethodType;
+    }
+
+    public PaymentOrderId id() {
+        return id;
+    }
+
+    public PaymentStatusType status() {
+        return status;
+    }
+
+    public AbstractLongId orderId() {
+        return orderId;
+    }
+
+    public OrderType orderType() {
+        return orderType;
+    }
+
+    public int amount() {
+        return amount;
+    }
+
+    public String outTradeNo() {
+        return outTradeNo;
     }
 }

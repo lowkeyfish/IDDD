@@ -21,22 +21,26 @@
 
 package com.yujunyang.iddd.dealer.domain.payment;
 
-import java.util.List;
-
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public interface PaymentOrderRepository {
-    PaymentOrderId nextId();
-
-    void save(PaymentOrder paymentOrder);
-
-    PaymentOrder findById(PaymentOrderId id);
-
-    PaymentOrder findByOutTradeNo(String outTradeNo);
-
-    List<PaymentOrder> findByOrder(
-            OrderType orderType,
-            AbstractLongId orderId
-    );
+public class RefundFailed extends AbstractRefundDomainEvent {
+    @JsonCreator
+    public RefundFailed(
+            @JsonProperty("timestamp") long timestamp,
+            @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
+            @JsonProperty("paymentOrderId") long paymentOrderId,
+            @JsonProperty("orderType") OrderType orderType,
+            @JsonProperty("orderId") long orderId,
+            @JsonProperty("refundOrderId") long refundOrderId) {
+        super(
+                timestamp,
+                paymentChannelType,
+                paymentOrderId,
+                orderType,
+                orderId,
+                refundOrderId
+        );
+    }
 }

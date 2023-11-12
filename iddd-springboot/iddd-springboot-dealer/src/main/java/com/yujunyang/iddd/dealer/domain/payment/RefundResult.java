@@ -21,5 +21,24 @@
 
 package com.yujunyang.iddd.dealer.domain.payment;
 
+import java.util.Map;
+
 public class RefundResult {
+    private Map<String, Object> refundDetails;
+    private RefundStatusType status;
+
+    public RefundResult(
+            Map<String, Object> refundDetails,
+            RefundStatusType status) {
+        this.refundDetails = refundDetails;
+        this.status = status;
+    }
+
+    public RefundStatusType status() {
+        return status;
+    }
+
+    public Map<String, Object> details() {
+        return refundDetails;
+    }
 }

@@ -38,12 +38,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaymentOrderService {
+public class InitiatePaymentService {
     private PaymentServiceSelector paymentServiceSelector;
     private PaymentOrderRepository paymentOrderRepository;
 
     @Autowired
-    public PaymentOrderService(
+    public InitiatePaymentService(
             PaymentServiceSelector paymentServiceSelector,
             PaymentOrderRepository paymentOrderRepository) {
         this.paymentServiceSelector = paymentServiceSelector;
@@ -84,7 +84,7 @@ public class PaymentOrderService {
         );
 
         // 查找订单的全部支付订单
-        List<PaymentOrder> allPaymentOrders = paymentOrderRepository.findByScenario(
+        List<PaymentOrder> allPaymentOrders = paymentOrderRepository.findByOrder(
                 order.orderType(),
                 order.id()
         );
@@ -122,7 +122,8 @@ public class PaymentOrderService {
                 ).collect(Collectors.toList());
 
         initiatedPaymentOrders.forEach(n -> {
-            PaymentService paymentService = paymentService(n);
+            PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
+                    n.paymentChannelType());
             PaymentResult paymentResult = paymentService.queryPaymentStatus(n);
             CheckUtils.isTrue(
                     PaymentStatusType.INITIATED.equals(paymentResult.status()),
@@ -161,19 +162,11 @@ public class PaymentOrderService {
             );
         }
 
-        PaymentService paymentService = paymentService(paymentOrder);
+        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
+                paymentOrder.paymentChannelType());
         InitiatePaymentResult initiatePaymentResult = paymentOrder.initiatePayment(paymentService);
         paymentOrderRepository.save(paymentOrder);
 
         return initiatePaymentResult;
-    }
-
-    public PaymentService paymentService(PaymentOrder paymentOrder) {
-        CheckUtils.notNull(paymentOrder, "paymentOrder 必须不为 null");
-
-        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
-                paymentOrder.paymentChannelType());
-
-        return paymentService;
     }
 }

@@ -26,27 +26,27 @@ import java.text.MessageFormat;
 import com.yujunyang.iddd.common.domain.event.DomainEvent;
 import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public abstract class AbstractPaymentDomainEvent implements DomainEvent {
+public abstract class AbstractRefundDomainEvent implements DomainEvent {
     private long timestamp;
     private PaymentChannelType paymentChannelType;
-    private PaymentMethodType paymentMethodType;
     private long paymentOrderId;
     private OrderType orderType;
     private long orderId;
+    private long refundOrderId;
 
-    protected AbstractPaymentDomainEvent(
+    protected AbstractRefundDomainEvent(
             long timestamp,
             PaymentChannelType paymentChannelType,
-            PaymentMethodType paymentMethodType,
             long paymentOrderId,
             OrderType orderType,
-            long orderId) {
+            long orderId,
+            long refundOrderId) {
         this.timestamp = timestamp;
         this.paymentChannelType = paymentChannelType;
-        this.paymentMethodType = paymentMethodType;
         this.paymentOrderId = paymentOrderId;
         this.orderType = orderType;
         this.orderId = orderId;
+        this.refundOrderId = refundOrderId;
     }
 
     @Override
@@ -70,8 +70,8 @@ public abstract class AbstractPaymentDomainEvent implements DomainEvent {
         return paymentChannelType;
     }
 
-    public PaymentMethodType getPaymentMethodType() {
-        return paymentMethodType;
+    public long getRefundOrderId() {
+        return refundOrderId;
     }
 
     @Override

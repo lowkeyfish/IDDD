@@ -17,19 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.dealer.application.command;
 
-public class HandlePaymentOrderSuccessCommand {
-    private String outTradeNo;
+import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 
-    public HandlePaymentOrderSuccessCommand(
-            String outTradeNo) {
-        this.outTradeNo = outTradeNo;
+public class OrderRequestRefundCommand {
+    private AbstractLongId orderId;
+
+    public OrderRequestRefundCommand(
+            AbstractLongId orderId) {
+        this.orderId = orderId;
     }
 
-    public String getOutTradeNo() {
-        return outTradeNo;
+    public AbstractLongId getOrderId() {
+        return orderId;
     }
 }

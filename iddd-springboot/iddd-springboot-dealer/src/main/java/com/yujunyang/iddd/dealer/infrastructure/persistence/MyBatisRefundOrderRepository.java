@@ -17,46 +17,40 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
-import com.yujunyang.iddd.dealer.domain.order.OrderType;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrder;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrderRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MyBatisPaymentOrderRepository implements PaymentOrderRepository {
+public class MyBatisRefundOrderRepository implements RefundOrderRepository {
     @Override
-    public PaymentOrderId nextId() {
+    public RefundOrderId nextId() {
         return null;
     }
 
     @Override
-    public void save(PaymentOrder paymentOrder) {
-
-    }
-
-    @Override
-    public PaymentOrder findById(PaymentOrderId id) {
+    public RefundOrder findById(RefundOrderId id) {
         return null;
     }
 
     @Override
-    public PaymentOrder findByOutTradeNo(String outTradeNo) {
+    public void save(RefundOrder refundOrder) {
+
+    }
+
+    @Override
+    public RefundOrder findByOutTradeNo(String outTradeNo) {
         return null;
     }
 
     @Override
-    public List<PaymentOrder> findByOrder(
-            OrderType orderType,
-            AbstractLongId orderId) {
-        return new ArrayList<>();
+    public RefundOrder findByOutRefundNo(String outRefundNo) {
+        return null;
     }
 }

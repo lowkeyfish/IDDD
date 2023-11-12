@@ -25,8 +25,9 @@ import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
-import com.yujunyang.iddd.dealer.application.command.InitiateRefundCommand;
 import com.yujunyang.iddd.dealer.application.command.OrderPaymentStatusChangeCommand;
+import com.yujunyang.iddd.dealer.application.command.OrderRefundStatusChangeCommand;
+import com.yujunyang.iddd.dealer.application.command.OrderRequestRefundCommand;
 import com.yujunyang.iddd.dealer.application.command.PurchaseServiceCommand;
 import com.yujunyang.iddd.dealer.application.data.InitiatePaymentCommandResult;
 import com.yujunyang.iddd.dealer.application.data.PurchaseServiceCommandResult;
@@ -36,13 +37,15 @@ import com.yujunyang.iddd.dealer.domain.dealer.DealerRepository;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrder;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderFactory;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
-import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderPaymentService;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentResult;
+import com.yujunyang.iddd.dealer.domain.payment.InitiatePaymentService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrder;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,9 +55,9 @@ public class DealerServicePurchaseOrderApplicationService {
     private DealerRepository dealerRepository;
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
     private DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory;
-    private DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService;
-    private PaymentOrderService paymentOrderService;
+    private InitiatePaymentService initiatePaymentService;
     private PaymentOrderRepository paymentOrderRepository;
+    private RefundOrderRepository refundOrderRepository;
 
 
     @Autowired
@@ -62,15 +65,15 @@ public class DealerServicePurchaseOrderApplicationService {
             DealerRepository dealerRepository,
             DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
             DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory,
-            DealerServicePurchaseOrderPaymentService dealerServicePurchaseOrderPaymentService,
-            PaymentOrderService paymentOrderService,
-            PaymentOrderRepository paymentOrderRepository) {
+            InitiatePaymentService initiatePaymentService,
+            PaymentOrderRepository paymentOrderRepository,
+            RefundOrderRepository refundOrderRepository) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderFactory = dealerServicePurchaseOrderFactory;
-        this.dealerServicePurchaseOrderPaymentService = dealerServicePurchaseOrderPaymentService;
-        this.paymentOrderService = paymentOrderService;
+        this.initiatePaymentService = initiatePaymentService;
         this.paymentOrderRepository = paymentOrderRepository;
+        this.refundOrderRepository = refundOrderRepository;
     }
 
     @Transactional
@@ -108,7 +111,7 @@ public class DealerServicePurchaseOrderApplicationService {
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
 
-        InitiatePaymentResult initiatePaymentResult = paymentOrderService.initiatePayment(
+        InitiatePaymentResult initiatePaymentResult = initiatePaymentService.initiatePayment(
                 order,
                 command.getPaymentChannelType(),
                 command.getPaymentMethodType(),
@@ -146,29 +149,41 @@ public class DealerServicePurchaseOrderApplicationService {
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
         PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
-        order.markAsFailed(paymentOrder);
+        order.markAsPaymentFailed(paymentOrder);
 
         dealerServicePurchaseOrderRepository.save(order);
     }
 
     @Transactional
-    public void initiateRefund(InitiateRefundCommand command) {
+    public void requestRefund(OrderRequestRefundCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        order.initiateRefund();
+        order.requestRefund();
 
         dealerServicePurchaseOrderRepository.save(order);
     }
 
     @Transactional
-    public void refundPurchaseServiceOrder() {
+    public void markAsRefundInitiated(OrderRefundStatusChangeCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
 
+        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+        RefundOrder refundOrder = existingRefundOrder(command.getRefundOrderId());
+        order.markAsRefundInitiated(refundOrder);
+
+        dealerServicePurchaseOrderRepository.save(order);
     }
 
     @Transactional
-    public void notifyPurchaseServiceOrderRefund() {
+    public void markAsRefunded(OrderRefundStatusChangeCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
 
+        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+        RefundOrder refundOrder = existingRefundOrder(command.getRefundOrderId());
+        order.markAsRefunded(refundOrder);
+
+        dealerServicePurchaseOrderRepository.save(order);
     }
 
     private DealerServicePurchaseOrder existingOrder(DealerServicePurchaseOrderId id) {
@@ -203,4 +218,13 @@ public class DealerServicePurchaseOrderApplicationService {
         return paymentOrder;
     }
 
+    private RefundOrder existingRefundOrder(RefundOrderId refundOrderId) {
+        RefundOrder paymentOrder = refundOrderRepository.findById(refundOrderId);
+        CheckUtils.notNull(
+                paymentOrder,
+                "RefundOrder({0})不存在",
+                refundOrderId
+        );
+        return paymentOrder;
+    }
 }

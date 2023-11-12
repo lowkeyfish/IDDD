@@ -19,25 +19,18 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.yujunyang.iddd.dealer.application.command;
+package com.yujunyang.iddd.dealer.domain.order;
 
-import com.yujunyang.iddd.common.domain.id.AbstractLongId;
-import com.yujunyang.iddd.common.utils.CheckUtils;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class MarkAsPaymentInitiatedCommand {
-    private AbstractLongId orderId;
-    private PaymentOrderId paymentOrderId;
-
-    public MarkAsPaymentInitiatedCommand(
-            AbstractLongId orderId,
-            PaymentOrderId paymentOrderId) {
-        this.paymentOrderId = paymentOrderId;
-        CheckUtils.notNull(orderId, "orderId 必须不为 null");
-        this.orderId = orderId;
-    }
-
-    public AbstractLongId getOrderId() {
-        return orderId;
+public class RepeatedPaymentRefundRequested extends AbstractOrderPaymentDomainEvent {
+    @JsonCreator
+    public RepeatedPaymentRefundRequested(
+            @JsonProperty("timestamp") long timestamp,
+            @JsonProperty("orderId") long orderId,
+            @JsonProperty("orderType") OrderType orderType,
+            @JsonProperty("paymentOrderId") long paymentOrderId) {
+        super(timestamp, orderId, orderType, paymentOrderId);
     }
 }

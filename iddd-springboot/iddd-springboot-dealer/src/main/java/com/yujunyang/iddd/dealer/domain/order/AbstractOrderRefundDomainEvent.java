@@ -17,30 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with IDDD.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package com.yujunyang.iddd.dealer.application.command;
+package com.yujunyang.iddd.dealer.domain.order;
 
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.RefundReasonType;
+public class AbstractOrderRefundDomainEvent extends AbstractOrderPaymentDomainEvent {
+    protected long refundOrderId;
 
-public class InitiateRefundCommand {
-    private PaymentOrderId paymentOrderId;
-    private RefundReasonType refundReasonType;
-
-    public InitiateRefundCommand(
-            PaymentOrderId paymentOrderId,
-            RefundReasonType refundReasonType) {
-        this.paymentOrderId = paymentOrderId;
-        this.refundReasonType = refundReasonType;
+    protected AbstractOrderRefundDomainEvent(
+            long timestamp,
+            long orderId,
+            OrderType orderType,
+            long paymentOrderId,
+            long refundOrderId) {
+        super(timestamp, orderId, orderType, paymentOrderId);
+        this.refundOrderId = refundOrderId
     }
 
-    public PaymentOrderId getPaymentOrderId() {
-        return paymentOrderId;
-    }
-
-    public RefundReasonType getRefundReasonType() {
-        return refundReasonType;
+    public long getRefundOrderId() {
+        return refundOrderId;
     }
 }

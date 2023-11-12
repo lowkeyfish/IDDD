@@ -23,8 +23,10 @@ package com.yujunyang.iddd.dealer.domain.order;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 
 import com.google.common.collect.ImmutableMap;
+import com.yujunyang.iddd.common.domain.event.DomainEvent;
 import com.yujunyang.iddd.common.domain.event.DomainEventPublisher;
 import com.yujunyang.iddd.common.domain.id.AbstractLongId;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
@@ -33,8 +35,11 @@ import com.yujunyang.iddd.common.utils.DateTimeUtilsEnhance;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentStatusType;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrder;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrderId;
+import com.yujunyang.iddd.dealer.domain.payment.RefundReasonType;
 import com.yujunyang.iddd.dealer.domain.payment.RefundRequested;
-import com.yujunyang.iddd.dealer.domain.payment.RefundRequestedDueToRepeatedPayment;
+import com.yujunyang.iddd.dealer.domain.payment.RefundStatusType;
 
 public abstract class AbstractOrder {
     protected AbstractLongId id;
@@ -60,16 +65,22 @@ public abstract class AbstractOrder {
     }
 
     public void markAsPaid(PaymentOrder paymentOrder) {
-        checkPaymentOrderStatus(paymentOrder, PaymentStatusType.PAID, "订单状态不能设置为已支付,因为支付单当前状态非已支付");
-        checkOrderAndPaymentOrderRelation(paymentOrder, "订单状态不能设置为已支付,因为支付单关联订单和当前订单不匹配");
+        checkPaymentOrderStatus(
+                paymentOrder,
+                PaymentStatusType.PAID,
+                "订单状态不能设置为已支付,因为支付单当前状态非已支付");
+        checkOrderAndPaymentOrderRelation(
+                paymentOrder,
+                "订单状态不能设置为已支付,因为支付单关联订单和当前订单不匹配");
 
         if (OrderStatusType.PAID.equals(status)) {
             if (!paymentOrderId.equals(paymentOrder.id())) {
-                DomainEventPublisher.instance().publish(new RefundRequestedDueToRepeatedPayment(
+                DomainEventPublisher.instance().publish(new RefundRequested(
                         DateTimeUtilsEnhance.epochMilliSecond(),
                         paymentOrder.id().getId(),
                         orderType(),
-                        id.getId()
+                        id.getId(),
+                        RefundReasonType.PAYMENT_REPEATED
                 ));
             }
             return;
@@ -106,8 +117,13 @@ public abstract class AbstractOrder {
     }
 
     public void markAsPaymentInitiated(PaymentOrder paymentOrder) {
-        checkPaymentOrderStatus(paymentOrder, PaymentStatusType.INITIATED, "订单状态不能设置为已发起支付,因为支付单状态非已发起支付");
-        checkOrderAndPaymentOrderRelation(paymentOrder, "订单状态不能设置为已发起支付,因为支付单关联订单和当前订单不匹配");
+        checkPaymentOrderStatus(
+                paymentOrder,
+                PaymentStatusType.INITIATED,
+                "订单状态不能设置为已发起支付,因为支付单状态非已发起支付");
+        checkOrderAndPaymentOrderRelation(
+                paymentOrder,
+                "订单状态不能设置为已发起支付,因为支付单关联订单和当前订单不匹配");
 
         if (OrderStatusType.PAYMENT_INITIATED.equals(status)) {
             return;
@@ -140,9 +156,14 @@ public abstract class AbstractOrder {
         ));
     }
 
-    public void markAsFailed(PaymentOrder paymentOrder) {
-        checkPaymentOrderStatus(paymentOrder, PaymentStatusType.FAILED, "订单状态不能设置为支付失败,因为支付单状态非支付失败");
-        checkOrderAndPaymentOrderRelation(paymentOrder, "订单状态不能设置为支付失败,因为支付单关联订单和当前订单不匹配");
+    public void markAsPaymentFailed(PaymentOrder paymentOrder) {
+        checkPaymentOrderStatus(
+                paymentOrder,
+                PaymentStatusType.FAILED,
+                "订单状态不能设置为支付失败,因为支付单状态非支付失败");
+        checkOrderAndPaymentOrderRelation(
+                paymentOrder,
+                "订单状态不能设置为支付失败,因为支付单关联订单和当前订单不匹配");
 
         if (OrderStatusType.PAYMENT_FAILED.equals(status)) {
             return;
@@ -244,7 +265,11 @@ public abstract class AbstractOrder {
         );
     }
 
-    public void initiateRefund() {
+    public void requestRefund() {
+        if (OrderStatusType.REFUND_REQUESTED.equals(status)) {
+            return;
+        }
+
         CheckUtils.isTrue(
                 PaymentStatusType.PAID.equals(status),
                 new BusinessRuleException(
@@ -256,6 +281,154 @@ public abstract class AbstractOrder {
                                 orderType(),
                                 "status",
                                 status
+                        )
+                )
+        );
+
+        status = OrderStatusType.REFUND_REQUESTED;
+
+        DomainEventPublisher.instance().publish(new RefundRequested(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                paymentOrderId().getId(),
+                orderType(),
+                id.getId(),
+                RefundReasonType.USER_REQUEST
+        ));
+    }
+
+    public void markAsRefundInitiated(RefundOrder refundOrder) {
+        checkRefundOrderStatus(
+                refundOrder,
+                RefundStatusType.INITIATED,
+                "订单状态不能设置为已发起退款,因为退款单状态非已发起退款");
+        checkOrderAndRefundOrderRelation(
+                refundOrder,
+                "订单状态不能设置为已发起退款,因为退款单关联订单和当前订单不匹配"
+        );
+
+        if (OrderStatusType.REFUND_INITIATED.equals(status)) {
+            return;
+        }
+
+        CheckUtils.isTrue(
+                OrderStatusType.REFUND_REQUESTED.equals(status),
+                new BusinessRuleException(
+                        "订单状态不能设置为已发起退款,因为当前状态非已申请退款",
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        status = OrderStatusType.REFUND_INITIATED;
+        DomainEventPublisher.instance().publish(new OrderRefundInitiated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId(),
+                orderType(),
+                refundOrder.paymentOrderId().getId(),
+                refundOrder.id().getId()
+        ));
+    }
+
+    public void markAsRefunded(RefundOrder refundOrder) {
+        checkRefundOrderStatus(
+                refundOrder,
+                RefundStatusType.REFUNDED,
+                "订单状态不能设置为已退款,因为退款单状态非已退款");
+        checkOrderAndRefundOrderRelation(
+                refundOrder,
+                "订单状态不能设置为已退款,因为退款单关联订单和当前订单不匹配"
+        );
+
+        if (OrderStatusType.REFUNDED.equals(status)) {
+            return;
+        }
+
+        CheckUtils.isTrue(
+                Arrays.asList(
+                        OrderStatusType.REFUND_REQUESTED,
+                        OrderStatusType.REFUND_INITIATED
+                ).contains(status),
+                new BusinessRuleException(
+                        "订单状态不能设置为已退款,因为当前状态非已申请退款或已发起退款",
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "status",
+                                status
+                        )
+                )
+        );
+
+        status = OrderStatusType.REFUNDED;
+
+        DomainEventPublisher.instance().publish(new OrderRefunded(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                id.getId(),
+                orderType(),
+                paymentOrderId().getId(),
+                refundOrder.id().getId()
+        ));
+    }
+
+    private void checkRefundOrderStatus(
+            RefundOrder refundOrder,
+            RefundStatusType expectedRefundStatusType,
+            String errorMessage) {
+        CheckUtils.notNull(refundOrder, "refundOrder 必须不为 null");
+        CheckUtils.notNull(expectedRefundStatusType, "expectedRefundStatusType 必须不为 null");
+        CheckUtils.notBlank(errorMessage, "errorMessage 必须不为空");
+
+        CheckUtils.isTrue(
+                expectedRefundStatusType.equals(refundOrder.status()),
+                new BusinessRuleException(
+                        errorMessage,
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "paymentOrderId",
+                                refundOrder.paymentOrderId().getId(),
+                                "refundOrderId",
+                                refundOrder.id().getId(),
+                                "refundOrderStatus",
+                                refundOrder.status()
+                        )
+                )
+        );
+    }
+
+    private void checkOrderAndRefundOrderRelation(
+            RefundOrder refundOrder,
+            String errorMessage) {
+        CheckUtils.notNull(refundOrder, "refundOrder 必须不为 null");
+
+        CheckUtils.isTrue(
+                refundOrder.orderType().equals(orderType())
+                        && id.getId().equals(refundOrder.orderId().getId()),
+                new BusinessRuleException(
+                        errorMessage,
+                        ImmutableMap.of(
+                                "orderId",
+                                id.getId(),
+                                "orderType",
+                                orderType(),
+                                "paymentOrderId",
+                                refundOrder.paymentOrderId().getId(),
+                                "refundOrderId",
+                                refundOrder.id().getId(),
+                                "refundOrder.orderType",
+                                refundOrder.orderType(),
+                                "refundOrder.orderId",
+                                refundOrder.orderId().getId()
                         )
                 )
         );

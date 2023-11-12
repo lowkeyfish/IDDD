@@ -25,10 +25,15 @@ import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
 import com.yujunyang.iddd.dealer.application.command.HandleWechatPaymentNotificationCommand;
+import com.yujunyang.iddd.dealer.application.command.InitiateRefundCommand;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderService;
+import com.yujunyang.iddd.dealer.domain.payment.InitiateRefundService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
+import com.yujunyang.iddd.dealer.domain.payment.PaymentServiceSelector;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrder;
+import com.yujunyang.iddd.dealer.domain.payment.RefundOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,15 +41,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentApplicationService {
     private PaymentOrderRepository paymentOrderRepository;
-    private PaymentOrderService paymentOrderService;
+    private InitiateRefundService initiateRefundService;
+    private RefundOrderRepository refundOrderRepository;
+    private PaymentServiceSelector paymentServiceSelector;
 
 
     @Autowired
     public PaymentApplicationService(
             PaymentOrderRepository paymentOrderRepository,
-            PaymentOrderService paymentOrderService) {
+            InitiateRefundService initiateRefundService,
+            RefundOrderRepository refundOrderRepository,
+            PaymentServiceSelector paymentServiceSelector) {
         this.paymentOrderRepository = paymentOrderRepository;
-        this.paymentOrderService = paymentOrderService;
+        this.initiateRefundService = initiateRefundService;
+        this.refundOrderRepository = refundOrderRepository;
+        this.paymentServiceSelector = paymentServiceSelector;
     }
 
     @Transactional
@@ -54,8 +65,57 @@ public class PaymentApplicationService {
 
         // 解密通知信息获取到 outTradeNo
         String outTradeNo = "";
-        PaymentOrder paymentOrder = paymentOrderRepository.findByOutTradeNo(outTradeNo);
+        PaymentOrder paymentOrder = existingPaymentOrder(outTradeNo);
 
+        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
+                paymentOrder.paymentChannelType());
+        paymentOrder.syncPaymentResult(paymentService);
+
+        paymentOrderRepository.save(paymentOrder);
+    }
+
+
+    @Transactional
+    public void initiateRefund(InitiateRefundCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+        initiateRefundService.initiateRefund(paymentOrder, command.getRefundReasonType());
+    }
+
+    @Transactional
+    public void handleWechatRefundNotification(
+            HandleWechatPaymentNotificationCommand command) {
+        CheckUtils.notNull(command, "command 必须不为 null");
+
+        // 解密通知信息获取到 outRefundNo
+        String outRefundNo = "";
+        RefundOrder refundOrder = existingRefundOrder(outRefundNo);
+        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
+                refundOrder.paymentChannelType()
+        );
+        refundOrder.syncRefundResult(paymentService);
+
+        refundOrderRepository.save(refundOrder);
+    }
+
+    private PaymentOrder existingPaymentOrder(PaymentOrderId paymentOrderId) {
+        PaymentOrder paymentOrder = paymentOrderRepository.findById(paymentOrderId);
+        CheckUtils.notNull(
+                paymentOrder,
+                new BusinessRuleException(
+                        "支付单不存在",
+                        ImmutableMap.of(
+                                "paymentOrderId",
+                                paymentOrderId.getId()
+                        )
+                )
+        );
+        return paymentOrder;
+    }
+
+    private PaymentOrder existingPaymentOrder(String outTradeNo) {
+        PaymentOrder paymentOrder = paymentOrderRepository.findByOutTradeNo(outTradeNo);
         CheckUtils.notNull(
                 paymentOrder,
                 new BusinessRuleException(
@@ -66,12 +126,21 @@ public class PaymentApplicationService {
                         )
                 )
         );
-
-        PaymentService paymentService = paymentOrderService.paymentService(paymentOrder);
-        paymentOrder.syncPaymentResult(paymentService);
-
-        paymentOrderRepository.save(paymentOrder);
+        return paymentOrder;
     }
 
-
+    private RefundOrder existingRefundOrder(String outRefundNo) {
+        RefundOrder refundOrder = refundOrderRepository.findByOutRefundNo(outRefundNo);
+        CheckUtils.notNull(
+                refundOrder,
+                new BusinessRuleException(
+                        "退款单不存在",
+                        ImmutableMap.of(
+                                "outRefundNo",
+                                outRefundNo
+                        )
+                )
+        );
+        return refundOrder;
+    }
 }

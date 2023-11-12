@@ -33,17 +33,21 @@ public class RefundRequested implements DomainEvent {
     private long paymentOrderId;
     private OrderType orderType;
     private long orderId;
+    private RefundReasonType refundReasonType;
+
 
     @JsonCreator
     public RefundRequested(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("paymentOrderId") long paymentOrderId,
             @JsonProperty("orderType") OrderType orderType,
-            @JsonProperty("orderId") long orderId) {
+            @JsonProperty("orderId") long orderId,
+            @JsonProperty("refundReasonType") RefundReasonType refundReasonType) {
         this.timestamp = timestamp;
         this.paymentOrderId = paymentOrderId;
         this.orderType = orderType;
         this.orderId = orderId;
+        this.refundReasonType = refundReasonType;
     }
 
 
@@ -62,6 +66,10 @@ public class RefundRequested implements DomainEvent {
 
     public long getOrderId() {
         return orderId;
+    }
+
+    public RefundReasonType getRefundReasonType() {
+        return refundReasonType;
     }
 
     @Override

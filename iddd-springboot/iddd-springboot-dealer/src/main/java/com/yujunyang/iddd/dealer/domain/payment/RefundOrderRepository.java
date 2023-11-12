@@ -20,27 +20,18 @@
  *
  */
 
-package com.yujunyang.iddd.dealer.application.command;
+package com.yujunyang.iddd.dealer.domain.payment;
 
-import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.RefundReasonType;
+public interface RefundOrderRepository {
+    RefundOrderId nextId();
 
-public class InitiateRefundCommand {
-    private PaymentOrderId paymentOrderId;
-    private RefundReasonType refundReasonType;
+    RefundOrder findById(RefundOrderId id);
 
-    public InitiateRefundCommand(
-            PaymentOrderId paymentOrderId,
-            RefundReasonType refundReasonType) {
-        this.paymentOrderId = paymentOrderId;
-        this.refundReasonType = refundReasonType;
-    }
+    void save(RefundOrder refundOrder);
 
-    public PaymentOrderId getPaymentOrderId() {
-        return paymentOrderId;
-    }
+    RefundOrder findByOutTradeNo(String outTradeNo);
 
-    public RefundReasonType getRefundReasonType() {
-        return refundReasonType;
-    }
+    RefundOrder findByPaymentOrderId(PaymentOrderId paymentOrderId);
+
+    RefundOrder findByOutRefundNo(String outRefundNo);
 }
