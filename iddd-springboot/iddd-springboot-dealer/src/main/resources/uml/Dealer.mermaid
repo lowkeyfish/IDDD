@@ -1,0 +1,92 @@
+classDiagram
+    class DealerApplicationService {
+        <<应用服务>>
+        -DealerRepository dealerRepository
+        -DealerNameUniquenessCheckService dealerNameUniquenessCheckService
+
+        +create(DealerCreateCommand, DealerCreateCommandResult) void
+        +changeName(DealerChangeNameCommand) void
+        +changeTelephone(DealerChangeTelephoneCommand) void
+        +changeAddress(DealerChangeAddressCommand) void
+        +makeDealerHidden(ChangeDealerVisibilityCommand) void
+        +makeDealerVisible(ChangeDealerVisibilityCommand) void
+        +updateServiceTimeOnServicePurchaseOrderPaid(        UpdateServiceTimeOnServicePurchaseOrderPaidCommand) void
+    }
+
+
+
+    class Dealer {
+        <<聚合根>>
+        -DealerId id
+        -String name
+        -String telphone
+        -DealerVisibilityStatusType visibilityStatus
+        -DealerServiceStatusType serviceStatus
+        -LocalDateTime serviceExpiryTime
+
+        +Dealer(...)
+        +Dealer(...)
+
+        +changeName(name,DealerNameUniquenessCheckService) void
+        +changeAddress(Address) void
+        +changeTelephone(telephone) void
+        +makeDealerVisible() void
+        +makeDealerHidden() void
+        +updateServiceTime(nextServiceExpiryTime) void
+    }
+
+    class DealerRepository["DealerRepository 接口"] {
+        <<资源库>>
+        +nextId() DealerId
+        +findById(DealerId) Dealer
+        +findByName(name) Dealer
+        +save(Dealer) void
+    }
+
+    class MyBatisDealerRepository {
+        <<资源库>>
+        -DealerMapper
+        -IdGenerator idGenerator
+
+        +nextId() DealerId
+        +findById(DealerId) Dealer
+        +findByName(name) Dealer
+        +save(Dealer) void
+    }
+
+    class DealerNameUniquenessCheckService {
+        <<领域服务>>
+        +isNameNotUsed(name) boolean
+        +isNameNotUsed(name, excludeDealerId) boolean
+    }
+
+    class DealerCreated {
+        <<领域事件>>
+    }
+
+    class DealerInfoUpdated {
+        <<领域事件>>
+    }
+
+    class DealerVisibilityChanged {
+        <<领域事件>>
+    }
+
+    class DealerServiceChanged {
+        <<领域事件>>
+    }
+
+    DealerApplicationService ..> Dealer
+    DealerApplicationService ..> MyBatisDealerRepository
+    DealerApplicationService ..> DealerNameUniquenessCheckService
+    Dealer ..> DealerNameUniquenessCheckService: changeName()
+    MyBatisDealerRepository ..> Dealer
+
+    Dealer ..> DealerCreated: Dealer()
+    Dealer ..> DealerInfoUpdated: changeName()\n changeAddress()\n changeTelephone()
+    Dealer ..> DealerVisibilityChanged: makeDealerVisible()\n makeDealerHidden()
+    Dealer ..> DealerServiceChanged: updateServiceTime()
+
+    DealerRepository <|.. MyBatisDealerRepository
+
+

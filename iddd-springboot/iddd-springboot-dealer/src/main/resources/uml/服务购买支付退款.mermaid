@@ -1,0 +1,84 @@
+classDiagram
+    class DealerApplicationService {
+        <<应用服务>>
+        -DealerRepository dealerRepository
+        -DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository
+        -DealerNameUniquenessCheckService dealerNameUniquenessCheckService
+
+        +create(DealerCreateCommand, DealerCreateCommandResult) void
+        +changeName(DealerChangeNameCommand) void
+        +updateServiceTimeOnServicePurchaseOrderPaid(UpdateServiceTimeOnServicePurchaseOrderPaidCommand) void
+
+    }
+
+    class DealerQueryService {
+        <<查询服务>>
+        -DealerMapper dealerMapper
+
+        +findDealerById(DealerId) DealerViewModel
+        +refreshDealerCache(DealerId) void
+    }
+
+    class DealerQueueListener {
+        <<领域事件消费者>>
+        - DealerQueryService dealerQueryService
+    }
+
+    class Dealer {
+        <<聚合根>>
+        +changeName(name,DealerNameUniquenessCheckService) void
+        +nextServicePeriod TimeRange
+        +updateServiceTime(nextServiceExpiryTime) void
+    }
+
+    class DealerRepository {
+        <<资源库>>
+        +findById(DealerId) Dealer
+        +findByName(name) Dealer
+        +save(Dealer) void
+    }
+
+    class DealerNameUniquenessCheckService {
+        <<领域服务>>
+        +isNameNotUsed(name) boolean
+        +isNameNotUsed(name, excludeDealerId) boolean
+    }
+
+    class DomainEvent {
+        <<接口>>
+    }
+
+    class DealerCreated {
+        <<领域事件>>
+    }
+
+    class DealerInfoUpdated {
+        <<领域事件>>
+    }
+
+    class DealerVisibilityChanged {
+        <<领域事件>>
+    }
+
+    class DealerServiceChanged {
+        <<领域事件>>
+    }
+
+    DealerQueueListener ..> DealerQueryService: 订阅 Dealer 领域事件更新 Dealer 缓存
+    DealerApplicationService ..> Dealer: 创建、更新
+    DealerApplicationService ..> DealerRepository
+    DealerApplicationService ..> DealerNameUniquenessCheckService
+    Dealer ..> DealerNameUniquenessCheckService: 验证 name 是否唯一
+    DealerRepository ..> Dealer
+
+    Dealer ..> DealerCreated
+    Dealer ..> DealerInfoUpdated
+    Dealer ..> DealerVisibilityChanged
+    Dealer ..> DealerServiceChanged
+
+
+
+%%    DealerQueueListener <|.. DealerCreated
+%%    DealerQueueListener <|.. DealerInfoUpdated
+%%    DealerQueueListener <|.. DealerServiceChanged
+%%    DealerQueueListener <|.. DealerVisibilityChanged
