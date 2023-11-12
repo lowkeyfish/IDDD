@@ -22,6 +22,7 @@
 
 package com.yujunyang.iddd.dealer.infrastructure.persistence;
 
+import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrder;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrderRepository;
@@ -46,6 +47,11 @@ public class MyBatisRefundOrderRepository implements RefundOrderRepository {
 
     @Override
     public RefundOrder findByOutTradeNo(String outTradeNo) {
+        return null;
+    }
+
+    @Override
+    public RefundOrder findByPaymentOrderId(PaymentOrderId paymentOrderId) {
         return null;
     }
 

@@ -31,7 +31,7 @@ public class AbstractOrderRefundDomainEvent extends AbstractOrderPaymentDomainEv
             long paymentOrderId,
             long refundOrderId) {
         super(timestamp, orderId, orderType, paymentOrderId);
-        this.refundOrderId = refundOrderId
+        this.refundOrderId = refundOrderId;
     }
 
     public long getRefundOrderId() {
