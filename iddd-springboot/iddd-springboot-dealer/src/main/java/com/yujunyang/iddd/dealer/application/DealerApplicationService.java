@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.exception.NameNotUniqueException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.common.utils.RedissonUtils;
 import com.yujunyang.iddd.dealer.application.command.ChangeDealerVisibilityCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeAddressCommand;
 import com.yujunyang.iddd.dealer.application.command.DealerChangeNameCommand;
@@ -52,6 +53,7 @@ import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurc
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderId;
 import com.yujunyang.iddd.dealer.domain.dealer.servicepurchase.DealerServicePurchaseOrderRepository;
 import com.yujunyang.iddd.dealer.domain.order.OrderStatusType;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +67,7 @@ public class DealerApplicationService {
     private CityService cityService;
     private CityBrandSupportedService cityBrandSupportedService;
     private DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository;
+    private RedissonClient redissonClient;
 
     @Autowired
     public DealerApplicationService(
@@ -74,7 +77,8 @@ public class DealerApplicationService {
             BrandService brandService,
             CityService cityService,
             CityBrandSupportedService cityBrandSupportedService,
-            DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository) {
+            DealerServicePurchaseOrderRepository dealerServicePurchaseOrderRepository,
+            RedissonClient redissonClient) {
         this.dealerNameUniquenessCheckService = dealerNameUniquenessCheckService;
         this.dealerRepository = dealerRepository;
         this.dealerIdGenerator = dealerIdGenerator;
@@ -82,6 +86,7 @@ public class DealerApplicationService {
         this.cityService = cityService;
         this.cityBrandSupportedService = cityBrandSupportedService;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
+        this.redissonClient = redissonClient;
     }
 
     @Transactional
@@ -120,53 +125,97 @@ public class DealerApplicationService {
     public void changeName(DealerChangeNameCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = existingDealer(command.getDealerId());
-        dealer.changeName(command.getName(), dealerNameUniquenessCheckService);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerId({0})",
+                        command.getDealerId()
+                ),
+                () -> {
+                    Dealer dealer = existingDealer(command.getDealerId());
+                    dealer.changeName(command.getName(), dealerNameUniquenessCheckService);
 
-        dealerRepository.save(dealer);
+                    dealerRepository.save(dealer);
+                }
+        );
     }
 
     @Transactional
     public void changeTelephone(DealerChangeTelephoneCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerId({0})",
+                        command.getDealerId()
+                ),
+                () -> {
+                    Dealer dealer = existingDealer(command.getDealerId());
+                    dealer.changeTelephone(command.getTelephone());
 
-        Dealer dealer = existingDealer(command.getDealerId());
-        dealer.changeTelephone(command.getTelephone());
-
-        dealerRepository.save(dealer);
+                    dealerRepository.save(dealer);
+                }
+        );
     }
 
     @Transactional
     public void changeAddress(DealerChangeAddressCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = existingDealer(command.getDealerId());
-        dealer.changeAddress(new Address(
-                command.getCityId(),
-                command.getSpecificAddress()
-        ));
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerId({0})",
+                        command.getDealerId()
+                ),
+                () -> {
+                    Dealer dealer = existingDealer(command.getDealerId());
+                    dealer.changeAddress(new Address(
+                            command.getCityId(),
+                            command.getSpecificAddress()
+                    ));
 
-        dealerRepository.save(dealer);
+                    dealerRepository.save(dealer);
+                }
+        );
     }
 
     @Transactional
     public void makeDealerHidden(ChangeDealerVisibilityCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = existingDealer(command.getDealerId());
-        dealer.makeDealerHidden();
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerId({0})",
+                        command.getDealerId()
+                ),
+                () -> {
+                    Dealer dealer = existingDealer(command.getDealerId());
+                    dealer.makeDealerHidden();
 
-        dealerRepository.save(dealer);
+                    dealerRepository.save(dealer);
+                }
+        );
     }
 
     @Transactional
     public void makeDealerVisible(ChangeDealerVisibilityCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = existingDealer(command.getDealerId());
-        dealer.makeDealerVisible();
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerId({0})",
+                        command.getDealerId()
+                ),
+                () -> {
+                    Dealer dealer = existingDealer(command.getDealerId());
+                    dealer.makeDealerVisible();
 
-        dealerRepository.save(dealer);
+                    dealerRepository.save(dealer);
+                }
+        );
     }
 
     @Transactional
@@ -188,10 +237,19 @@ public class DealerApplicationService {
                 )
         );
 
-        Dealer dealer = existingDealer(order.dealerId());
-        dealer.updateServiceTime(order.serviceExpiryTime());
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerId({0})",
+                        order.dealerId()
+                ),
+                () -> {
+                    Dealer dealer = existingDealer(order.dealerId());
+                    dealer.updateServiceTime(order.serviceExpiryTime());
 
-        dealerRepository.save(dealer);
+                    dealerRepository.save(dealer);
+                }
+        );
     }
 
     private Dealer existingDealer(DealerId dealerId) {

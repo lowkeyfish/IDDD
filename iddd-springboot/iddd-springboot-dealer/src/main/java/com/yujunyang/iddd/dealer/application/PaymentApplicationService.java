@@ -21,9 +21,12 @@
 
 package com.yujunyang.iddd.dealer.application;
 
+import java.text.MessageFormat;
+
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.common.utils.RedissonUtils;
 import com.yujunyang.iddd.dealer.application.command.HandleWechatPaymentNotificationCommand;
 import com.yujunyang.iddd.dealer.application.command.InitiateRefundCommand;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrder;
@@ -34,6 +37,7 @@ import com.yujunyang.iddd.dealer.domain.payment.PaymentService;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentServiceSelector;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrder;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrderRepository;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +48,7 @@ public class PaymentApplicationService {
     private InitiateRefundService initiateRefundService;
     private RefundOrderRepository refundOrderRepository;
     private PaymentServiceSelector paymentServiceSelector;
+    private RedissonClient redissonClient;
 
 
     @Autowired
@@ -51,11 +56,13 @@ public class PaymentApplicationService {
             PaymentOrderRepository paymentOrderRepository,
             InitiateRefundService initiateRefundService,
             RefundOrderRepository refundOrderRepository,
-            PaymentServiceSelector paymentServiceSelector) {
+            PaymentServiceSelector paymentServiceSelector,
+            RedissonClient redissonClient) {
         this.paymentOrderRepository = paymentOrderRepository;
         this.initiateRefundService = initiateRefundService;
         this.refundOrderRepository = refundOrderRepository;
         this.paymentServiceSelector = paymentServiceSelector;
+        this.redissonClient = redissonClient;
     }
 
     @Transactional
@@ -67,11 +74,20 @@ public class PaymentApplicationService {
         String outTradeNo = "";
         PaymentOrder paymentOrder = existingPaymentOrder(outTradeNo);
 
-        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
-                paymentOrder.paymentChannelType());
-        paymentOrder.syncPaymentResult(paymentService);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "PaymentOrderId({0})",
+                        paymentOrder.id()
+                ),
+                () -> {
+                    PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
+                            paymentOrder.paymentChannelType());
+                    paymentOrder.syncPaymentResult(paymentService);
 
-        paymentOrderRepository.save(paymentOrder);
+                    paymentOrderRepository.save(paymentOrder);
+                }
+        );
     }
 
 
@@ -79,8 +95,17 @@ public class PaymentApplicationService {
     public void initiateRefund(InitiateRefundCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
-        initiateRefundService.initiateRefund(paymentOrder, command.getRefundReasonType());
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "PaymentOrderId({0})",
+                        command.getPaymentOrderId()
+                ),
+                () -> {
+                    PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+                    initiateRefundService.initiateRefund(paymentOrder, command.getRefundReasonType());
+                }
+        );
     }
 
     @Transactional
@@ -91,12 +116,22 @@ public class PaymentApplicationService {
         // 解密通知信息获取到 outRefundNo
         String outRefundNo = "";
         RefundOrder refundOrder = existingRefundOrder(outRefundNo);
-        PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
-                refundOrder.paymentChannelType()
-        );
-        refundOrder.syncRefundResult(paymentService);
 
-        refundOrderRepository.save(refundOrder);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "RefundOrderId({0})",
+                        refundOrder.id()
+                ),
+                () -> {
+                    PaymentService paymentService = paymentServiceSelector.findPaymentServiceByChannelType(
+                            refundOrder.paymentChannelType()
+                    );
+                    refundOrder.syncRefundResult(paymentService);
+
+                    refundOrderRepository.save(refundOrder);
+                }
+        );
     }
 
     private PaymentOrder existingPaymentOrder(PaymentOrderId paymentOrderId) {

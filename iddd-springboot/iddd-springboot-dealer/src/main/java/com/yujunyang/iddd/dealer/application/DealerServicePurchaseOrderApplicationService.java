@@ -21,9 +21,12 @@
 
 package com.yujunyang.iddd.dealer.application;
 
+import java.text.MessageFormat;
+
 import com.google.common.collect.ImmutableMap;
 import com.yujunyang.iddd.common.exception.BusinessRuleException;
 import com.yujunyang.iddd.common.utils.CheckUtils;
+import com.yujunyang.iddd.common.utils.RedissonUtils;
 import com.yujunyang.iddd.dealer.application.command.InitiatePaymentCommand;
 import com.yujunyang.iddd.dealer.application.command.OrderPaymentStatusChangeCommand;
 import com.yujunyang.iddd.dealer.application.command.OrderRefundStatusChangeCommand;
@@ -46,6 +49,7 @@ import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderRepository;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrder;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrderId;
 import com.yujunyang.iddd.dealer.domain.payment.RefundOrderRepository;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +62,7 @@ public class DealerServicePurchaseOrderApplicationService {
     private InitiatePaymentService initiatePaymentService;
     private PaymentOrderRepository paymentOrderRepository;
     private RefundOrderRepository refundOrderRepository;
+    private RedissonClient redissonClient;
 
 
     @Autowired
@@ -67,13 +72,15 @@ public class DealerServicePurchaseOrderApplicationService {
             DealerServicePurchaseOrderFactory dealerServicePurchaseOrderFactory,
             InitiatePaymentService initiatePaymentService,
             PaymentOrderRepository paymentOrderRepository,
-            RefundOrderRepository refundOrderRepository) {
+            RefundOrderRepository refundOrderRepository,
+            RedissonClient redissonClient) {
         this.dealerRepository = dealerRepository;
         this.dealerServicePurchaseOrderRepository = dealerServicePurchaseOrderRepository;
         this.dealerServicePurchaseOrderFactory = dealerServicePurchaseOrderFactory;
         this.initiatePaymentService = initiatePaymentService;
         this.paymentOrderRepository = paymentOrderRepository;
         this.refundOrderRepository = refundOrderRepository;
+        this.redissonClient = redissonClient;
     }
 
     @Transactional
@@ -82,25 +89,34 @@ public class DealerServicePurchaseOrderApplicationService {
             PurchaseServiceCommandResult commandResult) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        Dealer dealer = existingDealer(command.getDealerId());
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerId({0})",
+                        command.getDealerId()
+                ),
+                () -> {
+                    Dealer dealer = existingDealer(command.getDealerId());
 
-        boolean existsInProcessing = dealerServicePurchaseOrderRepository.existsInProcessing(command.getDealerId());
-        CheckUtils.isTrue(
-                !existsInProcessing,
-                new BusinessRuleException(
-                        "存在未完成的服务购买订单",
-                        ImmutableMap.of(
-                                "dealerId",
-                                command.getDealerId()
-                        )
-                )
+                    boolean existsInProcessing = dealerServicePurchaseOrderRepository.existsInProcessing(command.getDealerId());
+                    CheckUtils.isTrue(
+                            !existsInProcessing,
+                            new BusinessRuleException(
+                                    "存在未完成的服务购买订单",
+                                    ImmutableMap.of(
+                                            "dealerId",
+                                            command.getDealerId()
+                                    )
+                            )
+                    );
+
+                    DealerServicePurchaseOrder dealerServicePurchaseOrder =
+                            dealerServicePurchaseOrderFactory.createServicePurchaseOrder(dealer);
+                    dealerServicePurchaseOrderRepository.save(dealerServicePurchaseOrder);
+
+                    commandResult.resultingPurchaseServiceOrderId(dealerServicePurchaseOrder.id().getId());
+                }
         );
-
-        DealerServicePurchaseOrder dealerServicePurchaseOrder =
-                dealerServicePurchaseOrderFactory.createServicePurchaseOrder(dealer);
-        dealerServicePurchaseOrderRepository.save(dealerServicePurchaseOrder);
-
-        commandResult.resultingPurchaseServiceOrderId(dealerServicePurchaseOrder.id().getId());
     }
 
     @Transactional
@@ -109,81 +125,144 @@ public class DealerServicePurchaseOrderApplicationService {
             InitiatePaymentCommandResult commandResult) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerServicePurchaseOrderId({0})",
+                        command.getOrderId()
+                ),
+                () -> {
+                    DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
 
-        InitiatePaymentResult initiatePaymentResult = initiatePaymentService.initiatePayment(
-                order,
-                command.getPaymentChannelType(),
-                command.getPaymentMethodType(),
-                command.getPaymentChannelParams()
+                    InitiatePaymentResult initiatePaymentResult = initiatePaymentService.initiatePayment(
+                            order,
+                            command.getPaymentChannelType(),
+                            command.getPaymentMethodType(),
+                            command.getPaymentChannelParams()
+                    );
+
+                    commandResult.resultingPaymentInitiationData(initiatePaymentResult.getData());
+                }
         );
-
-        commandResult.resultingPaymentInitiationData(initiatePaymentResult.getData());
     }
 
     @Transactional
     public void markAsPaymentInitiated(OrderPaymentStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
-        order.markAsPaymentInitiated(paymentOrder);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerServicePurchaseOrderId({0})",
+                        command.getOrderId()
+                ),
+                () -> {
+                    DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+                    PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+                    order.markAsPaymentInitiated(paymentOrder);
 
-        dealerServicePurchaseOrderRepository.save(order);
+                    dealerServicePurchaseOrderRepository.save(order);
+                }
+        );
     }
 
     @Transactional
     public void markAsPaid(OrderPaymentStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
-        order.markAsPaid(paymentOrder);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerServicePurchaseOrderId({0})",
+                        command.getOrderId()
+                ),
+                () -> {
+                    DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+                    PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+                    order.markAsPaid(paymentOrder);
 
-        dealerServicePurchaseOrderRepository.save(order);
+                    dealerServicePurchaseOrderRepository.save(order);
+                }
+        );
     }
 
     @Transactional
     public void markAsFailed(OrderPaymentStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
-        order.markAsPaymentFailed(paymentOrder);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerServicePurchaseOrderId({0})",
+                        command.getOrderId()
+                ),
+                () -> {
+                    DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+                    PaymentOrder paymentOrder = existingPaymentOrder(command.getPaymentOrderId());
+                    order.markAsPaymentFailed(paymentOrder);
 
-        dealerServicePurchaseOrderRepository.save(order);
+                    dealerServicePurchaseOrderRepository.save(order);
+                }
+        );
     }
 
     @Transactional
     public void requestRefund(OrderRequestRefundCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        order.requestRefund();
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerServicePurchaseOrderId({0})",
+                        command.getOrderId()
+                ),
+                () -> {
+                    DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+                    order.requestRefund();
 
-        dealerServicePurchaseOrderRepository.save(order);
+                    dealerServicePurchaseOrderRepository.save(order);
+                }
+        );
     }
 
     @Transactional
     public void markAsRefundInitiated(OrderRefundStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        RefundOrder refundOrder = existingRefundOrder(command.getRefundOrderId());
-        order.markAsRefundInitiated(refundOrder);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerServicePurchaseOrderId({0})",
+                        command.getOrderId()
+                ),
+                () -> {
+                    DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+                    RefundOrder refundOrder = existingRefundOrder(command.getRefundOrderId());
+                    order.markAsRefundInitiated(refundOrder);
 
-        dealerServicePurchaseOrderRepository.save(order);
+                    dealerServicePurchaseOrderRepository.save(order);
+                }
+        );
     }
 
     @Transactional
     public void markAsRefunded(OrderRefundStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
-        DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
-        RefundOrder refundOrder = existingRefundOrder(command.getRefundOrderId());
-        order.markAsRefunded(refundOrder);
+        RedissonUtils.lock(
+                redissonClient,
+                MessageFormat.format(
+                        "DealerServicePurchaseOrderId({0})",
+                        command.getOrderId()
+                ),
+                () -> {
+                    DealerServicePurchaseOrder order = existingOrder((DealerServicePurchaseOrderId) command.getOrderId());
+                    RefundOrder refundOrder = existingRefundOrder(command.getRefundOrderId());
+                    order.markAsRefunded(refundOrder);
 
-        dealerServicePurchaseOrderRepository.save(order);
+                    dealerServicePurchaseOrderRepository.save(order);
+                }
+        );
     }
 
     private DealerServicePurchaseOrder existingOrder(DealerServicePurchaseOrderId id) {
