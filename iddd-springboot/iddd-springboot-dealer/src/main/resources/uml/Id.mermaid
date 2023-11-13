@@ -1,0 +1,40 @@
+classDiagram
+    class AbstractId~T~ {
+        -T id
+
+        #AbstractId(T id)
+
+        +getId() T
+        +equals(Object) boolean
+        +hashCode() int
+        +toString() String
+        #abstract initialNonZeroOddNumber() int
+        #abstract multiplierNonZeroOddNumber() int
+    }
+
+    class AbstractIntegerId {
+        #AbstractIntegerId(Integer id)
+    }
+
+    class AbstractLongId {
+        #AbstractLongId(Long id)
+    }
+
+    class AbstractStringId {
+        #AbstractStringId(String id)
+    }
+
+    class DealerId {
+        +DealerId(Long id)
+
+        #initialNonZeroOddNumber() int
+        #multiplierNonZeroOddNumber() int
+
+        +static parse(Long id) DealerId
+    }
+
+    AbstractId~T~ <|-- AbstractIntegerId: AbstractId&ltInteger&gt
+    AbstractId~T~ <|-- AbstractLongId: AbstractId&ltLong&gt
+    AbstractId~T~ <|-- AbstractStringId: AbstractId&ltString&gt
+
+    AbstractLongId <|-- DealerId

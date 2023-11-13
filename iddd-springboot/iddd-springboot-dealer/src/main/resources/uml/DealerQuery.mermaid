@@ -1,0 +1,31 @@
+classDiagram
+    class DealerQueueListener {
+        <<Listener>>
+        -DealerQueryService dealerQueryService
+    }
+
+    class DealerQueryService {
+        <<查询服务>>
+
+        -DealerMapper dealerMapper
+        -RedissonClient redissonClient
+
+        +findDealerById(DealerId) DealerViewModel
+        +refreshDealerCache(DealerId) void
+    }
+
+    class DealerMapper {
+        <<接口>>
+    }
+
+    class DealerViewModel {
+        <<ViewModel>>
+    }
+
+    DealerQueueListener ..> DealerQueryService: 更新缓存
+
+    DealerQueryService ..> DealerMapper: 查询数据
+
+    DealerQueryService ..> RedissonClient: 缓存
+
+    DealerQueryService ..> DealerViewModel

@@ -112,7 +112,7 @@ public class DealerServicePurchaseOrderQueueListener extends AbstractRabbitMQLis
             } else if (PaymentPaid.class.getSimpleName().equals(type)) {
                 dealerServicePurchaseOrderApplicationService.markAsPaid(command);
             } else if (PaymentFailed.class.getSimpleName().equals(type)) {
-                dealerServicePurchaseOrderApplicationService.markAsFailed(command);
+                dealerServicePurchaseOrderApplicationService.markAsPaymentFailed(command);
             }
 
             return;

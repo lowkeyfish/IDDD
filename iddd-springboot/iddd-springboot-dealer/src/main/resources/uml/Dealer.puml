@@ -1,0 +1,86 @@
+@startuml
+
+class DealerApplicationService {
+  -DealerRepository dealerRepository
+  -DealerNameUniquenessCheckService dealerNameUniquenessCheckService
+  +create(DealerCreateCommand, DealerCreateCommandResult) void
+  +changeName(DealerChangeNameCommand) void
+  +changeTelephone(DealerChangeTelephoneCommand) void
+  +changeAddress(DealerChangeAddressCommand) void
+  +makeDealerHidden(ChangeDealerVisibilityCommand) void
+  +makeDealerVisible(ChangeDealerVisibilityCommand) void
+  +updateServiceTimeOnServicePurchaseOrderPaid(\n&nbsp;&nbsp;UpdateServiceTimeOnServicePurchaseOrderPaidCommand) void
+}
+
+class DealerCreateCommand
+class DealerChangeTelephoneCommand
+class DealerChangeAddressCommand
+class ChangeDealerVisibilityCommand
+class UpdateServiceTimeOnServicePurchaseOrderPaidCommand
+class DealerCreateCommandResult
+
+
+class Dealer {
+  -DealerId id
+  -String name
+  -String telphone
+  -DealerVisibilityStatusType visibilityStatus
+  -DealerServiceStatusType serviceStatus
+  -LocalDateTime serviceExpiryTime
+  +Dealer(...)
+  +Dealer(...)
+  +changeName(name,DealerNameUniquenessCheckService) void
+  +changeAddress(Address) void
+  +changeTelephone(telephone) void
+  +makeDealerVisible() void
+  +makeDealerHidden() void
+  +updateServiceTime(nextServiceExpiryTime) void
+}
+
+interface DealerRepository {
+  +nextId() DealerId
+  +findById(DealerId) Dealer
+  +findByName(name) Dealer
+  +save(Dealer) void
+}
+
+class MyBatisDealerRepository {
+  -DealerMapper
+  -IdGenerator idGenerator
+  +nextId() DealerId
+  +findById(DealerId) Dealer
+  +findByName(name) Dealer
+  +save(Dealer) void
+}
+
+class DealerNameUniquenessCheckService {
+  +isNameNotUsed(name) boolean
+  +isNameNotUsed(name, excludeDealerId) boolean
+}
+
+class DealerCreated
+class DealerInfoUpdated
+class DealerVisibilityChanged
+class DealerServiceChanged
+
+DealerApplicationService --> DealerCreateCommand
+DealerApplicationService --> DealerChangeTelephoneCommand
+DealerApplicationService --> DealerChangeAddressCommand
+DealerApplicationService --> ChangeDealerVisibilityCommand
+DealerApplicationService --> UpdateServiceTimeOnServicePurchaseOrderPaidCommand
+DealerApplicationService --> DealerCreateCommandResult
+
+DealerApplicationService --> Dealer
+DealerApplicationService --> MyBatisDealerRepository
+DealerApplicationService --> DealerNameUniquenessCheckService
+Dealer --> DealerNameUniquenessCheckService: changeName()
+MyBatisDealerRepository --> Dealer
+
+Dealer --> DealerCreated: Dealer()
+Dealer --> DealerInfoUpdated: changeName()\n changeAddress()\n changeTelephone()
+Dealer --> DealerVisibilityChanged: makeDealerVisible()\n makeDealerHidden()
+Dealer --> DealerServiceChanged: updateServiceTime()
+
+DealerRepository <|.. MyBatisDealerRepository
+
+@enduml

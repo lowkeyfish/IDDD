@@ -13,7 +13,18 @@ classDiagram
         +updateServiceTimeOnServicePurchaseOrderPaid(\n&nbsp;&nbsp;UpdateServiceTimeOnServicePurchaseOrderPaidCommand) void
     }
 
+%%    note for DealerCreateCommand "用于应用服务方法传参"
+    class DealerCreateCommand {
+        <<Command>>
+    }
 
+%%    note for DealerCreateCommandResult "用于外部接收应用服务方法操作结果"
+    class DealerCreateCommandResult {
+        <<接口>>
+        +resultingDealerId(long) void
+    }
+
+    note for DealerApplicationService "1. 方法返回类型 void\n2. 方法参数使用 Command\n3. 使用 CommandResult 向外传递值"
 
     class Dealer {
         <<聚合根>>
@@ -33,10 +44,19 @@ classDiagram
         +makeDealerVisible() void
         +makeDealerHidden() void
         +updateServiceTime(nextServiceExpiryTime) void
+
+        +snapshot() DealerSnapshot
+    }
+
+    class DealerSnapshot
+
+    note for DealerDatabaseModel "和数据库表对应"
+    class DealerDatabaseModel {
+        <<DatabaseModel>>
     }
 
     class DealerRepository["DealerRepository 接口"] {
-        <<资源库>>
+        <<接口>>
         +nextId() DealerId
         +findById(DealerId) Dealer
         +findByName(name) Dealer
@@ -52,6 +72,21 @@ classDiagram
         +findById(DealerId) Dealer
         +findByName(name) Dealer
         +save(Dealer) void
+    }
+
+    class IdGenerator {
+        <<接口>>
+        nextId() long
+    }
+
+    class SnowflakeIdGenerator
+
+    class DealerMapper {
+        <<接口>>
+        insertOrIgnore(DealerDatabaseModel) int
+        update(DealerDatabaseModel) int
+        selectById(long) DealerDatabaseModel
+        selectByName(String) DealerDatabaseModel
     }
 
     class DealerNameUniquenessCheckService {
@@ -76,11 +111,14 @@ classDiagram
         <<领域事件>>
     }
 
+    DealerApplicationService ..> DealerCreateCommand
+    DealerApplicationService ..> DealerCreateCommandResult
     DealerApplicationService ..> Dealer
-    DealerApplicationService ..> MyBatisDealerRepository
+    DealerApplicationService ..> DealerRepository
     DealerApplicationService ..> DealerNameUniquenessCheckService
-    Dealer ..> DealerNameUniquenessCheckService: changeName()
-    MyBatisDealerRepository ..> Dealer
+    Dealer ..> DealerNameUniquenessCheckService: 通过依赖领域服务保证数据状态一致性
+    DealerRepository ..> Dealer
+    DealerNameUniquenessCheckService ..> DealerRepository
 
     Dealer ..> DealerCreated: Dealer()
     Dealer ..> DealerInfoUpdated: changeName()\n changeAddress()\n changeTelephone()
@@ -88,5 +126,10 @@ classDiagram
     Dealer ..> DealerServiceChanged: updateServiceTime()
 
     DealerRepository <|.. MyBatisDealerRepository
+    MyBatisDealerRepository ..> DealerMapper
+    DealerMapper ..> DealerDatabaseModel
+    MyBatisDealerRepository ..> DealerSnapshot
+    Dealer ..> DealerSnapshot: 完整数据通过快照暴露
 
-
+    IdGenerator <|.. SnowflakeIdGenerator: 雪花算法 ID 实现
+    MyBatisDealerRepository ..> IdGenerator

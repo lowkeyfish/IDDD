@@ -187,7 +187,7 @@ public class DealerServicePurchaseOrderApplicationService {
     }
 
     @Transactional
-    public void markAsFailed(OrderPaymentStatusChangeCommand command) {
+    public void markAsPaymentFailed(OrderPaymentStatusChangeCommand command) {
         CheckUtils.notNull(command, "command 必须不为 null");
 
         RedissonUtils.lock(

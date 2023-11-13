@@ -1,0 +1,55 @@
+sequenceDiagram
+    title 服务购买-订单状态变更
+
+    autonumber
+
+    participant DealerServicePurchaseOrderQueueListener
+    participant DealerServicePurchaseOrderApplicationService
+    participant DealerServicePurchaseOrderRepository
+    participant DealerServicePurchaseOrder
+    participant PaymentOrderRepository
+    participant PaymentOrder
+
+    participant DomainEventPublisher
+
+
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsPaymentFailed()
+
+    activate DealerServicePurchaseOrderApplicationService
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderRepository->>DealerServicePurchaseOrder: 查询重建
+
+    activate DealerServicePurchaseOrder
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: new DealerServicePurchaseOrder(...)
+    DealerServicePurchaseOrder-->>DealerServicePurchaseOrderRepository: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrder
+
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrderRepository
+
+
+    DealerServicePurchaseOrderApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
+    activate PaymentOrderRepository
+
+    PaymentOrderRepository->>PaymentOrder: 查询重建
+
+    activate PaymentOrder
+    PaymentOrder->>PaymentOrder: new PaymentOrder(...)
+    PaymentOrder-->>PaymentOrderRepository: PaymentOrder
+
+    deactivate PaymentOrder
+
+    PaymentOrderRepository-->>DealerServicePurchaseOrderApplicationService: PaymentOrder
+
+    deactivate PaymentOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsPaid(PaymentOrder)
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+

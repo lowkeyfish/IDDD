@@ -1,0 +1,140 @@
+sequenceDiagram
+    title 服务购买-订单支付状态变更
+
+    autonumber
+
+    actor User as 用户
+    participant Notify as 支付通知
+    participant RabbitMQ
+
+    participant DealerServicePurchaseOrderQueueListener
+    participant DealerServicePurchaseOrderApplicationService
+    participant DealerServicePurchaseOrderRepository
+    participant InitiatePaymentService
+    participant PaymentOrder
+    participant PaymentOrderRepository
+    participant DealerServicePurchaseOrder
+
+    participant DomainEventPublisher
+
+    User->>DealerServicePurchaseOrderApplicationService: initiatePayment()
+
+    activate DealerServicePurchaseOrderApplicationService
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+    deactivate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>InitiatePaymentService: initiatePayment(DealerServicePurchaseOrder, ...)
+    activate InitiatePaymentService
+
+    InitiatePaymentService->>InitiatePaymentService: 验证是否可以发起支付
+
+    InitiatePaymentService->>PaymentOrder: 创建新的支付单
+    activate PaymentOrder
+    PaymentOrder-->>InitiatePaymentService: PaymentOrder
+
+    deactivate PaymentOrder
+
+    InitiatePaymentService->>PaymentOrder: initiatePayment(PaymentService)
+    activate PaymentOrder
+    PaymentOrder->>PaymentOrder: 验证是否可以发起支付
+    PaymentOrder->>DomainEventPublisher: 发布领域事件 PaymentInitiated
+    PaymentOrder-->>InitiatePaymentService: InitiatePaymentResult
+
+    deactivate PaymentOrder
+
+    InitiatePaymentService->>PaymentOrderRepository: save(PaymentOrder)
+
+    InitiatePaymentService-->> DealerServicePurchaseOrderApplicationService: InitiatePaymentResult
+
+    deactivate InitiatePaymentService
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 领域事件 PaymentInitiated
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsPaymentInitiated()
+
+    activate DealerServicePurchaseOrderApplicationService
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrderRepository
+
+
+    DealerServicePurchaseOrderApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
+    activate PaymentOrderRepository
+
+    PaymentOrderRepository-->>DealerServicePurchaseOrderApplicationService: PaymentOrder
+
+    deactivate PaymentOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsPaymentInitiated(PaymentOrder)
+    activate DealerServicePurchaseOrder
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderPaymentInitiated
+    deactivate DealerServicePurchaseOrder
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
+
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 事件 PaymentPaid
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsPaid()
+
+    activate DealerServicePurchaseOrderApplicationService
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrderRepository
+
+
+    DealerServicePurchaseOrderApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
+    activate PaymentOrderRepository
+
+    PaymentOrderRepository-->>DealerServicePurchaseOrderApplicationService: PaymentOrder
+
+    deactivate PaymentOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsPaid(PaymentOrder)
+    activate DealerServicePurchaseOrder
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderPaid
+    deactivate DealerServicePurchaseOrder
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
+
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 事件 PaymentFailed
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsPaymentFailed()
+
+    activate DealerServicePurchaseOrderApplicationService
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrderRepository
+
+
+    DealerServicePurchaseOrderApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
+    activate PaymentOrderRepository
+
+    PaymentOrderRepository-->>DealerServicePurchaseOrderApplicationService: PaymentOrder
+
+    deactivate PaymentOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsPaymentFailed(PaymentOrder)
+    activate DealerServicePurchaseOrder
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderPaymentFailed
+    deactivate DealerServicePurchaseOrder
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
