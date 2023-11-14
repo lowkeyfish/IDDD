@@ -4,7 +4,7 @@ sequenceDiagram
     autonumber
 
     actor User as 用户
-    participant Notify as 支付通知
+    participant Notify as 支付平台通知
     participant RabbitMQ
 
     participant DealerServicePurchaseOrderQueueListener
@@ -77,6 +77,41 @@ sequenceDiagram
     DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderPaymentInitiated
     deactivate DealerServicePurchaseOrder
     DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
+    Notify->>DealerServicePurchaseOrderApplicationService: initiatePayment()
+
+    activate DealerServicePurchaseOrderApplicationService
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+    deactivate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>InitiatePaymentService: initiatePayment(DealerServicePurchaseOrder, ...)
+    activate InitiatePaymentService
+
+    InitiatePaymentService->>InitiatePaymentService: 验证是否可以发起支付
+
+    InitiatePaymentService->>PaymentOrder: 创建新的支付单
+    activate PaymentOrder
+    PaymentOrder-->>InitiatePaymentService: PaymentOrder
+
+    deactivate PaymentOrder
+
+    InitiatePaymentService->>PaymentOrder: initiatePayment(PaymentService)
+    activate PaymentOrder
+    PaymentOrder->>PaymentOrder: 验证是否可以发起支付
+    PaymentOrder->>DomainEventPublisher: 发布领域事件 PaymentInitiated
+    PaymentOrder-->>InitiatePaymentService: InitiatePaymentResult
+
+    deactivate PaymentOrder
+
+    InitiatePaymentService->>PaymentOrderRepository: save(PaymentOrder)
+
+    InitiatePaymentService-->> DealerServicePurchaseOrderApplicationService: InitiatePaymentResult
+
+    deactivate InitiatePaymentService
 
     deactivate DealerServicePurchaseOrderApplicationService
 
