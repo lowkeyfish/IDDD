@@ -41,7 +41,7 @@ DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationSer
         DealerServicePurchaseOrderFactory->>Dealer: nextServicePeriod()
 
         activate Dealer
-        Dealer-->>DealerServicePurchaseOrderFactory: TimeRange servicePeriod
+        Dealer-->>DealerServicePurchaseOrderFactory: 下一个服务周期
         deactivate Dealer
 
         DealerServicePurchaseOrderFactory->>DealerServicePurchaseOrder: 创建 DealerServicePurchaseOrder
@@ -55,7 +55,9 @@ DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationSer
 
         deactivate DealerServicePurchaseOrderFactory
 
-        DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderFactory: save(DealerServicePurchaseOrder)
+        DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+        DealerServicePurchaseOrderApplicationService-->>User: 订单 ID
     end
 
 

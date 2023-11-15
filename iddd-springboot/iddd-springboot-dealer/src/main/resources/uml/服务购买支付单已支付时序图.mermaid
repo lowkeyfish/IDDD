@@ -1,0 +1,54 @@
+sequenceDiagram
+    title 服务购买-订单支付状态变更
+
+    autonumber
+
+    participant Notify as 支付平台通知
+    participant PaymentApplicationService
+    participant PaymentOrderRepository
+    participant PaymentServiceSelector
+
+    participant PaymentOrder
+    participant PaymentService
+
+    participant DomainEventPublisher
+
+
+
+    Notify->>PaymentApplicationService: handleWechatPaymentNotification()
+
+    activate PaymentApplicationService
+
+    PaymentApplicationService->>PaymentOrderRepository: findByOutTradeNo(outTradeNo)
+
+    activate PaymentOrderRepository
+    PaymentOrderRepository-->>PaymentApplicationService: PaymentOrder
+    deactivate PaymentOrderRepository
+
+    PaymentApplicationService->>PaymentServiceSelector: findPaymentServiceByChannelType(PaymentOrder.paymentChannelType())
+
+    activate PaymentServiceSelector
+    PaymentServiceSelector-->>PaymentApplicationService: PaymentService
+    deactivate PaymentServiceSelector
+
+    PaymentApplicationService->>PaymentOrder: syncPaymentResult(PaymentService)
+
+    activate PaymentOrder
+    PaymentOrder->>PaymentService: queryPaymentStatus(PaymentOrder)
+
+    activate PaymentService
+    PaymentService->>PaymentService: 查询支付单实时状态
+    PaymentService-->>PaymentOrder: 支付单实时状态
+    deactivate PaymentService
+
+    PaymentOrder->>PaymentOrder: 更新数据状态
+
+    PaymentOrder->>DomainEventPublisher: 发布领域事件 PaymentPaid
+
+    deactivate PaymentOrder
+
+    PaymentApplicationService->>PaymentOrderRepository: save(PaymentOrder)
+
+    deactivate PaymentApplicationService
+
+

@@ -1,0 +1,54 @@
+sequenceDiagram
+    title 服务购买-订单支付状态变更
+
+    autonumber
+
+    actor User as 用户
+
+    participant DealerServicePurchaseOrderQueueListener
+    participant DealerServicePurchaseOrderApplicationService
+    participant DealerServicePurchaseOrderRepository
+    participant InitiatePaymentService
+    participant PaymentOrder
+    participant PaymentOrderRepository
+
+    participant DomainEventPublisher
+
+    User->>DealerServicePurchaseOrderApplicationService: initiatePayment()
+
+    activate DealerServicePurchaseOrderApplicationService
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+    deactivate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>InitiatePaymentService: initiatePayment(DealerServicePurchaseOrder, ...)
+    activate InitiatePaymentService
+
+    InitiatePaymentService->>InitiatePaymentService: 通过订单和订单已有支付单验证是否可以发起支付
+
+    InitiatePaymentService->>PaymentOrder: 创建新的支付单
+    activate PaymentOrder
+    PaymentOrder->>PaymentOrder: new PaymentOrder(...)
+    PaymentOrder-->>InitiatePaymentService: PaymentOrder
+
+    deactivate PaymentOrder
+
+    InitiatePaymentService->>PaymentOrder: initiatePayment(PaymentService)
+    activate PaymentOrder
+    PaymentOrder->>PaymentOrder: 通过当前支付单状态验证其是否可以发起支付
+    PaymentOrder->>DomainEventPublisher: 发布领域事件 PaymentInitiated
+    PaymentOrder-->>InitiatePaymentService: InitiatePaymentResult
+
+    deactivate PaymentOrder
+
+    InitiatePaymentService->>PaymentOrderRepository: save(PaymentOrder)
+
+    InitiatePaymentService-->> DealerServicePurchaseOrderApplicationService: InitiatePaymentResult
+
+    deactivate InitiatePaymentService
+
+    DealerServicePurchaseOrderApplicationService-->>User: 前端发起支付所需的的必要数据
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
