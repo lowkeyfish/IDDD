@@ -25,9 +25,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yujunyang.iddd.dealer.domain.order.OrderType;
 
-public class PaymentPaid extends AbstractPaymentDomainEvent {
+public class Paid extends AbstractPaymentDomainEvent {
     @JsonCreator
-    public PaymentPaid(
+    public Paid(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("paymentChannelType") PaymentChannelType paymentChannelType,
             @JsonProperty("paymentMethodType") PaymentMethodType paymentMethodType,

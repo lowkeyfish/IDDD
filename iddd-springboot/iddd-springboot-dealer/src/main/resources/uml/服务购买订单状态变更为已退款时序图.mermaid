@@ -1,0 +1,49 @@
+sequenceDiagram
+    title 服务购买-订单支付状态变更为已支付
+
+    autonumber
+
+    participant RabbitMQ
+
+    participant DealerServicePurchaseOrderQueueListener
+    participant DealerServicePurchaseOrderApplicationService
+    participant DealerServicePurchaseOrderRepository
+    participant RefundOrderRepository
+    participant DealerServicePurchaseOrder
+
+    participant DomainEventPublisher
+
+
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 事件 Refunded
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsRefunded()
+
+    activate DealerServicePurchaseOrderApplicationService
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrderRepository
+
+
+    DealerServicePurchaseOrderApplicationService->>RefundOrderRepository: findById(RefundOrderId)
+    activate RefundOrderRepository
+
+    RefundOrderRepository-->>DealerServicePurchaseOrderApplicationService: RefundOrder
+
+    deactivate RefundOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsRefunded(RefundOrder)
+    activate DealerServicePurchaseOrder
+
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 验证是否可以设置为已退款
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 更新内部数据状态
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderRefunded
+
+    deactivate DealerServicePurchaseOrder
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
+

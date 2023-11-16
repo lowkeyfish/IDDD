@@ -41,7 +41,7 @@ import com.yujunyang.iddd.dealer.domain.payment.AbstractPaymentDomainEvent;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentFailed;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentInitiated;
 import com.yujunyang.iddd.dealer.domain.payment.PaymentOrderId;
-import com.yujunyang.iddd.dealer.domain.payment.PaymentPaid;
+import com.yujunyang.iddd.dealer.domain.payment.Paid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.core.Message;
@@ -86,7 +86,7 @@ public class DealerServicePurchaseOrderQueueListener extends AbstractRabbitMQLis
     protected void messageHandler(String id, String type, String body) {
         if (Arrays.asList(
                 PaymentInitiated.class.getSimpleName(),
-                PaymentPaid.class.getSimpleName(),
+                Paid.class.getSimpleName(),
                 PaymentFailed.class.getSimpleName()
         ).contains(type)) {
             AbstractPaymentDomainEvent domainEvent = deserializePaymentDomainEvent(type, body);
@@ -109,7 +109,7 @@ public class DealerServicePurchaseOrderQueueListener extends AbstractRabbitMQLis
 
             if (PaymentInitiated.class.getSimpleName().equals(type)) {
                 dealerServicePurchaseOrderApplicationService.markAsPaymentInitiated(command);
-            } else if (PaymentPaid.class.getSimpleName().equals(type)) {
+            } else if (Paid.class.getSimpleName().equals(type)) {
                 dealerServicePurchaseOrderApplicationService.markAsPaid(command);
             } else if (PaymentFailed.class.getSimpleName().equals(type)) {
                 dealerServicePurchaseOrderApplicationService.markAsPaymentFailed(command);
@@ -138,8 +138,8 @@ public class DealerServicePurchaseOrderQueueListener extends AbstractRabbitMQLis
         Class clazz;
         if (PaymentInitiated.class.getSimpleName().equals(type)) {
             clazz = PaymentInitiated.class;
-        } else if (PaymentPaid.class.getSimpleName().equals(type)) {
-            clazz = PaymentPaid.class;
+        } else if (Paid.class.getSimpleName().equals(type)) {
+            clazz = Paid.class;
         } else if (PaymentFailed.class.getSimpleName().equals(type)) {
             clazz = PaymentFailed.class;
         } else {

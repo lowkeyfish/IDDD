@@ -1,0 +1,71 @@
+sequenceDiagram
+    title 服务购买-支付单发起退款
+
+    autonumber
+
+    participant RabbitMQ
+    participant PaymentQueueListener
+    participant PaymentApplicationService
+    participant PaymentOrderRepository
+    participant InitiateRefundService
+    participant RefundOrderRepository
+    participant PaymentOrder
+    participant RefundOrder
+    participant PaymentService
+    participant DomainEventPublisher
+
+    RabbitMQ->>PaymentQueueListener: RefundRequested
+
+    PaymentQueueListener->>PaymentApplicationService: initiateRefund()
+
+    activate PaymentApplicationService
+
+    PaymentApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
+
+    activate PaymentOrderRepository
+    PaymentOrderRepository-->>PaymentApplicationService: PaymentOrder
+
+    deactivate PaymentOrderRepository
+
+    PaymentApplicationService->>InitiateRefundService: initiateRefund(PaymentOrder, RefundReasonType)
+
+    activate InitiateRefundService
+    InitiateRefundService->>RefundOrderRepository: findByPaymentOrder(PaymentOrderId)
+
+    activate RefundOrderRepository
+    RefundOrderRepository-->>InitiateRefundService: RefundOrder
+    deactivate RefundOrderRepository
+
+    InitiateRefundService->>InitiateRefundService: 验证是否可以已存在退款单
+
+    InitiateRefundService->>PaymentOrder: generateRefundOrder(RefundOrderRepository.nextId(), RefundReasonType)
+
+    activate PaymentOrder
+    PaymentOrder->>PaymentOrder: 验证是否可以退款
+    PaymentOrder->>RefundOrder: 创建退款单
+
+    activate RefundOrder
+    RefundOrder->>RefundOrder: new RefundOrder(...)
+
+    RefundOrder-->>PaymentOrder: RefundOrder
+    deactivate RefundOrder
+
+    PaymentOrder-->>InitiateRefundService: RefundOrder
+    deactivate PaymentOrder
+
+    InitiateRefundService->>RefundOrder: initiateRefund(PaymentService)
+
+    activate RefundOrder
+    RefundOrder->>RefundOrder: 验证是否可以发起退款
+    RefundOrder->>PaymentService: initiateRefund(RefundOrder)
+    RefundOrder->>RefundOrder: 更新内部数据状态
+    RefundOrder->>DomainEventPublisher: 发布领域事件 RefundInitiated
+
+    deactivate RefundOrder
+
+    InitiateRefundService->>RefundOrderRepository: save(RefundOrder)
+
+
+    deactivate InitiateRefundService
+
+    deactivate PaymentApplicationService

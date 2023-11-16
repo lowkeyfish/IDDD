@@ -1,0 +1,46 @@
+sequenceDiagram
+    title 服务购买-订单支付状态变更为支付失败
+
+    autonumber
+
+    participant RabbitMQ
+
+    participant DealerServicePurchaseOrderQueueListener
+    participant DealerServicePurchaseOrderApplicationService
+    participant DealerServicePurchaseOrderRepository
+    participant PaymentOrderRepository
+    participant DealerServicePurchaseOrder
+
+    participant DomainEventPublisher
+
+
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 事件 PaymentFailed
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsPaymentFailed()
+
+    activate DealerServicePurchaseOrderApplicationService
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrderRepository
+
+
+    DealerServicePurchaseOrderApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
+    activate PaymentOrderRepository
+
+    PaymentOrderRepository-->>DealerServicePurchaseOrderApplicationService: PaymentOrder
+
+    deactivate PaymentOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsPaymentFailed(PaymentOrder)
+    activate DealerServicePurchaseOrder
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 验证是否可以设置为支付失败
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 更新内部数据状态
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderPaymentFailed
+    deactivate DealerServicePurchaseOrder
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+

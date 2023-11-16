@@ -1,5 +1,5 @@
 sequenceDiagram
-    title 服务购买-订单支付状态变更
+    title 服务购买-订单支付状态变更为已支付
 
     autonumber
 
@@ -8,14 +8,14 @@ sequenceDiagram
     participant DealerServicePurchaseOrderQueueListener
     participant DealerServicePurchaseOrderApplicationService
     participant DealerServicePurchaseOrderRepository
-    participant PaymentOrderRepository
+    participant RefundOrderRepository
     participant DealerServicePurchaseOrder
 
     participant DomainEventPublisher
 
 
-    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 领域事件 PaymentInitiated
-    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsPaymentInitiated()
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 事件 RefundInitiated
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsRefundInitiated()
 
     activate DealerServicePurchaseOrderApplicationService
 
@@ -27,17 +27,21 @@ sequenceDiagram
     deactivate DealerServicePurchaseOrderRepository
 
 
-    DealerServicePurchaseOrderApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
-    activate PaymentOrderRepository
+    DealerServicePurchaseOrderApplicationService->>RefundOrderRepository: findById(RefundOrderId)
+    activate RefundOrderRepository
 
-    PaymentOrderRepository-->>DealerServicePurchaseOrderApplicationService: PaymentOrder
+    RefundOrderRepository-->>DealerServicePurchaseOrderApplicationService: RefundOrder
 
-    deactivate PaymentOrderRepository
+    deactivate RefundOrderRepository
 
-    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsPaymentInitiated(PaymentOrder)
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsRefundInitiated(RefundOrder)
     activate DealerServicePurchaseOrder
-    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 基于自身和支付单验证是否可以设置为已发起支付
-    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderPaymentInitiated
+
+
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 验证是否可以设置为已发起退款
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 更新内部数据状态
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderRefundInitiated
+
     deactivate DealerServicePurchaseOrder
     DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
 

@@ -23,7 +23,6 @@ package com.yujunyang.iddd.dealer.domain.payment;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -187,7 +186,7 @@ public class PaymentOrder {
         paymentDetails = paymentResult.details();
 
         if (PaymentStatusType.PAID.equals(paymentResult.status())) {
-            DomainEventPublisher.instance().publish(new PaymentPaid(
+            DomainEventPublisher.instance().publish(new Paid(
                     DateTimeUtilsEnhance.epochMilliSecond(),
                     paymentChannelType,
                     paymentMethodType,
@@ -196,7 +195,7 @@ public class PaymentOrder {
                     orderId.getId()
             ));
         } else if (PaymentStatusType.FAILED.equals(paymentResult.status())) {
-            DomainEventPublisher.instance().publish(new PaymentPaid(
+            DomainEventPublisher.instance().publish(new PaymentFailed(
                     DateTimeUtilsEnhance.epochMilliSecond(),
                     paymentChannelType,
                     paymentMethodType,

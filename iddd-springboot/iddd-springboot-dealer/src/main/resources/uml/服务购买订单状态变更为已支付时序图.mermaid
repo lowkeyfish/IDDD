@@ -1,0 +1,52 @@
+sequenceDiagram
+    title 服务购买-订单支付状态变更为已支付
+
+    autonumber
+
+    participant RabbitMQ
+
+    participant DealerServicePurchaseOrderQueueListener
+    participant DealerServicePurchaseOrderApplicationService
+    participant DealerServicePurchaseOrderRepository
+    participant PaymentOrderRepository
+    participant DealerServicePurchaseOrder
+
+    participant DomainEventPublisher
+
+
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: 事件 Paid
+    DealerServicePurchaseOrderQueueListener->>DealerServicePurchaseOrderApplicationService: markAsPaid()
+
+    activate DealerServicePurchaseOrderApplicationService
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+    activate DealerServicePurchaseOrderRepository
+
+    DealerServicePurchaseOrderRepository-->>DealerServicePurchaseOrderApplicationService: DealerServicePurchaseOrder
+
+    deactivate DealerServicePurchaseOrderRepository
+
+
+    DealerServicePurchaseOrderApplicationService->>PaymentOrderRepository: findById(PaymentOrderId)
+    activate PaymentOrderRepository
+
+    PaymentOrderRepository-->>DealerServicePurchaseOrderApplicationService: PaymentOrder
+
+    deactivate PaymentOrderRepository
+
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrder: markAsPaid(PaymentOrder)
+    activate DealerServicePurchaseOrder
+
+    alt 订单已支付
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 RefundRequested
+    else 订单未支付
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 验证是否可以设置为已支付
+    DealerServicePurchaseOrder->>DealerServicePurchaseOrder: 更新内部数据状态
+    DealerServicePurchaseOrder->>DomainEventPublisher: 发布领域事件 OrderPaid
+    end
+    deactivate DealerServicePurchaseOrder
+    DealerServicePurchaseOrderApplicationService->>DealerServicePurchaseOrderRepository: save(DealerServicePurchaseOrder)
+
+    deactivate DealerServicePurchaseOrderApplicationService
+
+

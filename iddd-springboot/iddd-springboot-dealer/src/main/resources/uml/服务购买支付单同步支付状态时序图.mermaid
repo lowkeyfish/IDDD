@@ -1,12 +1,11 @@
 sequenceDiagram
-    title 服务购买-订单支付状态变更
+    title 服务购买-支付单同步支付状态
 
     autonumber
 
     participant Notify as 支付平台通知
     participant PaymentApplicationService
     participant PaymentOrderRepository
-    participant PaymentServiceSelector
 
     participant PaymentOrder
     participant PaymentService
@@ -25,12 +24,6 @@ sequenceDiagram
     PaymentOrderRepository-->>PaymentApplicationService: PaymentOrder
     deactivate PaymentOrderRepository
 
-    PaymentApplicationService->>PaymentServiceSelector: findPaymentServiceByChannelType(PaymentOrder.paymentChannelType())
-
-    activate PaymentServiceSelector
-    PaymentServiceSelector-->>PaymentApplicationService: PaymentService
-    deactivate PaymentServiceSelector
-
     PaymentApplicationService->>PaymentOrder: syncPaymentResult(PaymentService)
 
     activate PaymentOrder
@@ -41,13 +34,19 @@ sequenceDiagram
     PaymentService-->>PaymentOrder: 支付单实时状态
     deactivate PaymentService
 
-    PaymentOrder->>PaymentOrder: 更新数据状态
+    PaymentOrder->>PaymentOrder: 更新内部数据状态
 
-    PaymentOrder->>DomainEventPublisher: 发布领域事件 PaymentPaid
+    alt 支付成功
+        PaymentOrder->>DomainEventPublisher: 发布领域事件 Paid
+    else 支付失败
+        PaymentOrder->>DomainEventPublisher: 发布领域事件 PaymentFaild
+    end
 
     deactivate PaymentOrder
 
     PaymentApplicationService->>PaymentOrderRepository: save(PaymentOrder)
+
+    PaymentApplicationService-->>Notify: 是否接收成功
 
     deactivate PaymentApplicationService
 

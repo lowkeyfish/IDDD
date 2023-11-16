@@ -1,0 +1,52 @@
+sequenceDiagram
+    title 服务购买-退款单同步退款状态
+
+    autonumber
+
+    participant Notify as 支付平台通知
+    participant PaymentApplicationService
+    participant RefundOrderRepository
+    participant RefundOrder
+    participant PaymentService
+
+    participant DomainEventPublisher
+
+
+
+    Notify->>PaymentApplicationService: handleWechatRefundNotification()
+
+    activate PaymentApplicationService
+
+    PaymentApplicationService->>RefundOrderRepository: findByOutRefundNo(outRefundNo)
+
+    activate RefundOrderRepository
+    RefundOrderRepository-->>PaymentApplicationService: RefundOrder
+    deactivate RefundOrderRepository
+
+    PaymentApplicationService->>RefundOrder: syncRefundResult(PaymentService)
+
+    activate RefundOrder
+    RefundOrder->>PaymentService: queryRefundStatus(RefundOrder)
+
+    activate PaymentService
+    PaymentService->>PaymentService: 查询退款单实时状态
+    PaymentService-->>RefundOrder: 退款单实时状态
+    deactivate PaymentService
+
+    RefundOrder->>RefundOrder: 更新内部数据状态
+
+    alt 退款成功
+        RefundOrder->>DomainEventPublisher: 发布领域事件 Refunded
+    else 退款失败
+        RefundOrder->>DomainEventPublisher: 发布领域事件 RefundFailed
+    end
+
+    deactivate RefundOrder
+
+    PaymentApplicationService->>RefundOrderRepository: save(RefundOrder)
+
+    PaymentApplicationService-->>Notify: 是否接收成功
+
+    deactivate PaymentApplicationService
+
+
