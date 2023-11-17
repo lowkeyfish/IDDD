@@ -1,0 +1,40 @@
+sequenceDiagram
+    title 短信发送
+
+    autonumber
+
+    participant RabbitMQ
+    participant Listener
+    participant SmsApplicationService
+    participant SmsRepository
+    participant Sms
+    participant SmsSendService
+    participant DomainEventPublisher
+
+    RabbitMQ->>Listener: SmsCreated
+    Listener->>SmsApplicationService: send()
+
+    activate SmsApplicationService
+    SmsApplicationService->>SmsRepository: findById(SmsId)
+
+    activate SmsRepository
+    SmsRepository-->>SmsApplicationService: Sms
+    deactivate SmsRepository
+
+    SmsApplicationService->>Sms: send(SmsSendService)
+
+    activate Sms
+    alt 当前状态可以发送
+
+    Sms->>SmsSendService: send(Sms)
+
+    Sms->>Sms: 更新内部数据状态
+
+    Sms->>DomainEventPublisher: 发布领域事件 SmsSent
+
+    end
+    deactivate Sms
+
+    SmsApplicationService->>SmsRepository: save(Sms)
+
+    deactivate SmsApplicationService

@@ -21,6 +21,8 @@
 
 package com.yujunyang.iddd.dealer.domain.dingtalk.message;
 
+import com.yujunyang.iddd.common.utils.CheckUtils;
+
 public class Text extends AbstractMessage {
     private String content;
 

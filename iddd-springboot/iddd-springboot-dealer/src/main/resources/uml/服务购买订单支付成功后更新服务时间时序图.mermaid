@@ -1,0 +1,46 @@
+sequenceDiagram
+    title 服务购买-订单支付成功后更新服务时间
+
+    autonumber
+
+    participant RabbitMQ
+    participant DealerServicePurchaseOrderQueueListener
+    participant DealerApplicationService
+    participant DealerServicePurchaseOrderRepository
+    participant DealerRepository
+    participant Dealer
+
+    participant DomainEventPublisher
+
+    RabbitMQ->>DealerServicePurchaseOrderQueueListener: OrderPaid
+
+    DealerServicePurchaseOrderQueueListener->>DealerApplicationService: updateServiceTimeOnServicePurchaseOrderPaid()
+
+    activate DealerApplicationService
+
+    DealerApplicationService->>DealerServicePurchaseOrderRepository: findById(DealerServicePurchaseOrderId)
+
+    activate DealerServicePurchaseOrderRepository
+    DealerServicePurchaseOrderRepository-->>DealerApplicationService: DealerServicePurchaseOrder
+    deactivate DealerServicePurchaseOrderRepository
+
+    DealerApplicationService->>DealerApplicationService: 检查是否可以更新服务时间
+
+    DealerApplicationService->>DealerRepository: findById(DealerId)
+
+    activate DealerRepository
+    DealerRepository-->>DealerApplicationService: Dealer
+    deactivate DealerRepository
+
+    DealerApplicationService->>Dealer: updateServiceTime(LocalDateTime)
+
+    activate Dealer
+    Dealer->>Dealer: 更新内部数据状态
+    Dealer->>DomainEventPublisher: 发布领域事件 DealerServiceChanged
+    deactivate Dealer
+
+    DealerApplicationService->>DealerRepository: save(Dealer)
+
+    deactivate DealerApplicationService
+
+

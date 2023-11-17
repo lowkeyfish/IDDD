@@ -1,0 +1,50 @@
+sequenceDiagram
+    title 单个经销商服务到期提醒
+
+    autonumber
+
+    participant RabbitMQ
+    participant Listener
+    participant DealerServiceApproachingExpiryRemindApplicationService
+    participant DealerRepository
+    participant DealerServiceApproachingExpiryRemindService
+    participant SmsService
+    participant SmsRepository
+    participant Sms
+    participant DomainEventPublisher
+
+    RabbitMQ->>Listener: DealerServiceApproachingExpiryRemindRequested
+    Listener->>DealerServiceApproachingExpiryRemindApplicationService: dealerServiceApproachingExpiryRemind()
+
+    activate DealerServiceApproachingExpiryRemindApplicationService
+    DealerServiceApproachingExpiryRemindApplicationService->>DealerRepository: findById(DealerId)
+
+    activate DealerRepository
+    DealerRepository->>DealerServiceApproachingExpiryRemindApplicationService: Dealer
+    deactivate DealerRepository
+
+    DealerServiceApproachingExpiryRemindApplicationService->>DealerServiceApproachingExpiryRemindService: remind(Dealer)
+
+    activate DealerServiceApproachingExpiryRemindService
+
+    alt 需要发送提醒
+    DealerServiceApproachingExpiryRemindService->>SmsService: sendSms()
+
+    activate SmsService
+    SmsService->>Sms: 创建 Sms
+
+    activate Sms
+    Sms->>Sms: new Sms(...)
+    Sms->>DomainEventPublisher: 发布领域事件 SmsCreated
+    Sms->>SmsService: Sms
+    deactivate Sms
+
+    SmsService->>SmsRepository: save(Sms)
+
+    deactivate SmsService
+
+    deactivate DealerServiceApproachingExpiryRemindService
+
+    end
+
+    deactivate DealerServiceApproachingExpiryRemindApplicationService

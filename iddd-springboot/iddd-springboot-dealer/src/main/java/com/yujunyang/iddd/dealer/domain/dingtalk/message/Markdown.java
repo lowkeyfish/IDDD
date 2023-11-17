@@ -21,6 +21,8 @@
 
 package com.yujunyang.iddd.dealer.domain.dingtalk.message;
 
+import com.yujunyang.iddd.common.utils.CheckUtils;
+
 public class Markdown extends AbstractMessage {
     private String title;
     private String text;

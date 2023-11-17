@@ -1,0 +1,26 @@
+sequenceDiagram
+    title 全部经销商服务到期提醒
+
+    autonumber
+
+    participant Schedule as 定时任务
+    participant DealerServiceApproachingExpiryRemindApplicationService
+    participant AllDealerIdQueryService
+    participant DomainEventRabbitMQSyncPublisher
+
+    Schedule->>DealerServiceApproachingExpiryRemindApplicationService: startAllDealerServiceApproachingExpiryRemind()
+
+    activate DealerServiceApproachingExpiryRemindApplicationService
+
+    DealerServiceApproachingExpiryRemindApplicationService->>AllDealerIdQueryService: allDealerId()
+
+    activate AllDealerIdQueryService
+    AllDealerIdQueryService-->>DealerServiceApproachingExpiryRemindApplicationService: List<DealerId>
+    deactivate AllDealerIdQueryService
+
+    loop 全部 DealerId
+    DealerServiceApproachingExpiryRemindApplicationService->>DomainEventRabbitMQSyncPublisher: 发布领域事件 DealerServiceApproachingExpiryRemindRequested
+    end
+
+    deactivate DealerServiceApproachingExpiryRemindApplicationService
+

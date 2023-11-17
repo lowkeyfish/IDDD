@@ -223,17 +223,19 @@ public class Dealer {
     public void updateServiceTime(LocalDateTime nextServiceExpiryTime) {
         CheckUtils.notNull(nextServiceExpiryTime, "serviceExpiryTime 必须不为 null");
 
-        DealerServiceStatusType current = serviceStatus;
+        boolean changed = false;
 
         if (serviceExpiryTime == null || nextServiceExpiryTime.isAfter(serviceExpiryTime)) {
             serviceExpiryTime = nextServiceExpiryTime;
+            changed = true;
         }
 
         if (LocalDateTime.now().isBefore(serviceExpiryTime)) {
             serviceStatus = DealerServiceStatusType.IN_SERVICE;
+            changed = true;
         }
 
-        if (!current.equals(serviceStatus)) {
+        if (changed) {
             DomainEventPublisher.instance().publish(new DealerServiceChanged(
                     DateTimeUtilsEnhance.epochMilliSecond(),
                     id.getId()
