@@ -105,6 +105,4 @@ public class RabbitMQNotificationPublisher implements NotificationPublisher {
                     n.toDomainEvent()
             )).collect(Collectors.toList());
     }
-
-
 }

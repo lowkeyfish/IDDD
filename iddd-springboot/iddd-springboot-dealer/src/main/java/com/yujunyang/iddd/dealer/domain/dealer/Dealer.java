@@ -245,6 +245,14 @@ public class Dealer {
         return id;
     }
 
+    public boolean isInService() {
+        return DealerServiceStatusType.IN_SERVICE.equals(serviceStatus);
+    }
+
+    public LocalDateTime serviceExpiryTime() {
+        return serviceExpiryTime;
+    }
+
     public DealerSnapshot snapshot() {
         return new DealerSnapshot(
                 id,
