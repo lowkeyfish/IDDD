@@ -6,7 +6,7 @@ sequenceDiagram
     participant App
     participant RabbitMQ
     participant RabbitMQListener
-    participant 应用层
+    participant 应用服务层
     participant 配置中心
 
 
@@ -15,8 +15,9 @@ sequenceDiagram
     Note over App,RabbitMQ: 使用 topic 类型交换机，routingKey 按通配符配置
     App->>RabbitMQ: 初始化队列
 
-    activate RabbitMQListener
+
     RabbitMQ->>RabbitMQListener: 发送消息
+    activate RabbitMQListener
 
     RabbitMQListener->>配置中心: 获取无需处理的消息 ID
 
