@@ -412,23 +412,89 @@ CQRS 主张将应用的读操作和写操作拆分开，分别处理查询（Que
 
 ### 项目结构
 
-![项目结构2023年10月7日](//note.yujunyang.com/static/2023/9/1faf5a184242f4bfd3a6462fa93e6d11.png)
+![项目结构](./doc/image/%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84.png)
 
 ### 领域事件的持久化、通知与订阅
 
 领域事件的发布、持久化和通知作为项目底层实现。主要涉及领域事件和业务数据在一个事务中持久化，以及基于 RabbitMQ 对领域事件进行对外通知和订阅。
 
-![领域事件持久化时序图](//note.yujunyang.com/static/2023/9/e4e95a671700d2846a31e0561bddd691.png)
+![领域事件和业务数据在一个事务中持久化](./doc/image/%E9%A2%86%E5%9F%9F%E4%BA%8B%E4%BB%B6%E5%92%8C%E4%B8%9A%E5%8A%A1%E6%95%B0%E6%8D%AE%E5%9C%A8%E4%B8%80%E4%B8%AA%E4%BA%8B%E5%8A%A1%E4%B8%AD%E6%8C%81%E4%B9%85%E5%8C%96%E6%97%B6%E5%BA%8F%E5%9B%BE.png)
 
-![领域事件通知](//note.yujunyang.com/static/2023/9/d6742eb438d66d9f95581439cfff7f0a.png)
+![基于RabbitMQ的领域事件通知](./doc/image/%E5%9F%BA%E4%BA%8E%20RabbitMQ%20%E7%9A%84%E9%A2%86%E5%9F%9F%E4%BA%8B%E4%BB%B6%E9%80%9A%E7%9F%A5%E6%97%B6%E5%BA%8F%E5%9B%BE.png)
 
-![领域事件订阅](//note.yujunyang.com/static/2023/9/fa621484b9468d81df74d40f4cc531eb.png)
+![基于RabbitMQ的领域事件订阅](./doc/image/%E5%9F%BA%E4%BA%8E%20RabbitMQ%20%E7%9A%84%E9%A2%86%E5%9F%9F%E4%BA%8B%E4%BB%B6%E8%AE%A2%E9%98%85%E6%97%B6%E5%BA%8F%E5%9B%BE.png)
 
 ### 通过示例演示如何使用 DDD
 
-接下来的示例主要涉及的业务场景包含：经销商因购买服务产生的服务购买订单，以及订单的支付和退款。
+我们接下来用于演示的示例主要涉及以下几部分：
+
+* 聚合根 ID 的设计。
+* 经销商数据管理。
+* 经销商服务购买：订单创建、支付和退款。
+* 经销商服务临近到期提醒。
+
+#### 聚合根 ID 的设计
+
+在概念详解部分我们已经讨论过使用值对象作为唯一标识的好处。涉及到具体的设计，提供抽象泛型类 `AbstractId<T>`，并针对不同的数据类型，分别提供子类 `AbstractIntegerId` `AbstractLongId` `AbstractStringId`。具体的聚合根标识只需直接继承对应的子类即可，例如，`Dealer` 聚合根标识 `DealerId` 就继承自 `AbstractLongId`。
+
+![](./doc/image/id.png)
+
+#### 经销商数据管理
+
+通过经销商数据管理相关的代码设计，我们可以从整体上完整的了解如何使用 DDD 来实现我们的需求。同时基于 CQRS 实现写操作和读操作的分离。
+
+经销商数据管理写操作场景主要包含：经销商创建、修改名称、修改联系电话、修改地址以及漏出状态管理和服务时间更新。完整的类设计如下图：
+
+![](./doc/image/Dealer.png)
+
+从上面的类图可以看出，应用服务 `DealerApplicationService` 是业务场景的操作入口，其中所有的方法都没有返回值，且使用 `Command` 作为参数，如果操作需要对外提供操作结果，基于六边形架构，可以使用 `CommandResult` 接口来向外输出操作结果。
+
+所有写操作的核心都是对聚合根的操作，这里也就是对聚合根 `Dealer` 的操作。由资源库 `DealerRepository` 提供对聚合根 `Dealer` 的查询和持久化。对于经销商名称不能重复的业务规则通过领域服务 `DealerNameUniquenessCheckService` 提供支持。聚合根需要自己保证其内部数据的正确性，因此 `Dealer` 聚合根 `changeName` 方法通过参数依赖领域服务 `DealerNameUniquenessCheckService	`，用于保证其被更新的名称是符合业务规则的。领域事件的可以通过聚合根或领域服务发布，这里由聚合根 `Dealer` 在不同场景发布不同的领域事件。为了探讨更本质的实现方式，虽然也使用了 MyBatis，但我们仍采用了更手动的方式完成聚合根的查询和保存，因此示例代码中我们提供了值对象 `DealerSnapshot` 用于在持久化时可以获取到全部的 `Dealer` 聚合根的数据。同时 `Dealer` 也提供了两个构造函数，一个用于创建新的聚合根，一个用于聚合根查询后的对象重建。
+
+其中，`DealerApplicationService` 以及 `DealerCreateCommand` 和 `DealerCreateCommandResult` 位于应用服务层。`Dealer`、`DealerRespository`、`DealerNameUniquenessCheckService`、`DealerSnapshot`、`IdGenerator` 以及领域事件位于领域层。`DealerRepository` 的实现 `MyBatisDealerRepository`、`DealerMapper`、`IdGenerator` 的实现 `SnowflakeIdGenerator`以及`DealerDatabaseModel` 位于基础设施层。
+
+对于读操作，在应用服务层提供查询服务 `DealerQueryService`，查询服务可以直接使用 `DataMapper` 来查询数据，而不用受限于聚合根和资源库。查询服务可以使用缓存提升查询性能。查询服务对外提供数据会使用 `DealerViewModel` 而不是聚合根等领域层对象。通过订阅写操作所发布的领域事件，我们能够实时更新涉及到读操作的数据缓存。这种机制使得我们能够更快速地响应写操作，进而确保读操作提供的数据能及时地反映最新的变动。类图设计如下所示：
 
 
+![](./doc/image/DealerQuery.png)
+
+
+#### 经销商服务购买
+
+经销商数据管理的设计为我们提供了对领域驱动设计初步的理解。而针对经销商服务购买相关的设计则更深入地展示了如何通过领域事件来实现低耦合、易理解和易维护的代码。同时，也更为清晰地展现了聚合根作为操作核心的重要性。
+
+
+
+![](./doc/image/)
+
+
+
+
+
+
+
+#### 服务购买
+
+#### 订单发起支付
+
+#### 订单状态变更为已发起支付
+
+#### 支付单同步支付状态
+
+#### 订单状态变更为已支付或支付失败
+
+#### 订单申请退款
+
+#### 支付单发起退款
+
+#### 订单状态变更为已发起退款
+
+#### 退款单同步退款状态
+
+#### 订单状态变更为已退款或退款失败
+
+
+#### 经销商服务临近到期提醒
 
 
 
@@ -437,12 +503,12 @@ CQRS 主张将应用的读操作和写操作拆分开，分别处理查询（Que
 ## 参考
 
 > 《领域驱动设计：软件核心复杂性应对之道》（Domain-Driven Design: Tackling Complexity in the Heart of Software）Eric Evans  
-> ![Domain-Driven Design](../iddd/iddd-springboot/iddd-springboot-dealer/src/main/resources/uml/image/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1.png)
+> ![Domain-Driven Design](./doc/image/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1.png)
 
 > 《实现领域驱动设计》（Implementing Domain-Driven Design）Vaughn Vernon  
-> ![Implementing Domain-Driven Design](../iddd/iddd-springboot/iddd-springboot-dealer/src/main/resources/uml/image/%E5%AE%9E%E7%8E%B0%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1.png)
+> ![Implementing Domain-Driven Design](./doc/image/%E5%AE%9E%E7%8E%B0%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1.png)
 
 > 《Patterns, Principles, and Practices of Domain-Driven Design》Scott Millett / Nick Tune  
-> ![Patterns, Principles, and  Practices of Domain-Driven Design](../iddd/iddd-springboot/iddd-springboot-dealer/)
+> ![Patterns, Principles, and  Practices of Domain-Driven Design](./doc/image/patterns%20principles%20and%20practices%20of%20ddd.png)
 
 
