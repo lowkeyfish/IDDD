@@ -119,18 +119,16 @@ public class PaymentOrder {
 
         InitiatePaymentResult initiatePaymentResult = paymentService.initiatePayment(this);
 
-        if (PaymentStatusType.NOT_INITIATED.equals(status)) {
-            status = PaymentStatusType.INITIATED;
+        status = PaymentStatusType.INITIATED;
 
-            DomainEventPublisher.instance().publish(new PaymentInitiated(
-                    DateTimeUtilsEnhance.epochMilliSecond(),
-                    paymentChannelType,
-                    paymentMethodType,
-                    id.getId(),
-                    orderType,
-                    orderId.getId()
-            ));
-        }
+        DomainEventPublisher.instance().publish(new PaymentInitiated(
+                DateTimeUtilsEnhance.epochMilliSecond(),
+                paymentChannelType,
+                paymentMethodType,
+                id.getId(),
+                orderType,
+                orderId.getId()
+        ));
 
         return initiatePaymentResult;
     }
