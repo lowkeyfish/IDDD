@@ -599,12 +599,13 @@ CQRS 主张将应用的读操作和写操作拆分开，分别处理查询（Que
 
 ## 参考
 
-> 《领域驱动设计：软件核心复杂性应对之道》（Domain-Driven Design: Tackling Complexity in the Heart of Software）Eric Evans ![Domain-Driven Design](./doc/image/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1.png)
+> 《领域驱动设计：软件核心复杂性应对之道》（Domain-Driven Design: Tackling Complexity in the Heart of Software）Eric Evans
+> ![Domain-Driven Design](./doc/image/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1.png)
 
-> 《实现领域驱动设计》（Implementing Domain-Driven Design）Vaughn Vernon 
+> 《实现领域驱动设计》（Implementing Domain-Driven Design）Vaughn Vernon
 > ![Implementing Domain-Driven Design](./doc/image/%E5%AE%9E%E7%8E%B0%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1.png)
 
-> 《Patterns, Principles, and Practices of Domain-Driven Design》Scott Millett / Nick Tune 
+> 《Patterns, Principles, and Practices of Domain-Driven Design》Scott Millett / Nick Tune
 > ![Patterns, Principles, and  Practices of Domain-Driven Design](./doc/image/patterns%20principles%20and%20practices%20of%20ddd.png)
 
 
